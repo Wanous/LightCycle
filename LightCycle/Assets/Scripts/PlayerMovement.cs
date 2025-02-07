@@ -8,12 +8,15 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController player;
 
     public float speed = 5.0f; // Vitesse de déplacement
+    public float rota = 100f; // Vitesse de rotation
     private float gravity = -19.62f; // Gravite pour tomber
     private Vector3 velocity; // Vitesse de chute
     private float jumpHeight = 2f; // Puissance du saut
 
 
     private TrailRenderer trailRenderer;
+
+    public bool jump = false; // activer la capaciter de sauter
     public Transform isGrounded; // si le joueur touche le sol
     public LayerMask ground;
     private bool grounded = false ;
@@ -42,19 +45,26 @@ public class PlayerMovement : MonoBehaviour
         if (grounded && velocity.y < 0)
             velocity.y = -2f;
 
-        if (Input.GetButtonDown("Jump") && grounded)
+        // Actionner le saut si elle est activer
+        if (jump && Input.GetButtonDown("Jump") && grounded)
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
         // Application du gravite
         velocity.y += gravity * Time.deltaTime;
         player.Move(velocity * Time.deltaTime);
 
-        // Déplacement avec les flèches directionnelles
-        float moveHorizontal = Input.GetAxis("Horizontal");
+        // Mouvement avec les flèches directionnelles (avancer/reculer)
         float moveVertical = Input.GetAxis("Vertical");
 
-        // Mouvement dans le plan XZ
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical).normalized;
+        // Mouvement en avant ou en arrière sur l'axe Z
+        Vector3 movement = transform.forward * moveVertical; 
+
+        // Déplacer le joueur en fonction de la direction
         player.Move(movement * speed * Time.deltaTime);
+
+        // Rotation du joueur
+        float turnHorizontal = Input.GetAxis("Horizontal");
+        transform.Rotate(0, turnHorizontal * rota * Time.deltaTime, 0);
     }
 }
+
