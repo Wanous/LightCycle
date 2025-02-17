@@ -136,10 +136,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f60915014a012241bc9b01d1d4d2376, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   lookAt: {fileID: 4888719388663546754}
   Player: {fileID: 3305550522075108819}
   distance: 10
-  sensivity: 4
+  sensitivity: 50
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &2198384762440523378
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,7 +408,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3305550522075108819}
-  - component: {fileID: 1492605340270495993}
+  - component: {fileID: 4185818369374919690}
   - component: {fileID: 5244131253921610513}
   - component: {fileID: 7166454590939069356}
   - component: {fileID: 6986859397083430246}
@@ -433,7 +439,7 @@ Transform:
   - {fileID: 4888719388663546754}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &1492605340270495993
+--- !u!143 &4185818369374919690
 CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -451,10 +457,10 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
+  m_Height: 1
   m_Radius: 0.5
   m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_StepOffset: 1
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
@@ -470,8 +476,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbef1267f4ea249408136eeeddeda53c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1492605340270495993}
+  player: {fileID: 4185818369374919690}
   speed: 10
+  rota: 100
   jump: 0
   isGrounded: {fileID: 8324952273568087962}
   ground:
