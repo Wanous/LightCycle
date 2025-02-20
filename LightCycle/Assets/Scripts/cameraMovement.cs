@@ -9,18 +9,15 @@ public class CameraMovement : NetworkBehaviour
     private const float YMax = 50.0f;
     private const float FloorHeight = 0.5f;
 
-    public Transform lookAt;
-    public Transform Player;
+    public Transform playerTransform;  // Your player
+    private Transform targetEnemy = null; // The closest enemy or other player
     public float distance = 10.0f;
     private float currentX = 0.0f;
-    private float currentY = 0.0f;
+    private float currentY = 20.0f; // Default slight upward angle
     public float sensitivity = 50.0f;
-    public LayerMask collisionMask;
+    public LayerMask collisionMask; // Layer mask for obstacles
 
-    private bool isCameraMoving = false;
-    private bool isFocusedOnPlayer = true;
-
-    private Transform targetEnemy; // Store the current enemy focus
+    private bool isFocusedOnEnemy = false;
 
     void Start()
     {
@@ -29,6 +26,7 @@ public class CameraMovement : NetworkBehaviour
             GetComponent<Camera>().enabled = false;
             return;
         }
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -38,23 +36,24 @@ public class CameraMovement : NetworkBehaviour
         if (!isLocalPlayer)
             return;
 
-        // Toggle between focusing on the player and the nearest enemy
+        // Toggle between normal mode and enemy-focused mode
         if (Input.GetKeyDown(KeyCode.C))
         {
-            isFocusedOnPlayer = !isFocusedOnPlayer;
-            
+            isFocusedOnEnemy = !isFocusedOnEnemy;
+            if (isFocusedOnEnemy)
+            {
+                FindClosestEnemy();
+            }
         }
-        if (!isFocusedOnPlayer)
-        {
-            focusOnEnemy();
-        }
-        
+
+        // Unlock cursor when pressing Escape
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
 
+        // Relock cursor when clicking
         if (Input.GetMouseButtonDown(0) && Cursor.lockState == CursorLockMode.None)
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -69,36 +68,29 @@ public class CameraMovement : NetworkBehaviour
 
         if (Cursor.lockState == CursorLockMode.Locked)
         {
-            if (!isCameraMoving && (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0))
+            if (!isFocusedOnEnemy)
             {
-                isCameraMoving = true;
-            }
-
-            if (isCameraMoving)
-            {
+                // Free camera movement when NOT focusing on an enemy
                 currentX += Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
                 currentY += Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
                 currentY = Mathf.Clamp(currentY, YMin, YMax);
             }
-
-            // Determine what the camera should focus on
-            Transform focusTarget = isFocusedOnPlayer ? Player : targetEnemy;
-
-            // If no valid enemy target is found, reset focus to the player
-            if (focusTarget == null)
+            else if (targetEnemy != null)
             {
-                isFocusedOnPlayer = true;
-                focusTarget = Player;
+                // Rotate to look at the closest enemy
+                Vector3 directionToEnemy = targetEnemy.position - playerTransform.position;
+                currentX = Mathf.Atan2(directionToEnemy.x, directionToEnemy.z) * Mathf.Rad2Deg;
             }
 
-            Vector3 direction = new Vector3(0, 0, -distance);
+            // **Camera positioning**
+            Vector3 direction = new Vector3(0, 3.0f, -distance); // Slightly elevated
             Quaternion rotation = Quaternion.Euler(currentY, currentX, 0);
-            Vector3 desiredPosition = focusTarget.position + rotation * direction;
+            Vector3 desiredPosition = playerTransform.position + rotation * direction;
             desiredPosition.y = Mathf.Max(desiredPosition.y, FloorHeight);
 
-            // Collision Handling - Check if the camera is blocked
+            // Handle collisions
             RaycastHit hit;
-            if (Physics.Linecast(focusTarget.position, desiredPosition, out hit, collisionMask))
+            if (Physics.Linecast(playerTransform.position, desiredPosition, out hit, collisionMask))
             {
                 transform.position = hit.point;
             }
@@ -107,22 +99,43 @@ public class CameraMovement : NetworkBehaviour
                 transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * 5f);
             }
 
-            transform.LookAt(focusTarget.position);
+            // Look at the player or enemy
+            if (isFocusedOnEnemy && targetEnemy != null)
+            {
+                transform.LookAt(targetEnemy.position);
+            }
+            else
+            {
+                transform.LookAt(playerTransform.position + Vector3.up * 1.5f); // Look slightly above the player
+            }
         }
     }
 
-    void focusOnEnemy()
+    void FindClosestEnemy()
     {
         float closestDistance = Mathf.Infinity;
         Transform closestEnemy = null;
 
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-
-        // Find the closest enemy AI
-        foreach (GameObject enemy in enemies)
+        // Find other networked players
+        foreach (NetworkIdentity identity in FindObjectsOfType<NetworkIdentity>())
         {
-            float distanceToEnemy = Vector3.Distance(Player.position, enemy.transform.position);
+            if (identity.isLocalPlayer)
+                continue; // Skip self
+
+            Transform otherPlayer = identity.transform;
+            float distanceToPlayer = Vector3.Distance(playerTransform.position, otherPlayer.position);
+
+            if (distanceToPlayer < closestDistance)
+            {
+                closestDistance = distanceToPlayer;
+                closestEnemy = otherPlayer;
+            }
+        }
+
+        // Find AI enemies
+        foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+        {
+            float distanceToEnemy = Vector3.Distance(playerTransform.position, enemy.transform.position);
             if (distanceToEnemy < closestDistance)
             {
                 closestDistance = distanceToEnemy;
@@ -130,25 +143,7 @@ public class CameraMovement : NetworkBehaviour
             }
         }
 
-        // Find the closest other player (but NOT yourself)
-        foreach (GameObject otherPlayer in players)
-        {
-            if (otherPlayer == gameObject) // Skip yourself
-                continue;
-
-            float distanceToPlayer = Vector3.Distance(Player.position, otherPlayer.transform.position);
-            if (distanceToPlayer < closestDistance)
-            {
-                closestDistance = distanceToPlayer;
-                closestEnemy = otherPlayer.transform;
-            }
-        }
-
-        // Set the closest target or revert to the player if no target found
         targetEnemy = closestEnemy;
-        if (targetEnemy == null)
-        {
-            isFocusedOnPlayer = true;
-        }
+        isFocusedOnEnemy = (targetEnemy != null);
     }
 }

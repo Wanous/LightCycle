@@ -139,13 +139,12 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  lookAt: {fileID: 4888719388663546754}
-  Player: {fileID: 3305550522075108819}
+  playerTransform: {fileID: 3305550522075108819}
   distance: 10
   sensitivity: 50
   collisionMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!1 &2198384762440523378
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,7 +414,7 @@ GameObject:
   - component: {fileID: 5447103479991063428}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
