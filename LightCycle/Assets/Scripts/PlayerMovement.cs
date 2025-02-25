@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float MoveSpeed = 5;
     public float SteerSpeed = 180;
     public float TrailSpeed = 5;
-    public int Gap = 4;
+    public int Gap = 6;
     private float gravity = -19.62f; // Gravité pour tomber
     private Vector3 velocity; // Vitesse de chute
     private float jumpHeight = 2f; // Puissance du saut
@@ -29,13 +29,16 @@ public class PlayerMovement : MonoBehaviour
     public Transform isGrounded; // Vérification si le joueur touche le sol
     public LayerMask ground;
     private bool grounded = false;
+    [SerializeField] ParticleSystem OrangeEffect;
+    [SerializeField] ParticleSystem darkOrangeEffect;
+    [SerializeField] ParticleSystem BlackEffect;
 
     void Start()
     {
         // Créer un conteneur pour les segments du trail de ce joueur
         TrailContainer = new GameObject("TrailContainer_" + gameObject.name);
 
-        StartCoroutine(GrowTrailOverTime(17, 0.5f)); // Ajoute 20 segments progressivement
+        StartCoroutine(GrowTrailOverTime(15, 0.25f)); // Ajoute 15 segments progressivement
     }
 
     void Update()
@@ -123,12 +126,14 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    void OnTriggerEnter(Collider other)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (other.CompareTag("Trail"))
+        if (hit.gameObject.CompareTag("Trail"))
         {
-            Debug.Log("Collision avec le trail !");
-            // Gérer la collision (ex: Game Over)
+            OrangeEffect.Play();
+            darkOrangeEffect.Play();
+            BlackEffect.Play();
+            Destroy(this); // Tuer le joueur
         }
     }
 }
