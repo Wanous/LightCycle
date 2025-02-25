@@ -32,4 +32,4 @@ public class TrailAxisInverter : MonoBehaviour
             trailRenderer.SetPositions(positions);
         }
     }
-}
+} 

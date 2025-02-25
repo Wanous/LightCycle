@@ -409,7 +409,6 @@ GameObject:
   - component: {fileID: 3305550522075108819}
   - component: {fileID: 4185818369374919690}
   - component: {fileID: 5244131253921610513}
-  - component: {fileID: 7166454590939069356}
   - component: {fileID: 6986859397083430246}
   - component: {fileID: 5447103479991063428}
   m_Layer: 0
@@ -476,25 +475,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 4185818369374919690}
-  speed: 10
-  rota: 100
+  MoveSpeed: 5
+  SteerSpeed: 180
+  TrailSpeed: 5
+  Gap: 5
+  TrailPrefab: {fileID: 4408507821022836907, guid: b4399c213a14ac046b21ec9fc60b6b19, type: 3}
   jump: 0
   isGrounded: {fileID: 8324952273568087962}
   ground:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &7166454590939069356
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3153088720200435721}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa967ceb75a96b3499034247ffdfc9b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6986859397083430246
 MonoBehaviour:
   m_ObjectHideFlags: 0
