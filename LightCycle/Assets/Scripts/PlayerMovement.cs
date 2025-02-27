@@ -8,10 +8,7 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController player;
 
     // Paramètres de mouvement
-    private float MoveSpeed = 5f;
-    public float MaxSpeed = 50f;
-    public float MinSpeed = 5f;
-    public float acc = 5f;
+    public float MoveSpeed = 5;
     public float SteerSpeed = 180;
     private float gravity = -19.62f; // Gravité 
     private Vector3 velocity; // Vélocité pour le saut 
@@ -19,9 +16,11 @@ public class PlayerMovement : MonoBehaviour
 
     // Paramètres de la traînée
     public TrailRenderer trailRenderer; // Reference au TrailRenderer 
-    public float TrailLength = 2f; // longueur du trail en secondes
+    public float TrailDistance = 10f; // Desired trail length in units (not seconds)
+    private float lastMoveSpeed; // Track speed changes
+
     public bool ShowTrail = true; // La visibilité du trail
-    private float ColliderLengthMultiplier = 10f; // mettre en public pour changer mais ça se colle automatiquement à la taille du Trail
+    private float ColliderLengthMultiplier = 5f; // mettre en public pour changer mais ça se colle automatiquement à la taille du Trail
     public float ColliderSpacing = 1f; // Distance entre les colliders
 
     // Vérification pour le sol 
@@ -48,20 +47,32 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Initialise les paramètres du trail
-        trailRenderer.time = TrailLength; // Longueur du trail
+        ColliderLengthMultiplier = MoveSpeed; 
+
+        trailRenderer.time = TrailDistance; // Longueur du trail
         trailRenderer.enabled = ShowTrail; // Visibilité
         //ChangeLenghtCollider(); // Au cas où
+        InitializeTrail();
+
     }
 
     void Update()
     {
+        // Update trail time if speed changes
+        if (MoveSpeed != lastMoveSpeed)
+        {
+            UpdateTrailTime();
+            lastMoveSpeed = MoveSpeed;
+            ColliderLengthMultiplier = MoveSpeed; 
+        }
+
         playerMovement();
         UpdateTrail();
     }
 
     private void ChangeLenghtCollider()
     {
-        ColliderLengthMultiplier = 5 * TrailLength;
+        ColliderLengthMultiplier = 5 * TrailDistance;
     }
 
     private void playerMovement()
@@ -81,8 +92,6 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         player.Move(velocity * Time.deltaTime);
 
-        MoveSpeed = Mathf.Clamp(MoveSpeed + acc * Input.GetAxis("Vertical"), MinSpeed, MaxSpeed);
-
         // Ajuster la vitesse en fonction de l'entrée utilisateur
         Vector3 move = transform.forward * MoveSpeed * Time.deltaTime;
         player.Move(move);
@@ -95,6 +104,25 @@ public class PlayerMovement : MonoBehaviour
         RecordTrailPositions();
     }
 
+    private void InitializeTrail()
+    {
+        if (trailRenderer == null)
+        {
+            trailRenderer = gameObject.AddComponent<TrailRenderer>();
+        }
+        trailRenderer.enabled = ShowTrail;
+        UpdateTrailTime(); // Initialize trail time
+    }
+
+    private void UpdateTrailTime()
+    {
+        // Avoid division by zero
+        if (MoveSpeed > 0)
+        {
+            trailRenderer.time = TrailDistance / MoveSpeed ;
+        }
+    }
+
     private void RecordTrailPositions()
     {
         // Ajoute la position actuelle du joueur dans la liste si la distance est plus grande que ColliderSpacing
@@ -104,7 +132,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Enlève les positions les plus anciennes si la liste dépasse la longueur maximum
-        int maxPositions = Mathf.CeilToInt(TrailLength * ColliderLengthMultiplier - 1);
+        int maxPositions = Mathf.CeilToInt(TrailDistance * ColliderLengthMultiplier - 1 );
         //Debug.Log(maxPositions); // test
         if (trailPositions.Count > maxPositions)
         {
@@ -115,7 +143,7 @@ public class PlayerMovement : MonoBehaviour
     private void UpdateTrail()
     {
         // Update la longueur du trail 
-        trailRenderer.time = TrailLength;
+        trailRenderer.time = TrailDistance;
 
         // change la visibilité du Trail (si demandé)
         trailRenderer.enabled = ShowTrail;
