@@ -4,46 +4,61 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // Le controlleur pour le joueur
+    // Le contrôleur pour le joueur
     public CharacterController player;
 
-    // Settings
+    // Paramètres de mouvement
     public float MoveSpeed = 5;
     public float SteerSpeed = 180;
-    public float TrailSpeed = 5;
-    public int Gap = 6;
-    private float gravity = -19.62f; // Gravité pour tomber
-    private Vector3 velocity; // Vitesse de chute
-    private float jumpHeight = 2f; // Puissance du saut
+    private float gravity = -19.62f; // Gravity for falling
+    private Vector3 velocity; // Fall velocity
+    private float jumpHeight = 2f; // Jump power
 
-    // Références
-    public GameObject TrailPrefab;
-    private GameObject TrailContainer; // Conteneur unique pour ce joueur
+    // Paramètres de la traînée
+    public TrailRenderer trailRenderer; // Reference au TrailRenderer 
+    public float TrailLength = 2f; // longueur du trail en secondes
+    public bool ShowTrail = true; // La visibilité du trail
+    private float ColliderLengthMultiplier = 10f; // mettre en public pour changer mais ça se colle automatiquement à la taille du Trail
+    public float ColliderSpacing = 1f; // Distance entre les colliders
 
-
-    // Listes
-    private List<GameObject> TrailParts = new List<GameObject>();
-    private List<Vector3> PositionsHistory = new List<Vector3>();
-
+    // Vérification pour le sol 
     public bool jump = false; // Activer la capacité de sauter
     public Transform isGrounded; // Vérification si le joueur touche le sol
-    public LayerMask ground;
-    private bool grounded = false;
+    public LayerMask ground; // Définition du sol
+    private bool grounded = false; // Indique si le joueur est au sol
+
+    // Effets de particules
     [SerializeField] ParticleSystem OrangeEffect;
     [SerializeField] ParticleSystem darkOrangeEffect;
     [SerializeField] ParticleSystem BlackEffect;
 
+    // Listes pour stocker les positions du joueur pour les colliders
+    private List<Vector3> trailPositions = new List<Vector3>();
+    private List<GameObject> trailColliders = new List<GameObject>();
+
     void Start()
     {
-        // Créer un conteneur pour les segments du trail de ce joueur
-        TrailContainer = new GameObject("TrailContainer_" + gameObject.name);
+        // Initialise le TrailRenderer
+        if (trailRenderer == null)
+        {
+            trailRenderer = gameObject.AddComponent<TrailRenderer>();
+        }
 
-        StartCoroutine(GrowTrailOverTime(15, 0.25f)); // Ajoute 15 segments progressivement
+        // Initialise les paramètres du trail
+        trailRenderer.time = TrailLength; // Longueur du trail
+        trailRenderer.enabled = ShowTrail; // Visibilité
+        //ChangeLenghtCollider(); // Au cas où
     }
 
     void Update()
     {
         playerMovement();
+        UpdateTrail();
+    }
+
+    private void ChangeLenghtCollider()
+    {
+        ColliderLengthMultiplier = 5 * TrailLength;
     }
 
     private void playerMovement()
@@ -51,89 +66,135 @@ public class PlayerMovement : MonoBehaviour
         // Vérifier si le joueur est sur le sol
         grounded = Physics.CheckSphere(isGrounded.position, 0.2f, ground);
 
-        // Si le joueur est au sol, arrêter l'accélération de la gravité
+        // Réinitialisation de la gravité au sol
         if (grounded && velocity.y < 0)
             velocity.y = -2f;
 
-        // Actionner le saut si activé
+        // Gestion du saut
         if (jump && Input.GetButtonDown("Jump") && grounded)
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
-        // Application de la gravité
+        // Appliquer la gravité avant le mouvement
         velocity.y += gravity * Time.deltaTime;
         player.Move(velocity * Time.deltaTime);
 
-        // Avancer
+        // Ajuster la vitesse en fonction de l'entrée utilisateur
         Vector3 move = transform.forward * MoveSpeed * Time.deltaTime;
         player.Move(move);
 
-        // Tourner
+         // Tourner le joueur
         float steerDirection = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up * steerDirection * SteerSpeed * Time.deltaTime);
 
-        // Stocker l'historique des positions
-        PositionsHistory.Insert(0, transform.position);
+        // Stock la nouvelle position du joueur 
+        RecordTrailPositions();
+    }
 
-        // Limiter la taille de la liste
-        int maxHistory = Gap * TrailParts.Count + 1;
-        if (PositionsHistory.Count > maxHistory)
+    private void RecordTrailPositions()
+    {
+        // Ajoute la position actuelle du joueur dans la liste si la distance est plus grande que ColliderSpacing
+        if (trailPositions.Count == 0 || Vector3.Distance(trailPositions[trailPositions.Count - 1], transform.position) >= ColliderSpacing)
         {
-            PositionsHistory.RemoveAt(PositionsHistory.Count - 1);
+            trailPositions.Add(transform.position);
         }
 
-        // Déplacer les segments du trail
-        int index = 1;
-        foreach (var trail in TrailParts)
+        // Enlève les positions les plus anciennes si la liste dépasse la longueur maximum
+        int maxPositions = Mathf.CeilToInt(TrailLength * ColliderLengthMultiplier - 1);
+        //Debug.Log(maxPositions); // test
+        if (trailPositions.Count > maxPositions)
         {
-            Vector3 point = PositionsHistory[Mathf.Clamp(index * Gap, 0, PositionsHistory.Count - 1)];
-
-            // Déplacement du segment vers le point
-            Vector3 moveDirection = point - trail.transform.position;
-            trail.transform.position += moveDirection * TrailSpeed * Time.deltaTime;
-
-            index++;
+            trailPositions.RemoveAt(0);
         }
     }
 
-    private IEnumerator GrowTrailOverTime(int count, float delay)
+    private void UpdateTrail()
     {
-        for (int i = 0; i < count; i++)
+        // Update la longueur du trail 
+        trailRenderer.time = TrailLength;
+
+        // change la visibilité du Trail (si demandé)
+        trailRenderer.enabled = ShowTrail;
+
+        // Update les colliders selon à partir positions stockées 
+        UpdateTrailColliders();
+    }
+
+    private void UpdateTrailColliders()
+    {
+        // Calcule le nombre de colliders nécéssaires
+        int colliderCount = trailPositions.Count;
+
+        // Assure qu'il y a assez de collider
+        for (int i = trailColliders.Count; i < colliderCount; i++)
         {
-            GrowTrail();
-            yield return new WaitForSeconds(delay);
+            AddTrailCollider();
+        }
+
+        // Enlève l'excès de collider
+        for (int i = trailColliders.Count; i > colliderCount; i--)
+        {
+            RemoveTrailCollider();
+        }
+
+        // Update les positions des collider 
+        for (int i = 0; i < trailColliders.Count; i++)
+        {
+            if (i < trailPositions.Count)
+            {
+                trailColliders[i].transform.position = trailPositions[i];
+            }
         }
     }
 
-    private void GrowTrail()
+    private void AddTrailCollider()
     {
-        // Instancier un segment du trail
-        GameObject trail = Instantiate(TrailPrefab);
 
-        // Mettre le trail dans le conteneur au lieu du joueur
-        if (TrailContainer != null)
+
+        // ajoute un collider à la position courante du trail 
+        GameObject colliderObject = new GameObject("TrailCollider");
+        colliderObject.transform.position = transform.position; // Initialise la position 
+        colliderObject.transform.SetParent(transform);
+
+        BoxCollider collider = colliderObject.AddComponent<BoxCollider>();
+        collider.isTrigger = true; // autorise la détection de collisions
+        collider.size = new Vector3(1, 1, 1); // Ajustement de la taille du collider 
+
+        // Ajoute le collider à la liste
+        trailColliders.Add(colliderObject);
+
+    }
+
+    private void RemoveTrailCollider()
+    {
+        // Enlève le dernier collider dans la liste
+        if (trailColliders.Count > 0)
         {
-            trail.transform.SetParent(TrailContainer.transform);
-        }
+            GameObject colliderToRemove = trailColliders[trailColliders.Count - 1];
+            trailColliders.RemoveAt(trailColliders.Count - 1);
 
-        TrailParts.Add(trail);
-
-        // Ajouter un collider pour détecter les collisions
-        if (trail.GetComponent<BoxCollider>() == null)
-        {
-            BoxCollider collider = trail.AddComponent<BoxCollider>();
-            collider.isTrigger = false; // Activer les collisions physiques
+            // Regarde si le collider existe avant de le supprimer
+            if (colliderToRemove != null)
+            {
+                Destroy(colliderToRemove);
+            }
         }
     }
 
-
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    private void OnTriggerEnter(Collider other)
     {
-        if (hit.gameObject.CompareTag("Trail"))
+        // Vérifier si le joueur entre en collision avec un segment de traînée
+        if (trailColliders.Contains(other.gameObject) )
         {
+            int colliderIndex = trailColliders.IndexOf(other.gameObject);
+            Debug.Log($"Collided with TrailCollider at index: {colliderIndex}");
+            if (colliderIndex == trailColliders.Count - 1 || colliderIndex == trailColliders.Count ||colliderIndex == trailColliders.Count - 2) return;
+            // Jouer les effets de particules
             OrangeEffect.Play();
             darkOrangeEffect.Play();
             BlackEffect.Play();
+
             Destroy(this); // Tuer le joueur
+            // Destroy(gameObject); // Alternative pour détruire l'objet joueur
         }
     }
 }
