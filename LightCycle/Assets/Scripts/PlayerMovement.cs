@@ -10,9 +10,9 @@ public class PlayerMovement : MonoBehaviour
     // Paramètres de mouvement
     public float MoveSpeed = 5;
     public float SteerSpeed = 180;
-    private float gravity = -19.62f; // Gravity for falling
-    private Vector3 velocity; // Fall velocity
-    private float jumpHeight = 2f; // Jump power
+    private float gravity = -19.62f; // Gravité 
+    private Vector3 velocity; // Vélocité pour le saut 
+    private float jumpHeight = 2f; // Puissance de saut
 
     // Paramètres de la traînée
     public TrailRenderer trailRenderer; // Reference au TrailRenderer 
