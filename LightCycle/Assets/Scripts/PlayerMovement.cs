@@ -8,7 +8,10 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController player;
 
     // Paramètres de mouvement
-    public float MoveSpeed = 5;
+    private float MoveSpeed = 5;
+    public float MaxSpeed = 50;
+    public float MinSpeed = 5;
+    public float Acceleration = 5;
     public float SteerSpeed = 180;
     private float gravity = -19.62f; // Gravité 
     private Vector3 velocity; // Vélocité pour le saut 
@@ -91,6 +94,9 @@ public class PlayerMovement : MonoBehaviour
         // Appliquer la gravité avant le mouvement
         velocity.y += gravity * Time.deltaTime;
         player.Move(velocity * Time.deltaTime);
+
+        // Ajuster la vitesse du joueur
+        MoveSpeed = Mathf.Clamp(MoveSpeed + Acceleration * Input.GetAxis("Vertical"), MinSpeed, MaxSpeed);
 
         // Ajuster la vitesse en fonction de l'entrée utilisateur
         Vector3 move = transform.forward * MoveSpeed * Time.deltaTime;
