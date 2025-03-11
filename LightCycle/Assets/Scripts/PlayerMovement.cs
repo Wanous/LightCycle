@@ -19,12 +19,13 @@ public class PlayerMovement : MonoBehaviour
 
     // Paramètres de la traînée
     public TrailRenderer trailRenderer; // Reference au TrailRenderer 
-    public float TrailDistance = 10f; // Desired trail length in units (not seconds)
+    public float TrailDistance = 8f; // Increased base trail length (from 10f to 15f)
     private float lastMoveSpeed; // Track speed changes
 
     public bool ShowTrail = true; // La visibilité du trail
-    private float ColliderLengthMultiplier = 5f; // mettre en public pour changer mais ça se colle automatiquement à la taille du Trail
-    public float ColliderSpacing = 1f; // Distance entre les colliders
+    public float BaseColliderSpacing = 1.5f; // Slightly increased base spacing (from 1f to 1.5f)
+    private float ColliderLengthMultiplier = 5f; 
+    public float BaseTrailDistance = 15f; // Increased base trail length (from 10f to 15f)
 
     // Vérification pour le sol 
     public bool jump = false; // Activer la capacité de sauter
@@ -50,13 +51,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Initialise les paramètres du trail
-        ColliderLengthMultiplier = MoveSpeed; 
+        ColliderLengthMultiplier = MoveSpeed;
 
         trailRenderer.time = TrailDistance; // Longueur du trail
         trailRenderer.enabled = ShowTrail; // Visibilité
-        //ChangeLenghtCollider(); // Au cas où
         InitializeTrail();
-
     }
 
     void Update()
@@ -66,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
         {
             UpdateTrailTime();
             lastMoveSpeed = MoveSpeed;
-            ColliderLengthMultiplier = MoveSpeed; 
+            ColliderLengthMultiplier = MoveSpeed;
         }
 
         playerMovement();
@@ -75,7 +74,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ChangeLenghtCollider()
     {
-        ColliderLengthMultiplier = 5 * TrailDistance;
+        ColliderLengthMultiplier = (5 - ((MoveSpeed / MaxSpeed) * 0.5f)) * TrailDistance;
     }
 
     private void playerMovement()
@@ -102,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = transform.forward * MoveSpeed * Time.deltaTime;
         player.Move(move);
 
-         // Tourner le joueur
+        // Tourner le joueur
         float steerDirection = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up * steerDirection * SteerSpeed * Time.deltaTime);
 
@@ -122,25 +121,31 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateTrailTime()
     {
+        // Adjust trail distance based on speed
+        TrailDistance = BaseTrailDistance * (MoveSpeed / MinSpeed);
+        
         // Avoid division by zero
         if (MoveSpeed > 0)
         {
-            trailRenderer.time = TrailDistance / MoveSpeed ;
+            trailRenderer.time = TrailDistance / MoveSpeed;
         }
     }
 
     private void RecordTrailPositions()
     {
-        // Ajoute la position actuelle du joueur dans la liste si la distance est plus grande que ColliderSpacing
-        if (trailPositions.Count == 0 || Vector3.Distance(trailPositions[trailPositions.Count - 1], transform.position) >= ColliderSpacing)
+        // Dynamically adjust collider spacing based on speed (smaller spacing at higher speeds)
+        float currentColliderSpacing = BaseColliderSpacing * (MinSpeed / Mathf.Max(MoveSpeed, MinSpeed));
+        currentColliderSpacing = Mathf.Clamp(currentColliderSpacing, 0.5f, BaseColliderSpacing); // Adjusted minimum spacing to 0.5f
+
+        // Ajoute la position actuelle si la distance est plus grande que currentColliderSpacing
+        if (trailPositions.Count == 0 || Vector3.Distance(trailPositions[trailPositions.Count - 1], transform.position) >= currentColliderSpacing)
         {
             trailPositions.Add(transform.position);
         }
 
         // Enlève les positions les plus anciennes si la liste dépasse la longueur maximum
-        int maxPositions = Mathf.CeilToInt(TrailDistance * ColliderLengthMultiplier - 1 );
-        //Debug.Log(maxPositions); // test
-        if (trailPositions.Count > maxPositions)
+        int maxPositions = Mathf.CeilToInt(TrailDistance / currentColliderSpacing) + 1;
+        while (trailPositions.Count > maxPositions)
         {
             trailPositions.RemoveAt(0);
         }
@@ -160,58 +165,67 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateTrailColliders()
     {
-        // Calcule le nombre de colliders nécéssaires
-        int colliderCount = trailPositions.Count;
+        // Calcule le nombre de colliders nécessaires
+        int requiredColliders = trailPositions.Count > 1 ? trailPositions.Count - 1 : 0;
 
-        // Assure qu'il y a assez de collider
-        for (int i = trailColliders.Count; i < colliderCount; i++)
+        // Assure qu'il y a assez de colliders
+        while (trailColliders.Count < requiredColliders)
         {
             AddTrailCollider();
         }
 
-        // Enlève l'excès de collider
-        for (int i = trailColliders.Count; i > colliderCount; i--)
+        // Enlève l'excès de colliders
+        while (trailColliders.Count > requiredColliders)
         {
             RemoveTrailCollider();
         }
 
-        // Update les positions des collider 
+        // Update les positions et tailles des colliders
         for (int i = 0; i < trailColliders.Count; i++)
         {
-            if (i < trailPositions.Count)
-            {
-                trailColliders[i].transform.position = trailPositions[i];
-            }
+            if (i + 1 >= trailPositions.Count) continue;
+
+            Vector3 start = trailPositions[i];
+            Vector3 end = trailPositions[i + 1];
+            GameObject colliderObj = trailColliders[i];
+            BoxCollider col = colliderObj.GetComponent<BoxCollider>();
+
+            // Calcule la direction et la distance entre les points
+            Vector3 segment = end - start;
+            float distance = segment.magnitude;
+
+            // Positionne le collider au milieu du segment
+            colliderObj.transform.position = (start + end) / 2f;
+
+            // Oriente le collider dans la direction du segment
+            colliderObj.transform.rotation = Quaternion.LookRotation(segment);
+
+            // Ajuste la taille du collider
+            float trailWidth = trailRenderer.startWidth;
+            col.size = new Vector3(trailWidth, trailWidth, distance);
         }
     }
 
     private void AddTrailCollider()
     {
-
-
-        // ajoute un collider à la position courante du trail 
         GameObject colliderObject = new GameObject("TrailCollider");
-        colliderObject.transform.position = transform.position; // Initialise la position 
+        colliderObject.transform.position = transform.position;
         colliderObject.transform.SetParent(transform);
 
         BoxCollider collider = colliderObject.AddComponent<BoxCollider>();
-        collider.isTrigger = true; // autorise la détection de collisions
-        collider.size = new Vector3(1, 1, 1); // Ajustement de la taille du collider 
+        collider.isTrigger = true;
+        collider.size = new Vector3(1, 1, 1);
 
-        // Ajoute le collider à la liste
         trailColliders.Add(colliderObject);
-
     }
 
     private void RemoveTrailCollider()
     {
-        // Enlève le dernier collider dans la liste
         if (trailColliders.Count > 0)
         {
             GameObject colliderToRemove = trailColliders[trailColliders.Count - 1];
             trailColliders.RemoveAt(trailColliders.Count - 1);
 
-            // Regarde si le collider existe avant de le supprimer
             if (colliderToRemove != null)
             {
                 Destroy(colliderToRemove);
@@ -221,19 +235,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Vérifier si le joueur entre en collision avec un segment de traînée
-        if (trailColliders.Contains(other.gameObject) )
+        if (trailColliders.Contains(other.gameObject))
         {
             int colliderIndex = trailColliders.IndexOf(other.gameObject);
             Debug.Log($"Collided with TrailCollider at index: {colliderIndex}");
-            if (colliderIndex == trailColliders.Count - 1 || colliderIndex == trailColliders.Count ||colliderIndex == trailColliders.Count - 2) return;
-            // Jouer les effets de particules
+            if (colliderIndex == trailColliders.Count - 1 || colliderIndex == trailColliders.Count || colliderIndex == trailColliders.Count - 2) return;
+
             OrangeEffect.Play();
             darkOrangeEffect.Play();
             BlackEffect.Play();
 
-            Destroy(this); // Tuer le joueur
-            // Destroy(gameObject); // Alternative pour détruire l'objet joueur
+            Destroy(this);
         }
     }
 }
