@@ -10293,13 +10293,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 4185818369374919690}
-  MoveSpeed: 10
+  MaxSpeed: 50
+  MinSpeed: 5
+  Acceleration: 5
   SteerSpeed: 180
   trailRenderer: {fileID: -869085540317210715}
-  TrailLength: 4
+  TrailDistance: 4
   ShowTrail: 1
   ColliderSpacing: 1
-  MinDistanceFromPlayer: 1
   jump: 0
   isGrounded: {fileID: 8324952273568087962}
   ground:

@@ -6,7 +6,6 @@ public class PlayerMovement : MonoBehaviour
 {
     // Le contrôleur pour le joueur
     public CharacterController player;
-
     // Paramètres de mouvement
     private float MoveSpeed = 5;
     public float MaxSpeed = 50;
@@ -61,16 +60,18 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Update trail time if speed changes
-        if (MoveSpeed != lastMoveSpeed)
-        {
-            UpdateTrailTime();
-            lastMoveSpeed = MoveSpeed;
-            ColliderLengthMultiplier = MoveSpeed; 
-        }
 
-        playerMovement();
-        UpdateTrail();
+            if (MoveSpeed != lastMoveSpeed)
+            {
+                UpdateTrailTime();
+                lastMoveSpeed = MoveSpeed;
+                ColliderLengthMultiplier = MoveSpeed; 
+            }
+
+            playerMovement();
+            UpdateTrail();
+        
+
     }
 
     private void ChangeLenghtCollider()
