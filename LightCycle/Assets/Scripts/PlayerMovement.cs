@@ -236,5 +236,15 @@ public class PlayerMovement : MonoBehaviour
             Destroy(this); // Tuer le joueur
             // Destroy(gameObject); // Alternative pour détruire l'objet joueur
         }
+        else
+        {
+            // Jouer les effets de particules
+            OrangeEffect.Play();
+            darkOrangeEffect.Play();
+            BlackEffect.Play();
+
+            Destroy(this); // Tuer le joueur
+            // Destroy(gameObject); // Alternative pour détruire l'objet joueur
+        }
     }
 }
