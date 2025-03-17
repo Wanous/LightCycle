@@ -19,8 +19,6 @@ public class CameraMovement : NetworkBehaviour
 
     private bool isFocusedOnEnemy = false; // Indique si la caméra est focalisée sur un ennemi
 
-    private bool isLocalPlayer = true;
-
     void Start()
     {
         if (!isLocalPlayer)
