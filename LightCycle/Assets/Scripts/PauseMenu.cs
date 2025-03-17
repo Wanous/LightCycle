@@ -20,6 +20,7 @@ public class PauseMenu : MonoBehaviour
 
     public void GoToMenu(){
         Time.timeScale = 1f; //Relance le jeu (les updates/animations)
+        pauseMenu.SetActive(false);
         SceneManager.LoadScene(0);
     }
 
@@ -27,12 +28,6 @@ public class PauseMenu : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape)){
             GoToMenu();
-            if(IsPaused){
-                ResumeGame();
-            }
-            else{
-                PauseGame();
-            }
         }
     }
 }
