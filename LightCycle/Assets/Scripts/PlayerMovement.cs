@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     // Player components
     public CharacterController player;
     public Transform isGrounded;
-    public GameObject trailColliderContainer;
 
     // Movement parameters
     private float MoveSpeed = 5;
@@ -17,15 +16,14 @@ public class PlayerMovement : MonoBehaviour
     public float SteerSpeed = 180;
     private float gravity = -19.62f;
     private Vector3 velocity;
-    public bool jump;
     private float jumpHeight = 2f;
+    public bool jump;
 
     // Trail parameters
     public TrailRenderer trailRenderer;
     public float TrailLifetime = 4.2f;
     public float ColliderSpacing = 1.0f;
     public float PositionOffset = 2.0f;
-    public float ColliderSafetyMargin = 1.5f;
     public LayerMask trailColliderLayer;
 
     // Ground check
@@ -49,7 +47,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         InitializeTrail();
-        Physics.IgnoreLayerCollision(gameObject.layer, trailColliderLayer);
+        Physics.IgnoreLayerCollision(gameObject.layer, trailColliderLayer, false);
     }
 
     void InitializeTrail()
@@ -59,13 +57,6 @@ public class PlayerMovement : MonoBehaviour
             trailRenderer = gameObject.AddComponent<TrailRenderer>();
         }
         trailRenderer.time = TrailLifetime;
-
-        if (trailColliderContainer == null)
-        {
-            trailColliderContainer = new GameObject("TrailColliderContainer");
-            trailColliderContainer.transform.SetParent(transform);
-            trailColliderContainer.transform.localPosition = Vector3.zero;
-        }
     }
 
     void Update()
@@ -160,7 +151,6 @@ public class PlayerMovement : MonoBehaviour
     void CreateCollider()
     {
         GameObject colliderObject = new GameObject("TrailCollider");
-        colliderObject.transform.SetParent(trailColliderContainer.transform);
         colliderObject.layer = trailColliderLayer;
         colliderObject.AddComponent<BoxCollider>().isTrigger = true;
         trailColliders.Add(colliderObject);
@@ -182,8 +172,8 @@ public class PlayerMovement : MonoBehaviour
             TrailPoint startPoint = trailPoints[i];
             TrailPoint endPoint = trailPoints[i + 1];
 
-            Vector3 start = startPoint.WorldPosition - (startPoint.ForwardDirection * ColliderSafetyMargin);
-            Vector3 end = endPoint.WorldPosition - (endPoint.ForwardDirection * ColliderSafetyMargin);
+            Vector3 start = startPoint.WorldPosition;
+            Vector3 end = endPoint.WorldPosition;
 
             UpdateCollider(trailColliders[i], start, end);
         }
@@ -203,24 +193,17 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        //if (!IsValidCollision(other.gameObject)) return;
+        if (!IsValidCollision(other.gameObject)) return;
         
-        int colliderIndex = trailColliders.IndexOf(other.gameObject);
-        if (IsNewCollider(colliderIndex)) return;
-
         TriggerDeathEffects();
     }
 
     bool IsValidCollision(GameObject other)
     {
-        return trailColliders.Contains(other) && 
-            other.layer == trailColliderLayer;
-    }
-
-    bool IsNewCollider(int index)
-    {
-        return index == -1 || 
-            Time.time - trailPoints[index].Timestamp < 0.5f;
+        // Check layer match and ensure it's not a brand new collider
+        return other.layer == trailColliderLayer && 
+               trailColliders.Contains(other) &&
+               (Time.time - trailPoints[trailColliders.IndexOf(other)].Timestamp) > 0.5f;
     }
 
     void TriggerDeathEffects()
