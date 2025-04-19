@@ -2,39 +2,76 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Require necessary components to ensure they exist on the GameObject
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    // Player components
+    // --- Player Components ---
+    [Header("Components")]
+    // Assign the CharacterController in the Inspector (or it will be grabbed if added by RequireComponent)
     public CharacterController player;
+    // Assign a child GameObject positioned at the player's base for ground checks
     public Transform isGrounded;
+    // Assign a Material in the Inspector for the line segments
+    [Tooltip("Material to use for the line segments between colliders")]
+    public Material segmentLineMaterial;
 
-    // Movement parameters
-    private float MoveSpeed = 5;
-    public float MaxSpeed = 50;
-    public float MinSpeed = 5;
-    public float Acceleration = 5;
-    public float SteerSpeed = 180;
-    private float gravity = -19.62f;
-    private Vector3 velocity;
-    private float jumpHeight = 2f;
-    public bool jump;
+    // --- Movement Parameters ---
+    [Header("Movement")]
+    [Tooltip("Minimum forward speed")]
+    public float MinSpeed = 5f;
+    [Tooltip("Maximum forward speed")]
+    public float MaxSpeed = 50f;
+    [Tooltip("Rate of speed change when accelerating/decelerating")]
+    public float Acceleration = 5f;
+    [Tooltip("Turning speed in degrees per second")]
+    public float SteerSpeed = 180f;
+    [Tooltip("Gravity force applied")]
+    public float gravity = -19.62f; // Approx 2x Earth gravity
+    [Tooltip("Initial upward velocity for jump")]
+    public float jumpHeight = 2f;
+    [Tooltip("Enable/disable jumping ability")]
+    public bool canJump = true;
 
-    // Trail parameters
-    public TrailRenderer trailRenderer;
+    // --- Trail Collision Parameters ---
+    [Header("Trail Collision")]
+    [Tooltip("How long the trail colliders persist before being destroyed")]
     public float TrailLifetime = 4.2f;
+    [Tooltip("Minimum distance between recorded trail points")]
     public float ColliderSpacing = 1.0f;
-    public float PositionOffset = 2.0f;
-    public LayerMask trailColliderLayer;
+    [Tooltip("How far behind the player the trail points are recorded")]
+    public float PositionOffset = 1.0f;
+    [Tooltip("The physics layer for the trail colliders")]
+    public LayerMask trailColliderLayer; // Make sure this layer exists!
+    [Tooltip("How long after a collider spawns before it can kill the player")]
+    public float CollisionActivationDelay = 0.5f;
+    [Tooltip("Width of the line segments drawn between colliders")]
+    public float segmentLineWidth = 0.2f; // Increased line width
+    [Tooltip("Width of the line segment connecting the player to the last collider")]
+    public float playerToColliderLineWidth = 0.3f; // Width for the player-collider line
 
-    // Ground check
-    public LayerMask ground;
-    private bool grounded = false;
+    // --- Ground Check Parameters ---
+    [Header("Ground Check")]
+    [Tooltip("The physics layer(s) considered 'ground'")]
+    public LayerMask groundLayer;
+    [Tooltip("Radius of the sphere check for grounding")]
+    public float groundCheckRadius = 0.2f;
 
-    // Effects
+    // --- Effects ---
+    [Header("Effects")]
     [SerializeField] ParticleSystem OrangeEffect;
     [SerializeField] ParticleSystem darkOrangeEffect;
     [SerializeField] ParticleSystem BlackEffect;
 
+    // --- Private Variables ---
+    private float currentMoveSpeed;
+    private Vector3 velocity;
+    private bool isGroundedStatus = false;
+    private bool isDead = false;
+    private GameObject playerToColliderLineObject; // GameObject for the line to the last collider
+    private LineRenderer playerToColliderLineRenderer; // LineRenderer for the player-collider line
+
+    // --- Trail Data Structures ---
     private class TrailPoint
     {
         public Vector3 WorldPosition;
@@ -42,75 +79,101 @@ public class PlayerMovement : MonoBehaviour
         public Vector3 ForwardDirection;
     }
     private List<TrailPoint> trailPoints = new List<TrailPoint>();
-    private List<GameObject> trailColliders = new List<GameObject>();
+    // Stores the GameObject for each collider segment (which now also holds a LineRenderer)
+    private List<GameObject> trailColliderObjects = new List<GameObject>();
 
+    // --- Initialization ---
     void Start()
     {
-        InitializeTrail();
-        Physics.IgnoreLayerCollision(gameObject.layer, trailColliderLayer, false);
-    }
+        // Get required components if not assigned
+        if (player == null) player = GetComponent<CharacterController>(); ;
 
-    void InitializeTrail()
-    {
-        if (trailRenderer == null)
+        // Check if material for segment lines is assigned
+        if (segmentLineMaterial == null)
         {
-            trailRenderer = gameObject.AddComponent<TrailRenderer>();
+            Debug.LogWarning("Segment Line Material not assigned in Inspector. Segment lines will not be visible.");
         }
-        trailRenderer.time = TrailLifetime;
+
+        // Initialize speed
+        currentMoveSpeed = MinSpeed;
+
+        // Create the GameObject and LineRenderer for the player to last collider line
+        playerToColliderLineObject = new GameObject("PlayerToColliderLine");
+        playerToColliderLineRenderer = playerToColliderLineObject.AddComponent<LineRenderer>();
+        playerToColliderLineRenderer.useWorldSpace = true;
+        playerToColliderLineRenderer.positionCount = 2;
+        playerToColliderLineRenderer.startWidth = playerToColliderLineWidth;
+        playerToColliderLineRenderer.endWidth = playerToColliderLineWidth;
+        if (segmentLineMaterial != null)
+        {
+            playerToColliderLineRenderer.material = segmentLineMaterial;
+        }
+
+        // Physics.IgnoreLayerCollision(gameObject.layer, trailColliderLayer, false); // Manage in Physics Settings
     }
 
+    // --- Frame Update ---
     void Update()
     {
-        HandleMovement();
+        if (isDead) return;
+
+        HandleGroundCheck();
+        HandleMovementInput();
+        ApplyGravity();
+        ApplyMovement();
+
         UpdateTrailSystem();
+        UpdatePlayerToColliderLine();
     }
 
-    void HandleMovement()
+    // --- Movement Logic (Unchanged) ---
+    void HandleGroundCheck()
     {
-        grounded = Physics.CheckSphere(isGrounded.position, 0.2f, ground);
-        HandleGravity();
-        HandleJump();
-        UpdateSpeed();
-        MovePlayer();
-        RecordTrailPosition();
+        if (isGrounded != null) { isGroundedStatus = Physics.CheckSphere(isGrounded.position, groundCheckRadius, groundLayer); }
+        else { isGroundedStatus = false; Debug.LogWarning("isGrounded Transform not assigned!"); }
     }
-
-    void HandleGravity()
+    void HandleMovementInput()
     {
-        if (grounded && velocity.y < 0) velocity.y = -2f;
-        velocity.y += gravity * Time.deltaTime;
-        player.Move(velocity * Time.deltaTime);
-    }
+        float accelerationInput = Input.GetAxis("Vertical");
+        currentMoveSpeed += accelerationInput * Acceleration * Time.deltaTime;
+        currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, MinSpeed, MaxSpeed);
 
-    void HandleJump()
-    {
-        if (jump && Input.GetButtonDown("Jump") && grounded)
+        float steerInput = Input.GetAxis("Horizontal");
+        transform.Rotate(Vector3.up * steerInput * SteerSpeed * Time.deltaTime);
+
+        if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus)
+        {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
     }
-
-    void UpdateSpeed()
+    void ApplyGravity()
     {
-        MoveSpeed = Mathf.Clamp(
-            MoveSpeed + Acceleration * Input.GetAxis("Vertical"),
-            MinSpeed,
-            MaxSpeed
-        );
+        if (isGroundedStatus && velocity.y < 0) { velocity.y = -2f; }
+        velocity.y += gravity * Time.deltaTime;
     }
-
-    void MovePlayer()
+    void ApplyMovement()
     {
-        player.Move(transform.forward * MoveSpeed * Time.deltaTime);
-        transform.Rotate(Vector3.up * Input.GetAxis("Horizontal") * SteerSpeed * Time.deltaTime);
+        Vector3 moveDirection = transform.forward * currentMoveSpeed;
+        moveDirection.y = velocity.y;
+        player.Move(moveDirection * Time.deltaTime);
     }
 
+    // --- Trail System Logic ---
+    void UpdateTrailSystem()
+    {
+        RecordTrailPosition();
+        RemoveOldTrailPoints();
+        UpdateColliderObjects();
+    }
+
+    // RecordTrailPosition (Unchanged)
     void RecordTrailPosition()
     {
-        float spacing = ColliderSpacing * (MinSpeed / Mathf.Max(MoveSpeed, MinSpeed));
-        spacing = Mathf.Clamp(spacing, 0.5f, ColliderSpacing);
-
+        float dynamicSpacing = ColliderSpacing * (MinSpeed / Mathf.Max(currentMoveSpeed, MinSpeed));
+        dynamicSpacing = Mathf.Clamp(dynamicSpacing, 0.1f, ColliderSpacing);
         Vector3 spawnPosition = transform.position - (transform.forward * PositionOffset);
 
-        if (ShouldRecordPosition(spacing, spawnPosition))
+        if (trailPoints.Count == 0 || Vector3.Distance(trailPoints[trailPoints.Count - 1].WorldPosition, spawnPosition) >= dynamicSpacing)
         {
             trailPoints.Add(new TrailPoint
             {
@@ -119,98 +182,185 @@ public class PlayerMovement : MonoBehaviour
                 ForwardDirection = transform.forward
             });
         }
-
-        RemoveOldPositions();
     }
 
-    bool ShouldRecordPosition(float spacing, Vector3 spawnPosition)
+    // RemoveOldTrailPoints (Unchanged)
+    void RemoveOldTrailPoints()
     {
-        return trailPoints.Count == 0 || 
-            Vector3.Distance(trailPoints[^1].WorldPosition, spawnPosition) >= spacing;
-    }
-
-    void RemoveOldPositions()
-    {
-        float cutoff = Time.time - TrailLifetime;
-        trailPoints.RemoveAll(point => point.Timestamp < cutoff);
-    }
-
-    void UpdateTrailSystem()
-    {
-        UpdateColliderCount();
-        UpdateColliderPositions();
-    }
-
-    void UpdateColliderCount()
-    {
-        int requiredColliders = trailPoints.Count > 1 ? trailPoints.Count - 1 : 0;
-        while (trailColliders.Count < requiredColliders) CreateCollider();
-        while (trailColliders.Count > requiredColliders) RemoveCollider();
-    }
-
-    void CreateCollider()
-    {
-        GameObject colliderObject = new GameObject("TrailCollider");
-        colliderObject.layer = trailColliderLayer;
-        colliderObject.AddComponent<BoxCollider>().isTrigger = true;
-        trailColliders.Add(colliderObject);
-    }
-
-    void RemoveCollider()
-    {
-        if (trailColliders.Count == 0) return;
-        Destroy(trailColliders[^1]);
-        trailColliders.RemoveAt(trailColliders.Count - 1);
-    }
-
-    void UpdateColliderPositions()
-    {
-        for (int i = 0; i < trailColliders.Count; i++)
+        float cutoffTime = Time.time - TrailLifetime;
+        int removeCount = 0;
+        while (removeCount < trailPoints.Count && trailPoints[removeCount].Timestamp < cutoffTime)
         {
-            if (i + 1 >= trailPoints.Count) continue;
-
-            TrailPoint startPoint = trailPoints[i];
-            TrailPoint endPoint = trailPoints[i + 1];
-
-            Vector3 start = startPoint.WorldPosition;
-            Vector3 end = endPoint.WorldPosition;
-
-            UpdateCollider(trailColliders[i], start, end);
+            removeCount++;
+        }
+        if (removeCount > 0)
+        {
+            trailPoints.RemoveRange(0, removeCount);
         }
     }
 
-    void UpdateCollider(GameObject collider, Vector3 start, Vector3 end)
+    void UpdateColliderObjects()
     {
-        Vector3 segment = end - start;
-        collider.transform.position = (start + end) / 2f;
-        collider.transform.rotation = Quaternion.LookRotation(segment);
-        collider.GetComponent<BoxCollider>().size = new Vector3(
-            trailRenderer.startWidth,
-            trailRenderer.startWidth,
-            segment.magnitude
-        );
+        int requiredColliders = Mathf.Max(0, trailPoints.Count - 1);
+
+        while (trailColliderObjects.Count < requiredColliders) { CreateColliderObject(); }
+        while (trailColliderObjects.Count > requiredColliders) { RemoveLastColliderObject(); }
+
+        for (int i = 0; i < trailColliderObjects.Count; i++)
+        {
+            if (i < trailPoints.Count && i + 1 < trailPoints.Count)
+            {
+                UpdateSingleColliderObject(trailColliderObjects[i], trailPoints[i], trailPoints[i + 1]);
+                trailColliderObjects[i].SetActive(true);
+            }
+            else { trailColliderObjects[i].SetActive(false); }
+        }
     }
 
+    // --- Modified: CreateColliderObject now adds and configures a LineRenderer ---
+    void CreateColliderObject()
+    {
+        GameObject colliderObj = new GameObject("TrailColliderSegment");
+        colliderObj.layer = trailColliderLayer;
+
+        // Add CapsuleCollider
+        CapsuleCollider capsule = colliderObj.AddComponent<CapsuleCollider>();
+        capsule.isTrigger = true;
+        capsule.direction = 2; // Z-axis
+
+        // Add Rigidbody
+        Rigidbody rb = colliderObj.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+
+        // --- Add and Configure LineRenderer for this segment ---
+        LineRenderer line = colliderObj.AddComponent<LineRenderer>();
+        line.useWorldSpace = true;
+        line.positionCount = 2; // Each line segment only connects two points
+        line.startWidth = segmentLineWidth;
+        line.endWidth = segmentLineWidth;
+
+        // Assign the material specified in the Inspector
+        if (segmentLineMaterial != null)
+        {
+            line.material = segmentLineMaterial;
+        }
+        else
+        {
+            // Material not assigned, line won't render. Warning issued in Start().
+        }
+        // Optional: Set sorting order if needed, e.g., to draw behind player trail
+        // line.sortingOrder = -1;
+
+        trailColliderObjects.Add(colliderObj);
+    }
+
+    // RemoveLastColliderObject (Unchanged - destroys the whole GameObject)
+    void RemoveLastColliderObject()
+    {
+        if (trailColliderObjects.Count == 0) return;
+        GameObject toRemove = trailColliderObjects[trailColliderObjects.Count - 1];
+        trailColliderObjects.RemoveAt(trailColliderObjects.Count - 1);
+        Destroy(toRemove);
+    }
+
+    // --- Modified: UpdateSingleColliderObject now updates the LineRenderer points ---
+    void UpdateSingleColliderObject(GameObject colliderObj, TrailPoint startPoint, TrailPoint endPoint)
+    {
+        // --- Update Collider ---
+        CapsuleCollider capsule = colliderObj.GetComponent<CapsuleCollider>();
+        if (capsule == null) return; // Safety check
+
+        Vector3 startPos = startPoint.WorldPosition;
+        Vector3 endPos = endPoint.WorldPosition;
+        Vector3 segmentVector = endPos - startPos;
+        float segmentLength = segmentVector.magnitude;
+
+        colliderObj.transform.position = (startPos + endPos) / 2f;
+
+        if (segmentLength > 0.001f)
+        {
+            colliderObj.transform.rotation = Quaternion.LookRotation(segmentVector.normalized);
+        }
+
+        capsule.radius = 1 / 2f;
+        capsule.height = segmentLength + 0.01f;
+
+        // --- Update LineRenderer ---
+        LineRenderer line = colliderObj.GetComponent<LineRenderer>();
+        if (line != null) // Check if LineRenderer exists
+        {
+            // Set the start and end points for this segment's line
+            line.SetPosition(0, startPos);
+            line.SetPosition(1, endPos);
+        }
+    }
+
+    // --- Update the line between the player and the last collider ---
+    void UpdatePlayerToColliderLine()
+    {
+        if (playerToColliderLineRenderer == null) return;
+
+        if (trailPoints.Count > 0)
+        {
+            playerToColliderLineRenderer.enabled = true;
+            playerToColliderLineRenderer.SetPosition(0, transform.position);
+            playerToColliderLineRenderer.SetPosition(1, trailPoints[trailPoints.Count - 1].WorldPosition);
+        }
+        else
+        {
+            playerToColliderLineRenderer.enabled = false;
+        }
+    }
+
+    // --- Collision Handling (Unchanged) ---
     void OnTriggerEnter(Collider other)
     {
-        if (!IsValidCollision(other.gameObject)) return;
-        
-        TriggerDeathEffects();
+        if (isDead) return;
+        if (other.gameObject.layer == trailColliderLayer)
+        {
+            GameObject otherGO = other.gameObject;
+            int colliderIndex = -1;
+            for (int i = 0; i < trailColliderObjects.Count; ++i)
+            {
+                if (trailColliderObjects[i] == otherGO) { colliderIndex = i; break; }
+            }
+
+            if (colliderIndex != -1 && colliderIndex < trailPoints.Count)
+            {
+                float pointTimestamp = trailPoints[colliderIndex].Timestamp;
+                if ((Time.time - pointTimestamp) > CollisionActivationDelay)
+                {
+                    TriggerDeathSequence();
+                }
+            }
+        }
     }
 
-    bool IsValidCollision(GameObject other)
+    // --- Death Logic (Unchanged) ---
+    void TriggerDeathSequence()
     {
-        // Check layer match and ensure it's not a brand new collider
-        return other.layer == trailColliderLayer && 
-               trailColliders.Contains(other) &&
-               (Time.time - trailPoints[trailColliders.IndexOf(other)].Timestamp) > 0.5f;
+        if (isDead) return;
+        isDead = true;
+        Debug.Log("Player Died - Collided with own trail!");
+        if (OrangeEffect != null) OrangeEffect.Play();
+        if (darkOrangeEffect != null) darkOrangeEffect.Play();
+        if (BlackEffect != null) BlackEffect.Play();
+        this.enabled = false;
+        if (player != null) player.enabled = false;
     }
 
-    void TriggerDeathEffects()
+    // --- Cleanup (Unchanged - already destroys the GameObjects) ---
+    void OnDestroy()
     {
-        OrangeEffect.Play();
-        darkOrangeEffect.Play();
-        BlackEffect.Play();
-        Destroy(this);
+        if (playerToColliderLineObject != null)
+        {
+            Destroy(playerToColliderLineObject);
+        }
+        foreach (var colliderObj in trailColliderObjects)
+        {
+            if (colliderObj != null) { Destroy(colliderObj); }
+        }
+        trailColliderObjects.Clear();
     }
 }
