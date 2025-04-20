@@ -11,7 +11,7 @@ public class CameraMovement : NetworkBehaviour
 
     public Transform playerTransform;  // Transform du joueur
     private Transform targetEnemy = null; // Ennemi ou autre joueur le plus proche
-    public float distance = 10.0f; // Distance de la caméra au joueur
+    public float distance = 5.0f; // Distance de la caméra au joueur
     private float currentX = 0.0f; // Angle X actuel
     private float currentY = 20.0f; // Angle Y actuel (élevé pour une meilleure vue)
     public float sensitivity = 50.0f; // Sensibilité de la souris

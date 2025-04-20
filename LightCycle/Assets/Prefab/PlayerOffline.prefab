@@ -5063,10 +5063,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 3305550522075108819}
   distance: 5
-  sensitivity: 70
+  sensitivity: 100
   collisionMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!1 &2908749224153200739
 GameObject:
   m_ObjectHideFlags: 0
@@ -9969,7 +9969,6 @@ GameObject:
   - component: {fileID: 3305550522075108819}
   - component: {fileID: 4185818369374919690}
   - component: {fileID: 5244131253921610513}
-  - component: {fileID: -869085540317210715}
   m_Layer: 0
   m_Name: PlayerOffline
   m_TagString: Player
@@ -10035,24 +10034,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 4185818369374919690}
-  isGrounded: {fileID: 8324952273568087962}
+  groundCheckPoint: {fileID: 8324952273568087962}
   segmentLineMaterial: {fileID: 2100000, guid: 658caa508b3164eeca5e3847394e87a1, type: 2}
-  MinSpeed: 5
-  MaxSpeed: 50
-  Acceleration: 5
-  SteerSpeed: 180
+  minSpeed: 5
+  maxSpeed: 50
+  acceleration: 5
+  steerSpeed: 180
   gravity: -19.62
   jumpHeight: 2
   canJump: 1
-  TrailLifetime: 4.2
-  ColliderSpacing: 1
-  PositionOffset: 1
+  leanTarget: {fileID: 7857786813002602163}
+  maxLeanAngle: 25
+  leanSpeed: 5
+  maxSlopeLeanAngle: 15
+  slopeLeanSensitivity: 0.5
+  trailLifetime: 4.2
+  colliderSpacing: 1
+  positionOffset: 1
   trailColliderLayer:
     serializedVersion: 2
     m_Bits: 0
-  CollisionActivationDelay: 0.5
+  collisionActivationDelay: 0.5
   segmentLineWidth: 0.3
   playerToColliderLineWidth: 0.3
+  trailColliderTag: Trail
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -10060,113 +10065,9 @@ MonoBehaviour:
   OrangeEffect: {fileID: 5962045158563180131}
   darkOrangeEffect: {fileID: 4518089884585412186}
   BlackEffect: {fileID: 885784325841563570}
---- !u!96 &-869085540317210715
-TrailRenderer:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3153088720200435721}
-  m_Enabled: 0
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 0
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Time: 5
-  m_PreviewTimeScale: 1
-  m_Parameters:
-    serializedVersion: 3
-    widthMultiplier: 1
-    widthCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    colorGradient:
-      serializedVersion: 2
-      key0: {r: 1, g: 0.44434842, b: 0.4245283, a: 0}
-      key1: {r: 1, g: 0.44434842, b: 0.4245283, a: 1}
-      key2: {r: 0, g: 0, b: 0, a: 0}
-      key3: {r: 0, g: 0, b: 0, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
-      ctime0: 0
-      ctime1: 65535
-      ctime2: 0
-      ctime3: 0
-      ctime4: 0
-      ctime5: 0
-      ctime6: 0
-      ctime7: 0
-      atime0: 0
-      atime1: 65535
-      atime2: 0
-      atime3: 0
-      atime4: 0
-      atime5: 0
-      atime6: 0
-      atime7: 0
-      m_Mode: 0
-      m_ColorSpace: -1
-      m_NumColorKeys: 2
-      m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
-    alignment: 0
-    textureMode: 0
-    textureScale: {x: 1, y: 1}
-    shadowBias: 0.5
-    generateLightingData: 0
-  m_MinVertexDistance: 0.1
-  m_MaskInteraction: 0
-  m_Autodestruct: 0
-  m_Emitting: 1
-  m_ApplyActiveColorSpace: 1
+  frontWheel: {fileID: 9135810327812467786}
+  rearWheel: {fileID: 669525909030464418}
+  wheelRotationMultiplier: 50
 --- !u!1 &7344261579789764360
 GameObject:
   m_ObjectHideFlags: 0
@@ -15146,8 +15047,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f937d12aa1e4ad4e83ada064918d2ae, type: 3}
+--- !u!4 &669525909030464418 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 665408663093697711, guid: 5f937d12aa1e4ad4e83ada064918d2ae, type: 3}
+  m_PrefabInstance: {fileID: 33394242697344781}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7857786813002602163 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7888851456663511486, guid: 5f937d12aa1e4ad4e83ada064918d2ae, type: 3}
+  m_PrefabInstance: {fileID: 33394242697344781}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &9135810327812467786 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9132817315369311047, guid: 5f937d12aa1e4ad4e83ada064918d2ae, type: 3}
   m_PrefabInstance: {fileID: 33394242697344781}
   m_PrefabAsset: {fileID: 0}

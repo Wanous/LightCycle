@@ -8,53 +8,50 @@ public class PlayerMovement : MonoBehaviour
 {
     // --- Player Components ---
     [Header("Components")]
-    // Assign the CharacterController in the Inspector (or it will be grabbed if added by RequireComponent)
     public CharacterController player;
-    // Assign a child GameObject positioned at the player's base for ground checks
-    public Transform isGrounded;
-    // Assign a Material in the Inspector for the line segments
+    [Tooltip("Assign a child GameObject positioned at the player's base for ground checks")]
+    public Transform groundCheckPoint;
     [Tooltip("Material to use for the line segments between colliders")]
     public Material segmentLineMaterial;
 
     // --- Movement Parameters ---
     [Header("Movement")]
-    [Tooltip("Minimum forward speed")]
-    public float MinSpeed = 5f;
-    [Tooltip("Maximum forward speed")]
-    public float MaxSpeed = 50f;
-    [Tooltip("Rate of speed change when accelerating/decelerating")]
-    public float Acceleration = 5f;
-    [Tooltip("Turning speed in degrees per second")]
-    public float SteerSpeed = 180f;
-    [Tooltip("Gravity force applied")]
-    public float gravity = -19.62f; // Approx 2x Earth gravity
-    [Tooltip("Initial upward velocity for jump")]
+    public float minSpeed = 5f;
+    public float maxSpeed = 50f;
+    public float acceleration = 5f;
+    public float steerSpeed = 180f;
+    public float gravity = -19.62f;
     public float jumpHeight = 2f;
-    [Tooltip("Enable/disable jumping ability")]
     public bool canJump = true;
+
+    // --- Leaning Parameters ---
+    [Header("Leaning")]
+    [Tooltip("The Transform to apply lean rotation to (e.g., the bike chassis). If null, leans the root object.")]
+    public Transform leanTarget;
+    [Tooltip("Maximum lean angle in degrees when turning")]
+    public float maxLeanAngle = 25f;
+    [Tooltip("How quickly the player leans into/out of turns")]
+    public float leanSpeed = 5f;
+    [Tooltip("Maximum lean angle in degrees when on a slope")]
+    public float maxSlopeLeanAngle = 15f;
+    [Tooltip("How much the slope affects leaning (0-1)")]
+    [Range(0f, 1f)] public float slopeLeanSensitivity = 0.5f;
 
     // --- Trail Collision Parameters ---
     [Header("Trail Collision")]
-    [Tooltip("How long the trail colliders persist before being destroyed")]
-    public float TrailLifetime = 4.2f;
-    [Tooltip("Minimum distance between recorded trail points")]
-    public float ColliderSpacing = 1.0f;
-    [Tooltip("How far behind the player the trail points are recorded")]
-    public float PositionOffset = 1.0f;
-    [Tooltip("The physics layer for the trail colliders")]
-    public LayerMask trailColliderLayer; // Make sure this layer exists!
-    [Tooltip("How long after a collider spawns before it can kill the player")]
-    public float CollisionActivationDelay = 0.5f;
-    [Tooltip("Width of the line segments drawn between colliders")]
-    public float segmentLineWidth = 0.2f; // Increased line width
-    [Tooltip("Width of the line segment connecting the player to the last collider")]
-    public float playerToColliderLineWidth = 0.3f; // Width for the player-collider line
+    public float trailLifetime = 4.2f;
+    public float colliderSpacing = 1.0f;
+    public float positionOffset = 1.0f;
+    public float collisionActivationDelay = 0.5f;
+    public float segmentLineWidth = 0.2f;
+    public float playerToColliderLineWidth = 0.3f;
+    [Tooltip("The tag to apply to the trail collider objects")]
+    public string trailColliderTag = "Trail"; // Public variable for the tag
 
     // --- Ground Check Parameters ---
     [Header("Ground Check")]
     [Tooltip("The physics layer(s) considered 'ground'")]
     public LayerMask groundLayer;
-    [Tooltip("Radius of the sphere check for grounding")]
     public float groundCheckRadius = 0.2f;
 
     // --- Effects ---
@@ -63,53 +60,60 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] ParticleSystem darkOrangeEffect;
     [SerializeField] ParticleSystem BlackEffect;
 
+    // --- Wheel Rotation ---
+    [Header("Wheel Rotation")]
+    public Transform frontWheel;
+    public Transform rearWheel;
+    public float wheelRotationMultiplier = 50f;
+
     // --- Private Variables ---
     private float currentMoveSpeed;
     private Vector3 velocity;
     private bool isGroundedStatus = false;
     private bool isDead = false;
-    private GameObject playerToColliderLineObject; // GameObject for the line to the last collider
-    private LineRenderer playerToColliderLineRenderer; // LineRenderer for the player-collider line
+    private GameObject playerToColliderLineObject;
+    private LineRenderer playerToColliderLineRenderer;
+    private float frontWheelRollAngle = 0f;
+    private float rearWheelRollAngle = 0f;
+    private float currentSteerInput = 0f;
+    private float currentLeanAngleZ = 0f; // Separate variable for Z-axis lean
+    private float currentLeanAngleX = 0f; // Separate variable for X-axis lean
 
     // --- Trail Data Structures ---
     private class TrailPoint
     {
         public Vector3 WorldPosition;
         public float Timestamp;
-        public Vector3 ForwardDirection;
     }
     private List<TrailPoint> trailPoints = new List<TrailPoint>();
-    // Stores the GameObject for each collider segment (which now also holds a LineRenderer)
     private List<GameObject> trailColliderObjects = new List<GameObject>();
 
     // --- Initialization ---
     void Start()
     {
-        // Get required components if not assigned
-        if (player == null) player = GetComponent<CharacterController>(); ;
+        if (player == null) player = GetComponent<CharacterController>();
 
-        // Check if material for segment lines is assigned
-        if (segmentLineMaterial == null)
-        {
-            Debug.LogWarning("Segment Line Material not assigned in Inspector. Segment lines will not be visible.");
-        }
+        // Null Checks...
+        if (player == null) { Debug.LogError("CharacterController missing!", this); this.enabled = false; return; }
+        if (groundCheckPoint == null) Debug.LogWarning("Ground Check Point not assigned.", this);
+        if (segmentLineMaterial == null) Debug.LogWarning("Segment Line Material not assigned.", this);
+        if (frontWheel == null) Debug.LogWarning("Front Wheel not assigned.", this);
+        if (rearWheel == null) Debug.LogWarning("Rear Wheel not assigned.", this);
+        if (leanTarget == null) { Debug.LogWarning("Lean Target not assigned. Leaning root object.", this); leanTarget = this.transform; }
+        // Removed: if (trailColliderLayer.value == 0) Debug.LogError("Trail Collider Layer not set!", this);
+        if (groundLayer.value == 0) Debug.LogError("Ground Layer not set!", this);
 
-        // Initialize speed
-        currentMoveSpeed = MinSpeed;
+        currentMoveSpeed = minSpeed;
 
-        // Create the GameObject and LineRenderer for the player to last collider line
+        // Setup player-to-collider line renderer...
         playerToColliderLineObject = new GameObject("PlayerToColliderLine");
         playerToColliderLineRenderer = playerToColliderLineObject.AddComponent<LineRenderer>();
         playerToColliderLineRenderer.useWorldSpace = true;
         playerToColliderLineRenderer.positionCount = 2;
         playerToColliderLineRenderer.startWidth = playerToColliderLineWidth;
-        playerToColliderLineRenderer.endWidth = playerToColliderLineWidth;
-        if (segmentLineMaterial != null)
-        {
-            playerToColliderLineRenderer.material = segmentLineMaterial;
-        }
-
-        // Physics.IgnoreLayerCollision(gameObject.layer, trailColliderLayer, false); // Manage in Physics Settings
+        playerToColliderLineWidth = playerToColliderLineWidth;
+        playerToColliderLineRenderer.sortingOrder = -1;
+        if (segmentLineMaterial != null) playerToColliderLineRenderer.material = segmentLineMaterial;
     }
 
     // --- Frame Update ---
@@ -118,44 +122,124 @@ public class PlayerMovement : MonoBehaviour
         if (isDead) return;
 
         HandleGroundCheck();
-        HandleMovementInput();
+        HandleMovementInput(); // Steering is handled here now
         ApplyGravity();
+        HandleLeaning();
         ApplyMovement();
-
+        UpdateWheelRotation();
         UpdateTrailSystem();
         UpdatePlayerToColliderLine();
     }
 
-    // --- Movement Logic (Unchanged) ---
+    // --- Ground Check Logic ---
     void HandleGroundCheck()
     {
-        if (isGrounded != null) { isGroundedStatus = Physics.CheckSphere(isGrounded.position, groundCheckRadius, groundLayer); }
-        else { isGroundedStatus = false; Debug.LogWarning("isGrounded Transform not assigned!"); }
+        if (groundCheckPoint != null)
+        {
+            isGroundedStatus = Physics.CheckSphere(groundCheckPoint.position, groundCheckRadius, groundLayer, QueryTriggerInteraction.Ignore);
+        }
+        else { isGroundedStatus = false; }
     }
+
+    // --- Input Handling and Speed Calculation ---
     void HandleMovementInput()
     {
         float accelerationInput = Input.GetAxis("Vertical");
-        currentMoveSpeed += accelerationInput * Acceleration * Time.deltaTime;
-        currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, MinSpeed, MaxSpeed);
+        currentMoveSpeed += accelerationInput * acceleration * Time.deltaTime;
+        currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
 
-        float steerInput = Input.GetAxis("Horizontal");
-        transform.Rotate(Vector3.up * steerInput * SteerSpeed * Time.deltaTime);
+        currentSteerInput = Input.GetAxis("Horizontal");
+        transform.Rotate(Vector3.up * currentSteerInput * steerSpeed * Time.deltaTime); // This handles the turning
 
         if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
     }
+
+    // --- Apply Gravity ---
     void ApplyGravity()
     {
         if (isGroundedStatus && velocity.y < 0) { velocity.y = -2f; }
         velocity.y += gravity * Time.deltaTime;
     }
+
+    // --- Apply Leaning Visual ---
+    void HandleLeaning()
+    {
+        if (leanTarget == null) return;
+
+        // 1. Calculate lean based on steering input (Z-axis lean)
+        float targetSteerLeanAngleZ = -currentSteerInput * maxLeanAngle;
+        currentLeanAngleZ = Mathf.LerpAngle(currentLeanAngleZ, targetSteerLeanAngleZ, leanSpeed * Time.deltaTime);
+
+        // 2. Calculate lean based on slope (X-axis lean)
+        float targetSlopeLeanAngleX = 0f;
+        if (isGroundedStatus && groundCheckPoint != null)
+        {
+            if (Physics.Raycast(groundCheckPoint.position, Vector3.down, out RaycastHit hit, groundCheckRadius * 2f, groundLayer, QueryTriggerInteraction.Ignore))
+            {
+                // Project the player's forward onto the world up vector to get the forward direction on a flat plane
+                Vector3 flatForward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+                // The normal of the ground indicates the slope direction
+                Vector3 groundNormal = hit.normal;
+                // The angle between the world up and the ground normal gives the slope angle
+                float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
+
+                // Calculate the direction of the slope relative to the player's forward
+                Vector3 slopeDirection = Vector3.Cross(flatForward, groundNormal);
+
+                // If the slope direction points to the player's right, lean back (positive X angle)
+                // If it points to the left, lean forward (negative X angle)
+                targetSlopeLeanAngleX = Vector3.Dot(transform.right, slopeDirection) * slopeAngle * slopeLeanSensitivity * maxSlopeLeanAngle;
+                targetSlopeLeanAngleX = Mathf.Clamp(targetSlopeLeanAngleX, -maxSlopeLeanAngle, maxSlopeLeanAngle);
+            }
+        }
+        currentLeanAngleX = Mathf.LerpAngle(currentLeanAngleX, targetSlopeLeanAngleX, leanSpeed * Time.deltaTime);
+
+        // Apply the combined lean rotation
+        leanTarget.localRotation = Quaternion.Euler(currentLeanAngleX, 0f, currentLeanAngleZ);
+
+        // --- Debugging Slope Normal ---
+        // if (isGroundedStatus && groundCheckPoint != null)
+        // {
+        //     if (Physics.Raycast(groundCheckPoint.position, Vector3.down, out RaycastHit hit, groundCheckRadius * 2f, groundLayer, QueryTriggerInteraction.Ignore))
+        //     {
+        //         Debug.DrawRay(hit.point, hit.normal * 2f, Color.blue);
+        //     }
+        // }
+    }
+
+    // --- Apply Final Movement to CharacterController ---
     void ApplyMovement()
     {
         Vector3 moveDirection = transform.forward * currentMoveSpeed;
         moveDirection.y = velocity.y;
         player.Move(moveDirection * Time.deltaTime);
+    }
+
+    // --- Wheel Rotation ---
+    void UpdateWheelRotation()
+    {
+        float rotationSpeed = currentMoveSpeed * wheelRotationMultiplier;
+        float rollDelta = rotationSpeed * Time.deltaTime;
+
+        if (frontWheel != null)
+        {
+            float targetSteerAngle = currentSteerInput * 30f;
+            frontWheelRollAngle -= rollDelta;
+            frontWheelRollAngle %= 360f;
+            // Assumes wheel rolls around local X, steers around local Y
+            frontWheel.localRotation = Quaternion.Euler(frontWheelRollAngle, targetSteerAngle, 0f);
+        }
+
+        if (rearWheel != null)
+        {
+            rearWheelRollAngle -= rollDelta;
+            rearWheelRollAngle %= 360f;
+            // Assumes wheel rolls around local X
+            rearWheel.localRotation = Quaternion.Euler(rearWheelRollAngle, 0f, 0f);
+        }
     }
 
     // --- Trail System Logic ---
@@ -166,35 +250,32 @@ public class PlayerMovement : MonoBehaviour
         UpdateColliderObjects();
     }
 
-    // RecordTrailPosition (Unchanged)
     void RecordTrailPosition()
     {
-        float dynamicSpacing = ColliderSpacing * (MinSpeed / Mathf.Max(currentMoveSpeed, MinSpeed));
-        dynamicSpacing = Mathf.Clamp(dynamicSpacing, 0.1f, ColliderSpacing);
-        Vector3 spawnPosition = transform.position - (transform.forward * PositionOffset);
-
-        if (trailPoints.Count == 0 || Vector3.Distance(trailPoints[trailPoints.Count - 1].WorldPosition, spawnPosition) >= dynamicSpacing)
+        Vector3 spawnPosition = transform.position - (transform.forward * positionOffset);
+        if (trailPoints.Count == 0 || Vector3.Distance(trailPoints[trailPoints.Count - 1].WorldPosition, spawnPosition) >= colliderSpacing)
         {
-            trailPoints.Add(new TrailPoint
-            {
-                WorldPosition = spawnPosition,
-                Timestamp = Time.time,
-                ForwardDirection = transform.forward
-            });
+            trailPoints.Add(new TrailPoint { WorldPosition = spawnPosition, Timestamp = Time.time });
         }
     }
 
-    // RemoveOldTrailPoints (Unchanged)
     void RemoveOldTrailPoints()
     {
-        float cutoffTime = Time.time - TrailLifetime;
+        float cutoffTime = Time.time - trailLifetime;
         int removeCount = 0;
-        while (removeCount < trailPoints.Count && trailPoints[removeCount].Timestamp < cutoffTime)
-        {
-            removeCount++;
-        }
+        while (removeCount < trailPoints.Count && trailPoints[removeCount].Timestamp < cutoffTime) { removeCount++; }
+
         if (removeCount > 0)
         {
+            for (int i = 0; i < removeCount; i++)
+            {
+                if (trailColliderObjects.Count > 0)
+                {
+                    GameObject toRemove = trailColliderObjects[0];
+                    trailColliderObjects.RemoveAt(0);
+                    if (toRemove != null) Destroy(toRemove);
+                }
+            }
             trailPoints.RemoveRange(0, removeCount);
         }
     }
@@ -202,13 +283,12 @@ public class PlayerMovement : MonoBehaviour
     void UpdateColliderObjects()
     {
         int requiredColliders = Mathf.Max(0, trailPoints.Count - 1);
-
         while (trailColliderObjects.Count < requiredColliders) { CreateColliderObject(); }
         while (trailColliderObjects.Count > requiredColliders) { RemoveLastColliderObject(); }
 
         for (int i = 0; i < trailColliderObjects.Count; i++)
         {
-            if (i < trailPoints.Count && i + 1 < trailPoints.Count)
+            if (i < trailPoints.Count - 1)
             {
                 UpdateSingleColliderObject(trailColliderObjects[i], trailPoints[i], trailPoints[i + 1]);
                 trailColliderObjects[i].SetActive(true);
@@ -217,59 +297,46 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // --- Modified: CreateColliderObject now adds and configures a LineRenderer ---
     void CreateColliderObject()
     {
-        GameObject colliderObj = new GameObject("TrailColliderSegment");
-        colliderObj.layer = trailColliderLayer;
+        GameObject colliderObj = new GameObject($"TrailColliderSegment_{trailColliderObjects.Count}");
+        // colliderObj.layer = trailColliderLayer; // Removed: No longer setting layer here
+        colliderObj.tag = trailColliderTag; // Important: Keep the tag for identification
 
-        // Add CapsuleCollider
         CapsuleCollider capsule = colliderObj.AddComponent<CapsuleCollider>();
         capsule.isTrigger = true;
         capsule.direction = 2; // Z-axis
 
-        // Add Rigidbody
         Rigidbody rb = colliderObj.AddComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.useGravity = false;
 
-        // --- Add and Configure LineRenderer for this segment ---
         LineRenderer line = colliderObj.AddComponent<LineRenderer>();
         line.useWorldSpace = true;
-        line.positionCount = 2; // Each line segment only connects two points
+        line.positionCount = 2;
         line.startWidth = segmentLineWidth;
         line.endWidth = segmentLineWidth;
-
-        // Assign the material specified in the Inspector
-        if (segmentLineMaterial != null)
-        {
-            line.material = segmentLineMaterial;
-        }
-        else
-        {
-            // Material not assigned, line won't render. Warning issued in Start().
-        }
-        // Optional: Set sorting order if needed, e.g., to draw behind player trail
-        // line.sortingOrder = -1;
+        line.numCapVertices = 4;
+        line.sortingOrder = 0;
+        if (segmentLineMaterial != null) line.material = segmentLineMaterial;
 
         trailColliderObjects.Add(colliderObj);
     }
 
-    // RemoveLastColliderObject (Unchanged - destroys the whole GameObject)
     void RemoveLastColliderObject()
     {
         if (trailColliderObjects.Count == 0) return;
-        GameObject toRemove = trailColliderObjects[trailColliderObjects.Count - 1];
-        trailColliderObjects.RemoveAt(trailColliderObjects.Count - 1);
-        Destroy(toRemove);
+        int lastIndex = trailColliderObjects.Count - 1;
+        GameObject toRemove = trailColliderObjects[lastIndex];
+        trailColliderObjects.RemoveAt(lastIndex);
+        if (toRemove != null) Destroy(toRemove);
     }
 
-    // --- Modified: UpdateSingleColliderObject now updates the LineRenderer points ---
     void UpdateSingleColliderObject(GameObject colliderObj, TrailPoint startPoint, TrailPoint endPoint)
     {
-        // --- Update Collider ---
         CapsuleCollider capsule = colliderObj.GetComponent<CapsuleCollider>();
-        if (capsule == null) return; // Safety check
+        LineRenderer line = colliderObj.GetComponent<LineRenderer>();
+        if (capsule == null || line == null) return;
 
         Vector3 startPos = startPoint.WorldPosition;
         Vector3 endPos = endPoint.WorldPosition;
@@ -277,30 +344,19 @@ public class PlayerMovement : MonoBehaviour
         float segmentLength = segmentVector.magnitude;
 
         colliderObj.transform.position = (startPos + endPos) / 2f;
+        if (segmentLength > 0.001f) { colliderObj.transform.rotation = Quaternion.LookRotation(segmentVector.normalized); }
 
-        if (segmentLength > 0.001f)
-        {
-            colliderObj.transform.rotation = Quaternion.LookRotation(segmentVector.normalized);
-        }
+        capsule.radius = segmentLineWidth / 2f;
+        capsule.height = segmentLength + (capsule.radius * 2f);
 
-        capsule.radius = 1 / 2f;
-        capsule.height = segmentLength + 0.01f;
-
-        // --- Update LineRenderer ---
-        LineRenderer line = colliderObj.GetComponent<LineRenderer>();
-        if (line != null) // Check if LineRenderer exists
-        {
-            // Set the start and end points for this segment's line
-            line.SetPosition(0, startPos);
-            line.SetPosition(1, endPos);
-        }
+        line.SetPosition(0, startPos);
+        line.SetPosition(1, endPos);
     }
 
-    // --- Update the line between the player and the last collider ---
+    // --- Update the line between the player and the last recorded trail point ---
     void UpdatePlayerToColliderLine()
     {
         if (playerToColliderLineRenderer == null) return;
-
         if (trailPoints.Count > 0)
         {
             playerToColliderLineRenderer.enabled = true;
@@ -313,23 +369,28 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // --- Collision Handling (Unchanged) ---
+    // --- Collision Handling ---
     void OnTriggerEnter(Collider other)
     {
         if (isDead) return;
-        if (other.gameObject.layer == trailColliderLayer)
+        // Check for the tag instead of the layer
+        if (other.gameObject.tag == trailColliderTag)
         {
-            GameObject otherGO = other.gameObject;
+            GameObject collidedSegmentObject = other.gameObject;
             int colliderIndex = -1;
             for (int i = 0; i < trailColliderObjects.Count; ++i)
             {
-                if (trailColliderObjects[i] == otherGO) { colliderIndex = i; break; }
+                if (trailColliderObjects[i] == collidedSegmentObject)
+                {
+                    colliderIndex = i;
+                    break;
+                }
             }
 
             if (colliderIndex != -1 && colliderIndex < trailPoints.Count)
             {
                 float pointTimestamp = trailPoints[colliderIndex].Timestamp;
-                if ((Time.time - pointTimestamp) > CollisionActivationDelay)
+                if ((Time.time - pointTimestamp) > collisionActivationDelay)
                 {
                     TriggerDeathSequence();
                 }
@@ -337,7 +398,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // --- Death Logic (Unchanged) ---
+    // --- Death Logic ---
     void TriggerDeathSequence()
     {
         if (isDead) return;
@@ -346,21 +407,16 @@ public class PlayerMovement : MonoBehaviour
         if (OrangeEffect != null) OrangeEffect.Play();
         if (darkOrangeEffect != null) darkOrangeEffect.Play();
         if (BlackEffect != null) BlackEffect.Play();
-        this.enabled = false;
         if (player != null) player.enabled = false;
+        this.enabled = false;
     }
 
-    // --- Cleanup (Unchanged - already destroys the GameObjects) ---
+    // --- Cleanup ---
     void OnDestroy()
     {
-        if (playerToColliderLineObject != null)
-        {
-            Destroy(playerToColliderLineObject);
-        }
-        foreach (var colliderObj in trailColliderObjects)
-        {
-            if (colliderObj != null) { Destroy(colliderObj); }
-        }
+        if (playerToColliderLineObject != null) Destroy(playerToColliderLineObject);
+        foreach (var colliderObj in trailColliderObjects) { if (colliderObj != null) Destroy(colliderObj); }
         trailColliderObjects.Clear();
+        trailPoints.Clear();
     }
 }
