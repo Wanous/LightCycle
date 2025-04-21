@@ -5071,8 +5071,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   invert: 0
-  behindDistance: 5
-  behindHeight: 3
+  behindPlayerDistance: 5
+  behindPlayerHeight: 2
+  focusDistance: 5
+  focusHeightOffset: 2
 --- !u!1 &2908749224153200739
 GameObject:
   m_ObjectHideFlags: 0
@@ -10064,7 +10066,7 @@ MonoBehaviour:
   segmentLineWidth: 0.2
   playerToColliderLineWidth: 0.3
   trailColliderTag: Trail
-  deathTag: Hazard
+  hazardTag: Hazard
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -10075,6 +10077,7 @@ MonoBehaviour:
   frontWheel: {fileID: 8765938315361218138}
   rearWheel: {fileID: 1019105607457860018}
   wheelRotationMultiplier: 50
+  deathSpeed: 60
 --- !u!114 &6986859397083430246
 MonoBehaviour:
   m_ObjectHideFlags: 0

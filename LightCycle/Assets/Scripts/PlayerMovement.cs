@@ -71,10 +71,6 @@ public class PlayerMovement : MonoBehaviour
     public Transform rearWheel;
     public float wheelRotationMultiplier = 50f;
 
-    // --- Speed Death Parameter ---
-    [Header("Speed Death")]
-    [Tooltip("If the player's speed exceeds this value, they will die.")]
-    public float deathSpeed = 60f;
 
     // --- Private Variables ---
     private float currentMoveSpeed;
@@ -138,7 +134,6 @@ public class PlayerMovement : MonoBehaviour
         UpdateWheelRotation();
         UpdateTrailSystem();
         UpdatePlayerToColliderLine(); // Call the function here
-        CheckSpeedDeath(); // Check for death speed
     }
 
     // --- Ground Check Logic ---
@@ -213,15 +208,6 @@ public class PlayerMovement : MonoBehaviour
 
         // Apply the combined lean rotation
         leanTarget.localRotation = Quaternion.Euler(currentLeanAngleX, 0f, currentLeanAngleZ);
-
-        // --- Debugging Slope Normal ---
-        // if (isGroundedStatus && groundCheckPoint != null)
-        // {
-        //     if (Physics.Raycast(groundCheckPoint.position, Vector3.down, out RaycastHit hit, groundCheckRadius * 2f, groundLayer, QueryTriggerInteraction.Ignore))
-        //     {
-        //         Debug.DrawRay(hit.point, hit.normal * 2f, Color.blue);
-        //     }
-        // }
     }
 
     // --- Apply Final Movement to CharacterController ---
@@ -410,15 +396,6 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         else if (other.gameObject.tag == hazardTag)
-        {
-            TriggerDeathSequence();
-        }
-    }
-
-    // --- Speed Death Check ---
-    void CheckSpeedDeath()
-    {
-        if (currentMoveSpeed > deathSpeed)
         {
             TriggerDeathSequence();
         }
