@@ -19,7 +19,10 @@ public class PlayerMovement : MonoBehaviour
     public float minSpeed = 5f;
     public float maxSpeed = 50f;
     public float acceleration = 5f;
-    public float steerSpeed = 180f;
+    [Tooltip("Base steer speed at minimum speed")]
+    public float baseSteerSpeed = 180f;
+    [Tooltip("Factor to reduce steer speed as speed increases (0 for no reduction, higher values for more reduction)")]
+    [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 2f;
     public bool canJump = true;
@@ -47,6 +50,8 @@ public class PlayerMovement : MonoBehaviour
     public float playerToColliderLineWidth = 0.3f;
     [Tooltip("The tag to apply to the trail collider objects")]
     public string trailColliderTag = "Trail"; // Public variable for the tag
+    [Tooltip("The tag of the colliders that will cause death")]
+    public string hazardTag = "Hazard"; // Tag for other hazards
 
     // --- Ground Check Parameters ---
     [Header("Ground Check")]
@@ -65,6 +70,11 @@ public class PlayerMovement : MonoBehaviour
     public Transform frontWheel;
     public Transform rearWheel;
     public float wheelRotationMultiplier = 50f;
+
+    // --- Speed Death Parameter ---
+    [Header("Speed Death")]
+    [Tooltip("If the player's speed exceeds this value, they will die.")]
+    public float deathSpeed = 60f;
 
     // --- Private Variables ---
     private float currentMoveSpeed;
@@ -100,7 +110,6 @@ public class PlayerMovement : MonoBehaviour
         if (frontWheel == null) Debug.LogWarning("Front Wheel not assigned.", this);
         if (rearWheel == null) Debug.LogWarning("Rear Wheel not assigned.", this);
         if (leanTarget == null) { Debug.LogWarning("Lean Target not assigned. Leaning root object.", this); leanTarget = this.transform; }
-        // Removed: if (trailColliderLayer.value == 0) Debug.LogError("Trail Collider Layer not set!", this);
         if (groundLayer.value == 0) Debug.LogError("Ground Layer not set!", this);
 
         currentMoveSpeed = minSpeed;
@@ -128,7 +137,8 @@ public class PlayerMovement : MonoBehaviour
         ApplyMovement();
         UpdateWheelRotation();
         UpdateTrailSystem();
-        UpdatePlayerToColliderLine();
+        UpdatePlayerToColliderLine(); // Call the function here
+        CheckSpeedDeath(); // Check for death speed
     }
 
     // --- Ground Check Logic ---
@@ -148,8 +158,12 @@ public class PlayerMovement : MonoBehaviour
         currentMoveSpeed += accelerationInput * acceleration * Time.deltaTime;
         currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
 
+        // Calculate the adjusted steer speed based on current speed
+        float speedFactor = Mathf.InverseLerp(minSpeed, maxSpeed, currentMoveSpeed); // 0 at minSpeed, 1 at maxSpeed
+        float adjustedSteerSpeed = baseSteerSpeed * (1f - (speedFactor * steerSpeedReductionFactor));
+
         currentSteerInput = Input.GetAxis("Horizontal");
-        transform.Rotate(Vector3.up * currentSteerInput * steerSpeed * Time.deltaTime); // This handles the turning
+        transform.Rotate(Vector3.up * currentSteerInput * adjustedSteerSpeed * Time.deltaTime); // Apply adjusted steer speed
 
         if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus)
         {
@@ -300,8 +314,7 @@ public class PlayerMovement : MonoBehaviour
     void CreateColliderObject()
     {
         GameObject colliderObj = new GameObject($"TrailColliderSegment_{trailColliderObjects.Count}");
-        // colliderObj.layer = trailColliderLayer; // Removed: No longer setting layer here
-        colliderObj.tag = trailColliderTag; // Important: Keep the tag for identification
+        colliderObj.tag = trailColliderTag; // Use the trailColliderTag here
 
         CapsuleCollider capsule = colliderObj.AddComponent<CapsuleCollider>();
         capsule.isTrigger = true;
@@ -396,6 +409,19 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
         }
+        else if (other.gameObject.tag == hazardTag)
+        {
+            TriggerDeathSequence();
+        }
+    }
+
+    // --- Speed Death Check ---
+    void CheckSpeedDeath()
+    {
+        if (currentMoveSpeed > deathSpeed)
+        {
+            TriggerDeathSequence();
+        }
     }
 
     // --- Death Logic ---
@@ -403,7 +429,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-        Debug.Log("Player Died - Collided with own trail!");
+        Debug.Log("Player Died!");
         if (OrangeEffect != null) OrangeEffect.Play();
         if (darkOrangeEffect != null) darkOrangeEffect.Play();
         if (BlackEffect != null) BlackEffect.Play();

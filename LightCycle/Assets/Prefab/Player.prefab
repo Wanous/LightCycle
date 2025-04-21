@@ -5070,6 +5070,9 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 64
+  invert: 0
+  behindDistance: 5
+  behindHeight: 3
 --- !u!1 &2908749224153200739
 GameObject:
   m_ObjectHideFlags: 0
@@ -10044,7 +10047,8 @@ MonoBehaviour:
   minSpeed: 5
   maxSpeed: 50
   acceleration: 5
-  steerSpeed: 180
+  baseSteerSpeed: 180
+  steerSpeedReductionFactor: 0.5
   gravity: -19.62
   jumpHeight: 2
   canJump: 1
@@ -10052,17 +10056,15 @@ MonoBehaviour:
   maxLeanAngle: 25
   leanSpeed: 5
   maxSlopeLeanAngle: 15
-  slopeLeanSensitivity: 0.5
+  slopeLeanSensitivity: 1
   trailLifetime: 4.2
-  colliderSpacing: 1
+  colliderSpacing: 0.5
   positionOffset: 1
-  trailColliderLayer:
-    serializedVersion: 2
-    m_Bits: 0
   collisionActivationDelay: 0.5
   segmentLineWidth: 0.2
   playerToColliderLineWidth: 0.3
   trailColliderTag: Trail
+  deathTag: Hazard
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
