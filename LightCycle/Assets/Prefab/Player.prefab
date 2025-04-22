@@ -5064,13 +5064,12 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  playerTransform: {fileID: 3305550522075108819}
   distance: 5
   sensitivity: 100
+  invert: 1
   collisionMask:
     serializedVersion: 2
     m_Bits: 64
-  invert: 0
   behindPlayerDistance: 5
   behindPlayerHeight: 2
   focusDistance: 5
@@ -10077,7 +10076,6 @@ MonoBehaviour:
   frontWheel: {fileID: 8765938315361218138}
   rearWheel: {fileID: 1019105607457860018}
   wheelRotationMultiplier: 50
-  deathSpeed: 60
 --- !u!114 &6986859397083430246
 MonoBehaviour:
   m_ObjectHideFlags: 0

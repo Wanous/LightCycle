@@ -40,4 +40,9 @@ public class LevelMenu : MonoBehaviour
         string levelName = "Multi" + levelId;
         SceneManager.LoadScene(levelName);
     }
+    
+    public void Return()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
 }
