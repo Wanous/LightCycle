@@ -9928,6 +9928,8 @@ MonoBehaviour:
   minSpeed: 5
   maxSpeed: 50
   acceleration: 5
+  brakingDeceleration: 30
+  progressiveDecelerationRate: 0.1
   baseSteerSpeed: 180
   steerSpeedReductionFactor: 0.5
   gravity: -19.62
@@ -9937,7 +9939,7 @@ MonoBehaviour:
   maxLeanAngle: 25
   leanSpeed: 5
   maxSlopeLeanAngle: 15
-  slopeLeanSensitivity: 0.5
+  slopeLeanSensitivity: 1
   trailLifetime: 4.2
   colliderSpacing: 0.5
   positionOffset: 1
@@ -9955,8 +9957,7 @@ MonoBehaviour:
   BlackEffect: {fileID: 885784325841563570}
   frontWheel: {fileID: 9135810327812467786}
   rearWheel: {fileID: 669525909030464418}
-  wheelRotationMultiplier: 50
-  deathSpeed: 60
+  wheelRotationMultiplier: -50
 --- !u!1 &7344261579789764360
 GameObject:
   m_ObjectHideFlags: 0

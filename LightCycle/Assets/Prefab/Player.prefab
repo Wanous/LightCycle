@@ -10044,10 +10044,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 4185818369374919690}
   groundCheckPoint: {fileID: 8324952273568087962}
-  segmentLineMaterial: {fileID: 2100000, guid: db07ad2fbd09ca649a90071dadc8fddd, type: 2}
+  segmentLineMaterial: {fileID: 2100000, guid: 72e550974658d94489e4295fd8791387, type: 2}
   minSpeed: 5
   maxSpeed: 50
   acceleration: 5
+  brakingDeceleration: 30
+  progressiveDecelerationRate: 0.2
   baseSteerSpeed: 180
   steerSpeedReductionFactor: 0.5
   gravity: -19.62
@@ -10061,8 +10063,8 @@ MonoBehaviour:
   trailLifetime: 4.2
   colliderSpacing: 0.5
   positionOffset: 1
-  collisionActivationDelay: 0.5
-  segmentLineWidth: 0.2
+  collisionActivationDelay: 0.1
+  segmentLineWidth: 0.3
   playerToColliderLineWidth: 0.3
   trailColliderTag: Trail
   hazardTag: Hazard
@@ -10075,7 +10077,7 @@ MonoBehaviour:
   BlackEffect: {fileID: 885784325841563570}
   frontWheel: {fileID: 8765938315361218138}
   rearWheel: {fileID: 1019105607457860018}
-  wheelRotationMultiplier: 50
+  wheelRotationMultiplier: -50
 --- !u!114 &6986859397083430246
 MonoBehaviour:
   m_ObjectHideFlags: 0
