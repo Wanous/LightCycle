@@ -9,9 +9,9 @@ public class MainMenu : MonoBehaviour
     }
 
 
-        public void PlayOnlineGame()
+    public void PlayOnlineGame()
     {
-        SceneManager.LoadScene("Online");
+        SceneManager.LoadScene("Multi3");
     }
 
 
