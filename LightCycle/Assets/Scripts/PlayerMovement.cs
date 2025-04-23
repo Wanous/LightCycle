@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // Required for UI elements like RectTransform
 
 // Require necessary components to ensure they exist on the GameObject
 [RequireComponent(typeof(CharacterController))]
@@ -75,6 +76,13 @@ public class PlayerMovement : MonoBehaviour
     public Transform rearWheel;
     public float wheelRotationMultiplier = 40f;
 
+    // --- Speedometer Parameters ---
+    [Header("Speedometer")]
+    public RectTransform speedometerNeedle; // Assign the needle's RectTransform in the Inspector
+    public float minSpeedForNeedle = 0f;     // Minimum speed for the needle's range
+    public float maxSpeedForNeedle = 30f;    // Maximum speed for the needle's range
+    public float minNeedleAngle = 0f;        // Angle of the needle at minSpeed
+    public float maxNeedleAngle = -270f;     // Angle of the needle at maxSpeed (adjust as needed)
 
     // --- Private Variables ---
     private float currentMoveSpeed;
@@ -112,6 +120,7 @@ public class PlayerMovement : MonoBehaviour
         if (rearWheel == null) Debug.LogWarning("Rear Wheel not assigned.", this);
         if (leanTarget == null) { Debug.LogWarning("Lean Target not assigned. Leaning root object.", this); leanTarget = this.transform; }
         if (groundLayer.value == 0) Debug.LogError("Ground Layer not set!", this);
+        if (speedometerNeedle == null) Debug.LogWarning("Speedometer Needle not assigned.", this); // Check for speedometer needle!
 
         currentMoveSpeed = minSpeed;
         currentDeceleration = brakingDeceleration; // Initialize deceleration
@@ -139,6 +148,7 @@ public class PlayerMovement : MonoBehaviour
         UpdateWheelRotation();
         UpdateTrailSystem();
         UpdatePlayerToColliderLine();
+        UpdateSpeedometerNeedle(); // Update the speedometer needle!
     }
 
     // --- Ground Check Logic ---
@@ -148,11 +158,12 @@ public class PlayerMovement : MonoBehaviour
         {
             isGroundedStatus = Physics.CheckSphere(groundCheckPoint.position, groundCheckRadius, groundLayer, QueryTriggerInteraction.Ignore);
         }
-        else {
+        else
+        {
             // If no ground check point, assume not grounded for safety? Or default to true if preferred?
             // Defaulting to false seems safer to prevent unintended jumps/logic.
-             isGroundedStatus = false;
-             // Consider adding a Debug.LogWarning once in Start if groundCheckPoint is null
+            isGroundedStatus = false;
+            // Consider adding a Debug.LogWarning once in Start if groundCheckPoint is null
         }
     }
 
@@ -170,20 +181,20 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (accelerationInput == 0) // No input (coasting/natural deceleration)
         {
-             // Only apply progressive deceleration if moving faster than minSpeed
-             if (currentMoveSpeed > minSpeed)
-             {
+            // Only apply progressive deceleration if moving faster than minSpeed
+            if (currentMoveSpeed > minSpeed)
+            {
                 isBraking = true; // Consider if coasting should count as 'braking' for other logic
                 currentMoveSpeed -= currentDeceleration * Time.deltaTime;
                 currentMoveSpeed = Mathf.Max(currentMoveSpeed, minSpeed); // Prevent going below min speed
                 currentDeceleration += progressiveDecelerationRate * Time.deltaTime; // Increase deceleration rate
-             }
-             else
-             {
-                 isBraking = false; // Not actively braking if at min speed
-                 currentMoveSpeed = minSpeed;
-                 currentDeceleration = brakingDeceleration; // Reset deceleration when stopped/at min
-             }
+            }
+            else
+            {
+                isBraking = false; // Not actively braking if at min speed
+                currentMoveSpeed = minSpeed;
+                currentDeceleration = brakingDeceleration; // Reset deceleration when stopped/at min
+            }
         }
         else // Braking/Reversing (accelerationInput < 0)
         {
@@ -216,7 +227,7 @@ public class PlayerMovement : MonoBehaviour
         // Reset vertical velocity slightly below zero when grounded to help stick to slopes
         if (isGroundedStatus && velocity.y < 0)
         {
-             velocity.y = -2f; // Small negative value helps ensure CheckSphere stays grounded
+            velocity.y = -2f; // Small negative value helps ensure CheckSphere stays grounded
         }
         // Apply gravity constantly
         velocity.y += gravity * Time.deltaTime;
@@ -247,13 +258,13 @@ public class PlayerMovement : MonoBehaviour
 
                 if (slopeAngle > 1f) // Only calculate lean if there's a noticeable slope
                 {
-                   // Get the direction of the slope perpendicular to the player's forward direction
-                   Vector3 slopeRight = Vector3.Cross(groundNormal, transform.forward).normalized;
-                   // Calculate the lean angle based on how much the player's right vector aligns with the slope's right direction
-                   targetSlopeLeanAngleX = -Vector3.SignedAngle(transform.right, slopeRight, transform.forward);
-                   // Apply sensitivity and clamp to max slope lean angle
-                   targetSlopeLeanAngleX *= slopeLeanSensitivity;
-                   targetSlopeLeanAngleX = Mathf.Clamp(targetSlopeLeanAngleX, -maxSlopeLeanAngle, maxSlopeLeanAngle);
+                    // Get the direction of the slope perpendicular to the player's forward direction
+                    Vector3 slopeRight = Vector3.Cross(groundNormal, transform.forward).normalized;
+                    // Calculate the lean angle based on how much the player's right vector aligns with the slope's right direction
+                    targetSlopeLeanAngleX = -Vector3.SignedAngle(transform.right, slopeRight, transform.forward);
+                    // Apply sensitivity and clamp to max slope lean angle
+                    targetSlopeLeanAngleX *= slopeLeanSensitivity;
+                    targetSlopeLeanAngleX = Mathf.Clamp(targetSlopeLeanAngleX, -maxSlopeLeanAngle, maxSlopeLeanAngle);
                 }
             }
         }
@@ -331,7 +342,7 @@ public class PlayerMovement : MonoBehaviour
         // Find how many points are older than the lifetime
         while (removeCount < trailPoints.Count && trailPoints[removeCount].Timestamp < cutoffTime)
         {
-             removeCount++;
+            removeCount++;
         }
 
         // If points need removal
@@ -345,13 +356,13 @@ public class PlayerMovement : MonoBehaviour
                 trailColliderObjects.RemoveAt(0);
             }
             // Handle potential mismatch if more points expire than colliders exist (shouldn't normally happen)
-             int remainingCollidersToRemove = removeCount - trailColliderObjects.Count;
-             if(remainingCollidersToRemove > 0)
-             {
+            int remainingCollidersToRemove = removeCount - trailColliderObjects.Count;
+            if (remainingCollidersToRemove > 0)
+            {
                 Debug.LogWarning($"Trying to remove {removeCount} points, but only {trailColliderObjects.Count} colliders existed initially.");
                 // Ensure we don't try to remove more colliders than exist
                 removeCount = trailColliderObjects.Count;
-             }
+            }
 
 
             // Remove the old points from the list
@@ -446,7 +457,8 @@ public class PlayerMovement : MonoBehaviour
         CapsuleCollider capsule = colliderObj.GetComponent<CapsuleCollider>();
         LineRenderer line = colliderObj.GetComponent<LineRenderer>();
         // Failsafe if components somehow missing
-        if (capsule == null || line == null) {
+        if (capsule == null || line == null)
+        {
             Debug.LogError("Missing CapsuleCollider or LineRenderer on trail segment!", colliderObj);
             return;
         }
@@ -461,7 +473,7 @@ public class PlayerMovement : MonoBehaviour
         // Rotate the collider object to align with the segment direction
         if (segmentLength > 0.001f) // Avoid issues with zero-length vectors
         {
-             colliderObj.transform.rotation = Quaternion.LookRotation(segmentVector.normalized);
+            colliderObj.transform.rotation = Quaternion.LookRotation(segmentVector.normalized);
         }
 
         // Update Capsule Collider dimensions
@@ -490,6 +502,35 @@ public class PlayerMovement : MonoBehaviour
             // Disable if no trail points exist
             playerToColliderLineRenderer.enabled = false;
         }
+    }
+
+    // --- Update Speedometer Needle ---
+    void UpdateSpeedometerNeedle()
+    {
+        if (speedometerNeedle == null)
+        {
+            return; // Ensure the needle is assigned
+        }
+
+        // --- CORRECTED ---
+        // Calculate the current speed based on the intended forward movement speed.
+        // This correctly reflects acceleration/braking, not falling speed.
+        float currentSpeed = currentMoveSpeed;
+
+        // Normalize the speed to a 0-1 range, based on your min/max speed for the needle
+        // Note: Ensure minSpeedForNeedle and maxSpeedForNeedle match the intended display range
+        // based on your actual minSpeed and maxSpeed movement parameters.
+        float normalizedSpeed = Mathf.InverseLerp(minSpeedForNeedle, maxSpeedForNeedle, currentSpeed);
+
+        // Clamp normalizedSpeed to ensure it stays within 0-1, even if currentSpeed
+        // slightly exceeds maxSpeedForNeedle due to timing.
+        normalizedSpeed = Mathf.Clamp01(normalizedSpeed);
+
+        // Interpolate between the minimum and maximum needle angles based on the normalized speed.
+        float targetNeedleAngle = Mathf.Lerp(minNeedleAngle, maxNeedleAngle, normalizedSpeed);
+
+        // Apply the rotation to the needle's RectTransform. Use localEulerAngles.
+        speedometerNeedle.localEulerAngles = new Vector3(0f, 0f, targetNeedleAngle);
     }
 
     // --- Collision Handling ---
@@ -550,11 +591,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Draw trail points for visualization
-        if(trailPoints != null && trailPoints.Count > 0)
+        if (trailPoints != null && trailPoints.Count > 0)
         {
             Gizmos.color = Color.cyan;
             Vector3 lastPos = trailPoints[0].WorldPosition;
-             for (int i = 1; i < trailPoints.Count; i++)
+            for (int i = 1; i < trailPoints.Count; i++)
             {
                 Gizmos.DrawLine(lastPos, trailPoints[i].WorldPosition);
                 lastPos = trailPoints[i].WorldPosition;
@@ -562,7 +603,7 @@ public class PlayerMovement : MonoBehaviour
 
             // Draw line from player to last point
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, trailPoints[trailPoints.Count-1].WorldPosition);
+            Gizmos.DrawLine(transform.position, trailPoints[trailPoints.Count - 1].WorldPosition);
         }
     }
 }
