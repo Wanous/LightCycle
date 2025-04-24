@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI; // Required for UI elements like RectTransform
 
@@ -79,10 +80,18 @@ public class PlayerMovement : MonoBehaviour
     // --- Speedometer Parameters ---
     [Header("Speedometer")]
     public RectTransform speedometerNeedle; // Assign the needle's RectTransform in the Inspector
-    public float minSpeedForNeedle = 0f;     // Minimum speed for the needle's range
-    public float maxSpeedForNeedle = 30f;    // Maximum speed for the needle's range
-    public float minNeedleAngle = 0f;        // Angle of the needle at minSpeed
-    public float maxNeedleAngle = -270f;     // Angle of the needle at maxSpeed (adjust as needed)
+    public float minSpeedForNeedle = 0f;       // Minimum speed for the needle's range
+    public float maxSpeedForNeedle = 30f;       // Maximum speed for the needle's range
+    public float minNeedleAngle = 0f;            // Angle of the needle at minSpeed
+    public float maxNeedleAngle = -270f;        // Angle of the needle at maxSpeed (adjust as needed)
+
+    // --- Respawn Parameters ---
+    [Header("Respawn")]
+    [Tooltip("A list of Transform objects representing the possible spawn points.")]
+    public List<Transform> spawnPoints;
+    [Tooltip("The time delay before the player respawns after dying.")]
+    public float respawnDelay = 2.0f; // Added respawn delay
+    private int currentSpawnPointIndex = 0; // Index of the current spawn point
 
     // --- Private Variables ---
     private float currentMoveSpeed;
@@ -97,6 +106,7 @@ public class PlayerMovement : MonoBehaviour
     private float currentLeanAngleZ = 0f; // Separate variable for Z-axis lean
     private float currentLeanAngleX = 0f; // Separate variable for X-axis lean
     private bool isBraking = false;
+    private float deathTime; // To store the time of death for respawn delay
 
     // --- Trail Data Structures ---
     private class TrailPoint
@@ -122,6 +132,27 @@ public class PlayerMovement : MonoBehaviour
         if (groundLayer.value == 0) Debug.LogError("Ground Layer not set!", this);
         if (speedometerNeedle == null) Debug.LogWarning("Speedometer Needle not assigned.", this); // Check for speedometer needle!
 
+        // --- Find Spawn Points ---
+        spawnPoints = new List<Transform>(); // Initialize the list
+        GameObject[] spawnPointObjects = GameObject.FindGameObjectsWithTag("SpawnPoint"); // Find all GameObjects with the tag
+        if (spawnPointObjects.Length == 0)
+        {
+            Debug.LogError("No Spawn Points found in the scene!  Please create GameObjects with the tag 'SpawnPoint'.", this);
+            this.enabled = false; // Disable the script to prevent errors
+            return;
+        }
+        else
+        {
+            // Add the transforms of the found GameObjects to the list
+            foreach (GameObject spawnPointObject in spawnPointObjects)
+            {
+                spawnPoints.Add(spawnPointObject.transform);
+            }
+            // Initialize the player's position to the first spawn point
+            transform.position = spawnPoints[0].position;
+            currentSpawnPointIndex = 0; // Initialize spawn point index
+        }
+
         currentMoveSpeed = minSpeed;
         currentDeceleration = brakingDeceleration; // Initialize deceleration
         // Setup player-to-collider line renderer...
@@ -138,7 +169,15 @@ public class PlayerMovement : MonoBehaviour
     // --- Frame Update ---
     void Update()
     {
-        if (isDead) return;
+        if (isDead)
+        {
+            // Check if it's time to respawn
+            if (Time.time >= deathTime + respawnDelay)
+            {
+                RespawnPlayer();
+            }
+            return; // Exit Update() if dead
+        }
 
         HandleGroundCheck();
         HandleMovementInput();
@@ -540,19 +579,25 @@ public class PlayerMovement : MonoBehaviour
 
         // Check if the collider has the trail tag OR the hazard tag
         // Note: The TrailSegmentCollider script ensures trail colliders are only active after the delay.
-        if (other.gameObject.CompareTag(trailColliderTag) || (other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15))
+        if (other.gameObject.CompareTag(trailColliderTag) || (other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15) || other.gameObject.CompareTag("plane") || transform.position.y < -10) 
         {
             TriggerDeathSequence();
+            StartCoroutine(DelayedRespawn());
         }
     }
 
+    IEnumerator DelayedRespawn()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+        RespawnPlayer();
+    }
 
     // --- Death Logic ---
     void TriggerDeathSequence()
     {
         if (isDead) return; // Prevent triggering multiple times
         isDead = true;
-        Debug.Log("Player Died!");
+        deathTime = Time.time; // Store the time of deathDebug.Log("Player Died!");
 
         // Play particle effects if assigned
         if (OrangeEffect != null) OrangeEffect.Play();
@@ -565,6 +610,42 @@ public class PlayerMovement : MonoBehaviour
 
         // Consider adding other death behaviors here (e.g., informing a GameManager, showing UI)
         // Example: FindObjectOfType<GameManager>()?.PlayerDied();
+    }
+
+    // --- Respawn Logic ---
+    void RespawnPlayer()
+    {
+        isDead = false; // Reset the dead flag
+        if (player != null) player.enabled = true; // Re-enable the CharacterController
+        this.enabled = true; // Re-enable this script
+
+        // Choose the next spawn point
+        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count; // Cycle through spawn points
+        transform.position = spawnPoints[currentSpawnPointIndex].position; // Move player to the new spawn point
+
+        // Reset any other necessary state (e.g., velocity, speed, etc.)
+        velocity = Vector3.zero;
+        currentMoveSpeed = minSpeed;
+        currentDeceleration = brakingDeceleration;
+        //Clear the trail
+        ClearTrail();
+        Debug.Log("Player Respawned!");
+    }
+
+    void ClearTrail()
+    {
+        // Destroy all existing trail collider objects
+        foreach (GameObject colliderObj in trailColliderObjects)
+        {
+            if (colliderObj != null)
+            {
+                Destroy(colliderObj);
+            }
+        }
+        trailColliderObjects.Clear();
+        trailPoints.Clear();
+        if (playerToColliderLineRenderer != null)
+            playerToColliderLineRenderer.enabled = false;
     }
 
     // --- Cleanup ---
@@ -604,6 +685,20 @@ public class PlayerMovement : MonoBehaviour
             // Draw line from player to last point
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, trailPoints[trailPoints.Count - 1].WorldPosition);
+        }
+
+        // Draw spawn points
+        if (spawnPoints != null)
+        {
+            Gizmos.color = Color.blue;
+            foreach (Transform spawnPoint in spawnPoints)
+            {
+                if (spawnPoint != null)
+                {
+                    Gizmos.DrawSphere(spawnPoint.position, 0.5f); // Smaller sphere for better visualization
+                    Gizmos.DrawIcon(spawnPoint.position, "SpawnPointIcon", true); //Use default icon
+                }
+            }
         }
     }
 }

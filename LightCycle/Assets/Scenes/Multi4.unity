@@ -7248,7 +7248,7 @@ MonoBehaviour:
   evaluationInterval: 3
   timeInterpolationGui: 0
   showRoomGUI: 1
-  minPlayers: 1
+  minPlayers: 2
   roomPlayerPrefab: {fileID: 4230450695597311046, guid: ccc9a6b558a5d27e7a6f763f1b0359eb, type: 3}
   RoomScene: Assets/Scenes/Lobby.unity
   GameplayScene: Assets/Scenes/Multi4.unity
@@ -8506,6 +8506,10 @@ PrefabInstance:
     - target: {fileID: 4837532435732986782, guid: 56a95393ba25b4948b7f8cd7bae68200, type: 3}
       propertyPath: m_Name
       value: SpawnPoint Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4837532435732986782, guid: 56a95393ba25b4948b7f8cd7bae68200, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
