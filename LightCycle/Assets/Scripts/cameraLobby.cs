@@ -152,19 +152,6 @@ public class cameraLobby : NetworkBehaviour
 
     private void HandleCursorState()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            controlsEnabled = !controlsEnabled;
-            Cursor.lockState = controlsEnabled ? CursorLockMode.Locked : CursorLockMode.None;
-            Cursor.visible = !controlsEnabled;
-        }
-
-        if (Input.GetMouseButtonDown(0) && !controlsEnabled)
-        {
-            controlsEnabled = true;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
     }
 
     private void FindClosestEnemy()
