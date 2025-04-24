@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+            <html>
+                <head>                    
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+                    <title>ReadMe.md</title>
+                    <style type="text/css">
+                    /*
+Copyright (c) 2017 Chris Patuzzo
+https://twitter.com/chrispatuzzo
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+body {
+  font-family: Helvetica, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: white;
+  padding: 30px;
+  color: #333;
+}
+
+body &gt; *:first-child {
+  margin-top: 0 !important;
+}
+
+body &gt; *:last-child {
+  margin-bottom: 0 !important;
+}
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a.absent {
+  color: #cc0000;
+}
+
+a.anchor {
+  display: block;
+  padding-left: 30px;
+  margin-left: -30px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+  cursor: text;
+  position: relative;
+}
+
+h2:first-child, h1:first-child, h1:first-child + h2, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor {
+  text-decoration: none;
+}
+
+h1 tt, h1 code {
+  font-size: inherit;
+}
+
+h2 tt, h2 code {
+  font-size: inherit;
+}
+
+h3 tt, h3 code {
+  font-size: inherit;
+}
+
+h4 tt, h4 code {
+  font-size: inherit;
+}
+
+h5 tt, h5 code {
+  font-size: inherit;
+}
+
+h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: black;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #cccccc;
+  color: black;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777777;
+  font-size: 14px;
+}
+
+p, blockquote, ul, ol, dl, li, table, pre {
+  margin: 15px 0;
+}
+
+/*
+hr {
+  border: 0 none;
+  color: #cccccc;
+  height: 4px;
+  padding: 0;
+}
+*/
+body &gt; h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+body &gt; h1:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+body &gt; h1:first-child + h2 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+body &gt; h3:first-child, body &gt; h4:first-child, body &gt; h5:first-child, body &gt; h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
+  margin-top: 0;
+}
+
+li p.first {
+  display: inline-block;
+}
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul :first-child, ol :first-child {
+  margin-top: 0;
+}
+
+ul :last-child, ol :last-child {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt &gt; :first-child {
+  margin-top: 0;
+}
+
+dl dt &gt; :last-child {
+  margin-bottom: 0;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd &gt; :first-child {
+  margin-top: 0;
+}
+
+dl dd &gt; :last-child {
+  margin-bottom: 0;
+}
+
+blockquote {
+  border-left: 4px solid #dddddd;
+  padding: 0 15px;
+  color: #777777;
+}
+
+blockquote &gt; :first-child {
+  margin-top: 0;
+}
+
+blockquote &gt; :last-child {
+  margin-bottom: 0;
+}
+
+table {
+  padding: 0;
+}
+table tr {
+  border-top: 1px solid #cccccc;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+table tr th {
+  font-weight: bold;
+  border: 1px solid #cccccc;
+  text-align: left;
+  margin: 0;
+  padding: 6px 13px;
+}
+
+table tr td {
+  border: 1px solid #cccccc;
+  text-align: left;
+  margin: 0;
+  padding: 6px 13px;
+}
+
+table tr th :first-child, table tr td :first-child {
+  margin-top: 0;
+}
+
+table tr th :last-child, table tr td :last-child {
+  margin-bottom: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+span.frame {
+  display: block;
+  overflow: hidden;
+}
+
+span.frame &gt; span {
+  border: 1px solid #dddddd;
+  display: block;
+  float: left;
+  overflow: hidden;
+  margin: 13px 0 0;
+  padding: 7px;
+  width: auto;
+}
+
+span.frame span img {
+  display: block;
+  float: left;
+}
+
+span.frame span span {
+  clear: both;
+  color: #333333;
+  display: block;
+  padding: 5px 0 0;
+}
+
+span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+span.align-center &gt; span {
+  display: block;
+  overflow: hidden;
+  margin: 13px auto 0;
+  text-align: center;
+}
+
+span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+
+span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+span.align-right &gt; span {
+  display: block;
+  overflow: hidden;
+  margin: 13px 0 0;
+  text-align: right;
+}
+
+span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+
+span.float-left {
+  display: block;
+  margin-right: 13px;
+  overflow: hidden;
+  float: left;
+}
+
+span.float-left span {
+  margin: 13px 0 0;
+}
+
+span.float-right {
+  display: block;
+  margin-left: 13px;
+  overflow: hidden;
+  float: right;
+}
+
+span.float-right &gt; span {
+  display: block;
+  overflow: hidden;
+  margin: 13px auto 0;
+  text-align: right;
+}
+
+code, tt {
+  margin: 0 2px;
+  padding: 0 5px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+.highlight pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+/* Syntax Highlighting */
+
+.plainText {
+ background-color: #FFFFFF;
+ color: #000000;
+}
+.htmlServerSideScript {
+ background-color: #FFFF00;
+}
+.htmlComment {
+ color: #008000;
+}
+.htmlTagDelimiter {
+ color: #0000FF;
+}
+.htmlElementName {
+ color: #A31515;
+}
+.htmlAttributeName {
+ color: #FF0000;
+}
+.htmlAttributeValue {
+ color: #0000FF;
+}
+.htmlOperator {
+ color: #0000FF;
+}
+.comment {
+ color: #008000;
+}
+.xmlDocTag {
+ color: #808080;
+}
+.xmlDocComment {
+ color: #008000;
+}
+.string {
+ color: #A31515;
+}
+.stringCSharpVerbatim {
+ color: #A31515;
+}
+.keyword {
+ color: #0000FF;
+}
+.preprocessorKeyword {
+ color: #0000FF;
+}
+.htmlEntity {
+ color: #FF0000;
+}
+.xmlAttribute {
+ color: #FF0000;
+}
+.xmlAttributeQuotes {
+ color: #000000;
+}
+.xmlAttributeValue {
+ color: #0000FF;
+}
+.xmlCDataSection {
+ color: #808080;
+}
+.xmlComment {
+ color: #008000;
+}
+.xmlDelimiter {
+ color: #0000FF;
+}
+.xmlName {
+ color: #A31515;
+}
+.className {
+ color: #48D1CC;
+}
+.cssSelector {
+ color: #A31515;
+}
+.cssPropertyName {
+ color: #FF0000;
+}
+.cssPropertyValue {
+ color: #0000FF;
+}
+.sqlSystemFunction {
+ color: #FF00FF;
+}
+.powershellAttribute {
+ color: #B0E0E6;
+}
+.powershellOperator {
+ color: #808080;
+}
+.powershellType {
+ color: #008080;
+}
+.powershellVariable {
+ color: #FF4500;
+}
+.type {
+ color: #008080;
+}
+.typeVariable {
+ color: #008080;
+ font-style: italic;
+}
+.namespace {
+ color: #000080;
+}
+.constructor {
+ color: #800080;
+}
+.predefined {
+ color: #000080;
+}
+.pseudoKeyword {
+ color: #000080;
+}
+.stringEscape {
+ color: #808080;
+}
+.controlKeyword {
+ color: #0000FF;
+}
+.number {
+}
+.operator {
+}
+.delimiter {
+}
+.markdownHeader {
+ font-weight: bold;
+}
+.markdownCode {
+ color: #008080;
+}
+.markdownListItem {
+ font-weight: bold;
+}
+.italic {
+ font-style: italic;
+}
+.bold {
+ font-weight: bold;
+}
+
+                    </style>
+                </head>
+                <body style="">
+                <p id="0"><img src="images/IsoCity_screenShot_820w.png" alt="" /></p>
+<h1 id="1">City People FREE Samples</h1>
+<p id="3">Welcome to the <strong>City People FREE Samples</strong>! This package provides a group of city characters to bring life to your Unity projects. This is a subset of <a href="https://assetstore.unity.com/packages/3d/characters/city-people-mega-pack-203329"><strong>City People Mega-Pack</strong></a> which contains 100+ of diverse characters.</p>
+<h2 id="5">Table of Contents</h2>
+<ol id="7">
+<li id="7"><a href="#introduction">Introduction</a></li>
+<li id="8"><a href="#whats-new-in-v130">What's New in v1.1.0</a></li>
+<li id="9"><a href="#getting-started">Getting Started</a></li>
+<li id="10"><a href="#demo-scenes">Demo Scenes</a>
+<ul id="11">
+<li id="11"><a href="#demo-scene-1-character-showcase">Demo Scene 1: Character Showcase</a></li>
+<li id="12"><a href="#demo-scene-2-isometric-city">Demo Scene 2: Isometric City</a></li>
+</ul>
+</li>
+<li id="13"><a href="#animations">Animations</a></li>
+<li id="14"><a href="#citypeople-component-script">CityPeople Component Script</a></li>
+<li id="15"><a href="#palette-system-and-uv">Palette System and UV</a></li>
+<li id="16"><a href="#support">Support</a></li>
+</ol>
+<hr id="18" />
+<h2 id="20">Introduction</h2>
+<p id="22">These characters packs are designed to populate your urban environments with a rich variety of animated characters. The Polyart style provides optimized characters, making them suitable for low-end devices and AR/VR simulations.</p>
+<h2 id="24">What's New in v1.1.0</h2>
+<ul id="26">
+<li id="26"><p id="26"><strong>Enhanced Demo_1_Showcase Scene</strong>: Hovering over characters now increases their size (focus effect), and clicking cycles through available material palettes.</p>
+</li>
+<li id="27"><p id="27"><strong>New Demo Scene</strong>: Introduced <strong>Demo_2_IsoCity</strong>, an isometric view of a town populated with animated characters. A few simple buildings have been added to enhance the package with this scene.</p>
+</li>
+<li id="29"><p id="29"><strong>CityPeople Script Update</strong>: New method for easy material switching that intelligently replaces materials with the &quot;people_pal&quot; prefix.</p>
+</li>
+<li id="31"><p id="31"><strong>Unity 6 Compatibility</strong>: Fully tested and compatible with Unity 6.</p>
+</li>
+</ul>
+<h2 id="33">Getting Started</h2>
+<ol id="35">
+<li id="35"><strong>Import the Package</strong>: Download and import into your Unity project.</li>
+<li id="36"><strong>Explore Demo Scenes</strong>: Open the demo scenes to see the characters in action!</li>
+<li id="37"><strong>Drag&amp;Drop:</strong> Place characters from <code>Prefabs</code> folder anywhere on your scene.</li>
+</ol>
+<h2 id="39">Demo Scenes</h2>
+<h3 id="41">Demo Scene 1: Character Showcase</h3>
+<ul id="43">
+<li id="43"><strong>File</strong>: <code>Demo_1_Showcase.unity</code></li>
+<li id="44"><strong>Description</strong>: An interactive scene where you can view all characters. Hover over them to see the focus effect, and click to cycle through different material palettes. Use arrow keys or screen buttons to navigate between character groups.</li>
+</ul>
+<h3 id="46">Demo Scene 2: Isometric City</h3>
+<ul id="48">
+<li id="48"><strong>File</strong>: <code>Demo_2_IsoCity.unity</code></li>
+<li id="49"><strong>Description</strong>: A beautifully crafted isometric town scene showcasing all animated characters from a top-down orthographic perspective.</li>
+</ul>
+<h2 id="51">Animations</h2>
+<ul id="53">
+<li id="53"><strong>Standard Characters</strong>: A set of common animations suitable to most characters.
+<ul id="54">
+<li id="54">Walking (6)</li>
+<li id="55">Running (4)</li>
+<li id="56">Idle (6)</li>
+<li id="57">Dancing (5)</li>
+<li id="58">Warming Up</li>
+</ul>
+</li>
+</ul>
+<h2 id="60">CityPeople Component Script</h2>
+<p id="62">Located in the <code>Scripts</code> folder, the <strong>CityPeople</strong> component script offers basic functionality to control character behaviors and appearances.</p>
+<h3 id="64">Key Features</h3>
+<ul id="66">
+<li id="66"><strong>Material Switching Method</strong>: Easily change a character's material palette using the new method: <code>public void SetPalette(Material mat)</code>
+<ul id="67">
+<li id="67"><strong>Usage</strong>: This method replaces materials with the <code>people_pal</code> prefix while leaving other materials untouched.</li>
+</ul>
+</li>
+<li id="68"><strong>Auto Play Animation:</strong> Setting this field to <code>True</code> in the inspector makes the character switch animations randomly for testing and demonstration purposes.</li>
+</ul>
+<h2 id="70">Palette System and UV</h2>
+<p id="71"><img src="images/PaletteTextures.png" alt="" />
+The characters UV have been mapped in a way to make easy the switching of palettes. These textures (acting as palettes) have a standardized structure with areas corresponding to different surfaces of the characters:</p>
+<ul id="74">
+<li id="74">Skin colors</li>
+<li id="75">Hair colors</li>
+<li id="76">Clothes colors</li>
+<li id="77">Dark and Light details.</li>
+</ul>
+<p id="79">A single texture/material pair can be applied to all the characters in this package. And any texture/material can be applied to any character.</p>
+<p id="81">Free tool <a href="https://assetstore.unity.com/packages/tools/painting/da-polypaint-low-poly-customizer-251157">DA Poly Paint</a> can be used to further modify the UV 'painting' by model with ease.</p>
+<h2 id="83">Support</h2>
+<p id="85">If you have any questions or need assistance:</p>
+<ul id="87">
+<li id="87"><strong>Email</strong>: <a href="mailto:denys.almaral@gmail.com">denys.almaral@gmail.com</a></li>
+<li id="88"><strong>Website</strong>: <a href="https://denysalmaral.com">DenysAlmaral.com</a></li>
+<li id="89"><strong>Forum</strong>: <a href="https://github.com/piXelicidio/Chat/discussions/2">Github Discussions</a></li>
+</ul>
+<hr id="91" />
+<p id="93">Thank you for downloading <strong>City People FREE Samples</strong>. We hope these assets help you create engaging and fun Unity projects!</p>
+
+                </body>
+            </html>
+            
