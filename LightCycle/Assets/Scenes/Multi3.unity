@@ -191,7 +191,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3332108}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 615e6c6589cf9e54cad646b5a11e0529, type: 3}
+  m_Script: {fileID: 11500000, guid: a4c96e6dd99826849ab1431f94547141, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
@@ -199,9 +199,9 @@ MonoBehaviour:
   headlessStartMode: 0
   editorAutoStart: 0
   sendRate: 60
-  offlineScene: 
-  onlineScene: 
-  offlineSceneLoadDelay: 0
+  offlineScene: Assets/Scenes/Multi3.unity
+  onlineScene: Assets/Scenes/Lobby.unity
+  offlineSceneLoadDelay: 12.9
   transport: {fileID: 0}
   networkAddress: localhost
   maxConnections: 100
@@ -211,7 +211,8 @@ MonoBehaviour:
   playerPrefab: {fileID: 3153088720200435721, guid: 1d89e31002ea1134188b91f3b282831b, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 3153088720200435721, guid: ccc9a6b558a5d27e7a6f763f1b0359eb, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -225,7 +226,7 @@ MonoBehaviour:
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
   evaluationMethod: 0
-  evaluationInterval: 0
+  evaluationInterval: 3
   timeInterpolationGui: 0
   showRoomGUI: 1
   minPlayers: 1
@@ -1114,6 +1115,10 @@ PrefabInstance:
     - target: {fileID: 5945559561479067241, guid: 0b891e23ca8ea0f4c94a8598ec98934b, type: 3}
       propertyPath: m_Name
       value: PauseMenuCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 5945559561479067241, guid: 0b891e23ca8ea0f4c94a8598ec98934b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

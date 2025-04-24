@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class PlayerMovementCC : MonoBehaviour
 {
@@ -12,6 +14,9 @@ public class PlayerMovementCC : MonoBehaviour
     public float groundDistance = 0.2f;
     public LayerMask groundLayer;
     public bool isGrounded;
+
+    [Header("Scene Deactivation")]
+    public List<int> buildIndicesToDeactivateIn; // List of scene build indices where this object should be deactivated
 
     private CharacterController controller;
     private Vector3 velocity;
@@ -31,10 +36,16 @@ public class PlayerMovementCC : MonoBehaviour
             Debug.LogError("Ground Check Transform not assigned!");
             enabled = false;
         }
+
     }
 
     void Update()
     {
+        int currentSceneBuildIndex = SceneManager.GetActiveScene().buildIndex;
+        if (buildIndicesToDeactivateIn.Contains(currentSceneBuildIndex))
+        {
+            gameObject.SetActive(false);
+        }
         // Perform ground check
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundLayer);
 
