@@ -548,27 +548,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (speedometerNeedle == null)
         {
-            return; // Ensure the needle is assigned
+            return;
         }
 
-        // --- CORRECTED ---
-        // Calculate the current speed based on the intended forward movement speed.
-        // This correctly reflects acceleration/braking, not falling speed.
         float currentSpeed = currentMoveSpeed;
-
-        // Normalize the speed to a 0-1 range, based on your min/max speed for the needle
-        // Note: Ensure minSpeedForNeedle and maxSpeedForNeedle match the intended display range
-        // based on your actual minSpeed and maxSpeed movement parameters.
         float normalizedSpeed = Mathf.InverseLerp(minSpeedForNeedle, maxSpeedForNeedle, currentSpeed);
-
-        // Clamp normalizedSpeed to ensure it stays within 0-1, even if currentSpeed
-        // slightly exceeds maxSpeedForNeedle due to timing.
         normalizedSpeed = Mathf.Clamp01(normalizedSpeed);
-
-        // Interpolate between the minimum and maximum needle angles based on the normalized speed.
         float targetNeedleAngle = Mathf.Lerp(minNeedleAngle, maxNeedleAngle, normalizedSpeed);
-
-        // Apply the rotation to the needle's RectTransform. Use localEulerAngles.
         speedometerNeedle.localEulerAngles = new Vector3(0f, 0f, targetNeedleAngle);
     }
 
@@ -577,9 +563,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isDead) return;
 
-        // Check if the collider has the trail tag OR the hazard tag
-        // Note: The TrailSegmentCollider script ensures trail colliders are only active after the delay.
-        if (other.gameObject.CompareTag(trailColliderTag) || (other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15) || other.gameObject.CompareTag("plane") || transform.position.y < -10) 
+        if (other.gameObject.CompareTag(trailColliderTag) || (other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15) || other.gameObject.CompareTag("plane") || transform.position.y < -10)
         {
             TriggerDeathSequence();
             StartCoroutine(DelayedRespawn());
@@ -595,9 +579,9 @@ public class PlayerMovement : MonoBehaviour
     // --- Death Logic ---
     void TriggerDeathSequence()
     {
-        if (isDead) return; // Prevent triggering multiple times
+        if (isDead) return;
         isDead = true;
-        deathTime = Time.time; // Store the time of deathDebug.Log("Player Died!");
+        deathTime = Time.time;
 
         // Play particle effects if assigned
         if (OrangeEffect != null) OrangeEffect.Play();
@@ -605,23 +589,20 @@ public class PlayerMovement : MonoBehaviour
         if (BlackEffect != null) BlackEffect.Play();
 
         // Disable player control and this script
-        if (player != null) player.enabled = false; // Disable CharacterController to stop movement
-        this.enabled = false; // Disable this script
-
-        // Consider adding other death behaviors here (e.g., informing a GameManager, showing UI)
-        // Example: FindObjectOfType<GameManager>()?.PlayerDied();
+        if (player != null) player.enabled = false;
+        this.enabled = false;
     }
 
     // --- Respawn Logic ---
     void RespawnPlayer()
     {
-        isDead = false; // Reset the dead flag
+        isDead = false;
         if (player != null) player.enabled = true; // Re-enable the CharacterController
         this.enabled = true; // Re-enable this script
 
         // Choose the next spawn point
-        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count; // Cycle through spawn points
-        transform.position = spawnPoints[currentSpawnPointIndex].position; // Move player to the new spawn point
+        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
+        transform.position = spawnPoints[currentSpawnPointIndex].position;
 
         // Reset any other necessary state (e.g., velocity, speed, etc.)
         velocity = Vector3.zero;
@@ -662,84 +643,40 @@ public class PlayerMovement : MonoBehaviour
         trailPoints.Clear();
     }
 
-    // Optional: Draw Gizmos in the editor for debugging
-    void OnDrawGizmos()
+    // --- New Helper Script for Trail Collider Activation Delay ---
+    public class TrailSegmentCollider : MonoBehaviour
     {
-        if (groundCheckPoint != null)
-        {
-            Gizmos.color = isGroundedStatus ? Color.green : Color.red;
-            Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
-        }
+        private float creationTime;
+        private float activationDelay;
+        private CapsuleCollider capsuleCollider;
 
-        // Draw trail points for visualization
-        if (trailPoints != null && trailPoints.Count > 0)
+        public void Initialize(float delay)
         {
-            Gizmos.color = Color.cyan;
-            Vector3 lastPos = trailPoints[0].WorldPosition;
-            for (int i = 1; i < trailPoints.Count; i++)
+            creationTime = Time.time;
+            activationDelay = delay;
+            capsuleCollider = GetComponent<CapsuleCollider>();
+            if (capsuleCollider != null)
             {
-                Gizmos.DrawLine(lastPos, trailPoints[i].WorldPosition);
-                lastPos = trailPoints[i].WorldPosition;
+                // Disable the collider immediately upon creation
+                capsuleCollider.enabled = false;
             }
-
-            // Draw line from player to last point
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, trailPoints[trailPoints.Count - 1].WorldPosition);
+            else
+            {
+                Debug.LogError("TrailSegmentCollider requires a CapsuleCollider component!", this);
+                enabled = false; // Disable this script if no collider is found
+            }
         }
 
-        // Draw spawn points
-        if (spawnPoints != null)
+        void Update()
         {
-            Gizmos.color = Color.blue;
-            foreach (Transform spawnPoint in spawnPoints)
+            // Check if the collider is currently disabled and if enough time has passed
+            if (capsuleCollider != null && !capsuleCollider.enabled)
             {
-                if (spawnPoint != null)
+                if (Time.time >= creationTime + activationDelay)
                 {
-                    Gizmos.DrawSphere(spawnPoint.position, 0.5f); // Smaller sphere for better visualization
-                    Gizmos.DrawIcon(spawnPoint.position, "SpawnPointIcon", true); //Use default icon
+                    // Enable the collider after the delay
+                    capsuleCollider.enabled = true;
                 }
-            }
-        }
-    }
-}
-
-// --- New Helper Script for Trail Collider Activation Delay ---
-// Attach this script to each trail collider GameObject.
-public class TrailSegmentCollider : MonoBehaviour
-{
-    private float creationTime;
-    private float activationDelay;
-    private CapsuleCollider capsuleCollider;
-
-    // This method will be called by PlayerMovement to set up the delay
-    public void Initialize(float delay)
-    {
-        creationTime = Time.time;
-        activationDelay = delay;
-        capsuleCollider = GetComponent<CapsuleCollider>();
-        if (capsuleCollider != null)
-        {
-            // Disable the collider immediately upon creation
-            capsuleCollider.enabled = false;
-        }
-        else
-        {
-            Debug.LogError("TrailSegmentCollider requires a CapsuleCollider component!", this);
-            enabled = false; // Disable this script if no collider is found
-        }
-    }
-
-    void Update()
-    {
-        // Check if the collider is currently disabled and if enough time has passed
-        if (capsuleCollider != null && !capsuleCollider.enabled)
-        {
-            if (Time.time >= creationTime + activationDelay)
-            {
-                // Enable the collider after the delay
-                capsuleCollider.enabled = true;
-                // Optionally, you can destroy this script now if no further logic is needed
-                // Destroy(this); // Uncomment this line if you don't need the script to do anything after activation
             }
         }
     }

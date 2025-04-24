@@ -10060,7 +10060,7 @@ MonoBehaviour:
   maxLeanAngle: 25
   leanSpeed: 5
   maxSlopeLeanAngle: 15
-  slopeLeanSensitivity: 1
+  slopeLeanSensitivity: 0.273
   trailLifetime: 4.2
   colliderSpacing: 0.5
   positionOffset: 1
@@ -10082,8 +10082,10 @@ MonoBehaviour:
   speedometerNeedle: {fileID: 4820964113091835592}
   minSpeedForNeedle: 0
   maxSpeedForNeedle: 30
-  minNeedleAngle: 0
-  maxNeedleAngle: -270
+  minNeedleAngle: 20
+  maxNeedleAngle: -265
+  spawnPoints: []
+  respawnDelay: 2
 --- !u!114 &6986859397083430246
 MonoBehaviour:
   m_ObjectHideFlags: 0
