@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2006983970858650759}
   - component: {fileID: -5794846009264792964}
   - component: {fileID: 5771201195868835682}
+  - component: {fileID: -986370610362362974}
   m_Layer: 6
   m_Name: House4
   m_TagString: Hazard
@@ -107,7 +108,7 @@ BoxCollider:
   m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 9.593498, y: 4.9298954, z: 6.235812}
+  m_Size: {x: 0.1, y: 0.1, z: 0.1}
   m_Center: {x: -1.2646599, y: 2.4620576, z: -0.5106381}
 --- !u!65 &5771201195868835682
 BoxCollider:
@@ -130,3 +131,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 9.593498, y: 4.9298954, z: 6.235812}
   m_Center: {x: -1.2646599, y: 2.4620576, z: -0.5106381}
+--- !u!64 &-986370610362362974
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 40556855959624808}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 710988827277393457, guid: 589efb82e39695d4c8c9d3069a07fb5c, type: 3}

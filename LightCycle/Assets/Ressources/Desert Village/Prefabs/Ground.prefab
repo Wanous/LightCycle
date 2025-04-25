@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 918791804813890865}
   - component: {fileID: 724931591340819965}
   - component: {fileID: 8154655952786605876}
+  - component: {fileID: -3130793970113025074}
   m_Layer: 6
   m_Name: Ground
-  m_TagString: Untagged
+  m_TagString: Hazard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -106,5 +107,27 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 213.68167, y: 9.923225, z: 214.17958}
+  m_Size: {x: 0.1, y: 0.1, z: 0.1}
   m_Center: {x: -0.030483246, y: 3.734793, z: 0.16835785}
+--- !u!64 &-3130793970113025074
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7916202241214363750}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1453043773871479701, guid: 589efb82e39695d4c8c9d3069a07fb5c, type: 3}

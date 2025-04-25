@@ -13,9 +13,10 @@ GameObject:
   - component: {fileID: 5133246444486236490}
   - component: {fileID: -2247550307443536409}
   - component: {fileID: -5140418408929416806}
+  - component: {fileID: -1334786964591191225}
   m_Layer: 6
   m_Name: WaterCircle
-  m_TagString: Untagged
+  m_TagString: Hazard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,7 +109,7 @@ BoxCollider:
   m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 8.043016, y: 1.092379, z: 8.043016}
+  m_Size: {x: 0.1, y: 0.1, z: 0.1}
   m_Center: {x: 0, y: 0.53760475, z: 0}
 --- !u!65 &-5140418408929416806
 BoxCollider:
@@ -131,3 +132,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 8.043016, y: 1.092379, z: 8.043016}
   m_Center: {x: 0, y: 0.53760475, z: 0}
+--- !u!64 &-1334786964591191225
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3705313449500253301}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6321087074664061082, guid: 589efb82e39695d4c8c9d3069a07fb5c, type: 3}
