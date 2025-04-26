@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 5023827496288470837}
   - component: {fileID: 5023827496287340021}
   - component: {fileID: 8392042334364062367}
-  m_Layer: 6
+  - component: {fileID: 2379925173307106938}
+  m_Layer: 0
   m_Name: Tree3
   m_TagString: Hazard
   m_Icon: {fileID: 0}
@@ -108,7 +109,30 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.328143
+  m_Radius: 0.25
   m_Height: 3.1689844
   m_Direction: 1
   m_Center: {x: -0.017126411, y: 1.5844922, z: 0.0061415434}
+--- !u!136 &2379925173307106938
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5023827496289606453}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.15
+  m_Height: 3.168984
+  m_Direction: 1
+  m_Center: {x: -0.01712641, y: 1.584492, z: 0.006141543}
