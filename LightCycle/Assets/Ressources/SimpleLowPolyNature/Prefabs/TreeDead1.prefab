@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1026458569958187926}
   - component: {fileID: 1026458569959154006}
   - component: {fileID: 4211759954647305901}
+  - component: {fileID: 1209719107417605937}
   m_Layer: 6
   m_Name: TreeDead1
   m_TagString: Hazard
@@ -107,6 +108,29 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.3185891
+  m_Height: 3.6476793
+  m_Direction: 1
+  m_Center: {x: -0.020111054, y: 1.8238397, z: -0.019874126}
+--- !u!136 &1209719107417605937
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1026458569961160598}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.1
   m_Height: 3.6476793
   m_Direction: 1
   m_Center: {x: -0.020111054, y: 1.8238397, z: -0.019874126}
