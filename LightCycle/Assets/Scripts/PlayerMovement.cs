@@ -65,11 +65,18 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
 
+	[Header("Camera")]
+	public Camera Cam;
+	private float baseFOV = 70f;
+	private float maxFOV = 90f;
+	private float smoothSpeed = 5f;
+
     // --- Effects ---
     [Header("Effects")]
     [SerializeField] ParticleSystem OrangeEffect;
     [SerializeField] ParticleSystem darkOrangeEffect;
     [SerializeField] ParticleSystem BlackEffect;
+    [SerializeField] ParticleSystem Speed;
 
     // --- Wheel Rotation ---
     [Header("Wheel Rotation")]
@@ -325,6 +332,9 @@ public class PlayerMovement : MonoBehaviour
         moveDirection.y = velocity.y;
         // Apply the movement using CharacterController.Move
         player.Move(moveDirection * Time.deltaTime);
+		Speed.startSpeed = currentMoveSpeed/2;
+		float targetFOV = Mathf.Lerp(baseFOV, maxFOV, currentMoveSpeed / maxSpeed);
+		Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, targetFOV, Time.deltaTime * smoothSpeed);
     }
 
     // --- Wheel Rotation ---
