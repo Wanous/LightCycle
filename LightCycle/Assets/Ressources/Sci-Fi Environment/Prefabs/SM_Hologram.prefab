@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 117851723047332376}
   - component: {fileID: 3894885877455283645}
   - component: {fileID: 1290735770112921975}
+  - component: {fileID: 2208980265209176538}
   m_Layer: 6
   m_Name: SM_Hologram
   m_TagString: Hazard
@@ -86,3 +87,25 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &2208980265209176538
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786266434695540898}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 88275165844904259, guid: 3da6c4769da877b40b4dfda26e4aa5a8, type: 3}
