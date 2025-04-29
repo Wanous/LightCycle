@@ -177,12 +177,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isDead)
         {
-            // Check if it's time to respawn
             if (Time.time >= deathTime + respawnDelay)
             {
                 RespawnPlayer();
             }
-            return; // Exit Update() if dead
+            return; 
         }
 
         HandleGroundCheck();
@@ -193,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
         UpdateWheelRotation();
         UpdateTrailSystem();
         UpdatePlayerToColliderLine();
-        UpdateSpeedometerNeedle(); // Update the speedometer needle!
+        UpdateSpeedometerNeedle();
     }
 
     // --- Ground Check Logic ---
@@ -205,58 +204,50 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            // If no ground check point, assume not grounded for safety? Or default to true if preferred?
-            // Defaulting to false seems safer to prevent unintended jumps/logic.
             isGroundedStatus = false;
-            // Consider adding a Debug.LogWarning once in Start if groundCheckPoint is null
         }
     }
 
     // --- Input Handling and Speed Calculation ---
     void HandleMovementInput()
     {
-        float accelerationInput = Input.GetAxis("Vertical"); // Typically -1 to 1
+        float accelerationInput = Input.GetAxis("Vertical");
 
-        if (accelerationInput > 0) // Accelerating
+        if (accelerationInput > 0)  // pressing forwards
         {
             isBraking = false;
-            currentDeceleration = brakingDeceleration; // Reset progressive deceleration
+            currentDeceleration = progressiveDecelerationRate;
             currentMoveSpeed += accelerationInput * acceleration * Time.deltaTime;
             currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
         }
-        else if (accelerationInput == 0) // No input (coasting/natural deceleration)
+        else if (accelerationInput == 0) // No input 
         {
-            // Only apply progressive deceleration if moving faster than minSpeed
             if (currentMoveSpeed > minSpeed)
             {
-                isBraking = true; // Consider if coasting should count as 'braking' for other logic
+                isBraking = true;
                 currentMoveSpeed -= currentDeceleration * Time.deltaTime;
-                currentMoveSpeed = Mathf.Max(currentMoveSpeed, minSpeed); // Prevent going below min speed
-                currentDeceleration += progressiveDecelerationRate * Time.deltaTime; // Increase deceleration rate
+                currentMoveSpeed = Mathf.Max(currentMoveSpeed, minSpeed);
+                currentDeceleration += progressiveDecelerationRate * Time.deltaTime;
             }
             else
             {
-                isBraking = false; // Not actively braking if at min speed
+                isBraking = false; 
                 currentMoveSpeed = minSpeed;
-                currentDeceleration = brakingDeceleration; // Reset deceleration when stopped/at min
+                currentDeceleration = progressiveDecelerationRate;
             }
         }
-        else // Braking/Reversing (accelerationInput < 0)
+        else // Braking/Reversing
         {
             isBraking = true;
-            // Apply braking force; negative accelerationInput makes the result negative
             currentMoveSpeed += accelerationInput * brakingDeceleration * Time.deltaTime;
-            currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed); // Clamp ensures it doesn't go below minSpeed due to braking
-            // Reset progressive deceleration since we are actively braking
-            currentDeceleration = brakingDeceleration;
+            currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
+            currentDeceleration = progressiveDecelerationRate;
         }
 
-        // Calculate the adjusted steer speed based on current speed
         float speedFactor = Mathf.InverseLerp(minSpeed, maxSpeed, currentMoveSpeed);
         float adjustedSteerSpeed = baseSteerSpeed * (1f - (speedFactor * steerSpeedReductionFactor));
 
-        currentSteerInput = Input.GetAxis("Horizontal"); // Typically -1 to 1
-        // Apply rotation based on input and adjusted steer speed
+        currentSteerInput = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up * currentSteerInput * adjustedSteerSpeed * Time.deltaTime);
 
         // Handle Jumping
@@ -269,10 +260,10 @@ public class PlayerMovement : MonoBehaviour
     // --- Apply Gravity ---
     void ApplyGravity()
     {
-        // Reset vertical velocity slightly below zero when grounded to help stick to slopes
+        // Reset vertical velocity slightly below zero when grounded to help stick to slope
         if (isGroundedStatus && velocity.y < 0)
         {
-            velocity.y = -2f; // Small negative value helps ensure CheckSphere stays grounded
+            velocity.y = -2f; 
         }
         // Apply gravity constantly
         velocity.y += gravity * Time.deltaTime;
