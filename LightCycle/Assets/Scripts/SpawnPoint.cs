@@ -8,9 +8,9 @@ public class SpawnPoint : MonoBehaviour
     {
         if (playerPrefab != null)
         {
-            // Ajoute 90° sur l'axe Y
-            Quaternion rotation = transform.rotation * Quaternion.Euler(0, -90, 0);
-            Instantiate(playerPrefab, transform.position, rotation);
+            // Combine la rotation du spawn point avec +90° sur l'axe Y
+            Quaternion spawnRotation = transform.rotation * Quaternion.Euler(0, 90, 0);
+            Instantiate(playerPrefab, transform.position, spawnRotation);
         }
         else
         {
@@ -18,4 +18,5 @@ public class SpawnPoint : MonoBehaviour
         }
     }
 }
+
 
