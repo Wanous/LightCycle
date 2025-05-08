@@ -4427,10 +4427,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Plane
       objectReference: {fileID: 0}
+    - target: {fileID: 9015970590811071854, guid: 32ccd0130cc880d4b982e53a2b8b6fae, type: 3}
+      propertyPath: m_ProvidesContacts
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4652681715978389953, guid: 32ccd0130cc880d4b982e53a2b8b6fae, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1079899590}
   m_SourcePrefab: {fileID: 100100000, guid: 32ccd0130cc880d4b982e53a2b8b6fae, type: 3}
 --- !u!4 &818940780 stripped
 Transform:
@@ -6011,6 +6018,33 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 423198, guid: ad182cc030f80d2418924040efeaaedb, type: 3}
   m_PrefabInstance: {fileID: 1076024330}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1079899586 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4652681715978389953, guid: 32ccd0130cc880d4b982e53a2b8b6fae, type: 3}
+  m_PrefabInstance: {fileID: 818940779}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1079899590
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079899586}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1095398331 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 494338, guid: ea8ec36c7f9b40f4faa40bf80afec5a3, type: 3}
