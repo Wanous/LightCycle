@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 4480586577229337684}
   - component: {fileID: 685081875364731889}
   - component: {fileID: 3343097110705516347}
-  - component: {fileID: 3226399099845613665}
-  - component: {fileID: -1799558508582592899}
   - component: {fileID: 3276419074131183404}
   m_Layer: 0
   m_Name: lamp
@@ -90,48 +88,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &3226399099845613665
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3847742505367047918}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.25684777, y: 1.7659044, z: 0.27701324}
-  m_Center: {x: 0.00058217347, y: 0.8737111, z: -0.000045843422}
---- !u!65 &-1799558508582592899
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3847742505367047918}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.25684777, y: 1.7659044, z: 0.27701324}
-  m_Center: {x: 0.00058217347, y: 0.8737111, z: -0.000045843422}
 --- !u!64 &3276419074131183404
 MeshCollider:
   m_ObjectHideFlags: 0

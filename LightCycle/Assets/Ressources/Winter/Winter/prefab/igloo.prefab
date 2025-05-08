@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 2741654873704092904}
   - component: {fileID: 1271012359176379213}
   - component: {fileID: 3911231451278225287}
-  - component: {fileID: 8763082828441033770}
-  - component: {fileID: 433840551047160957}
   - component: {fileID: 7446910186594597933}
   m_Layer: 0
   m_Name: igloo
@@ -89,48 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8763082828441033770
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3262717434962480722}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.4, y: 1.0184348, z: 0.4}
-  m_Center: {x: 0.9, y: 0.49426833, z: 0}
---- !u!65 &433840551047160957
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3262717434962480722}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.4, y: 1.0184348, z: 0.4}
-  m_Center: {x: 0.9, y: 0.49426833, z: 0}
 --- !u!64 &7446910186594597933
 MeshCollider:
   m_ObjectHideFlags: 0
