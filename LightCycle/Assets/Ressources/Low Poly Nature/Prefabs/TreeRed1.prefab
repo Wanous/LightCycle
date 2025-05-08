@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1858320669863709889}
   - component: {fileID: -7416386451105407421}
   m_Layer: 6
-  m_Name: TreeYellow1
+  m_Name: TreeRed1
   m_TagString: Hazard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,10 +108,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.15
+  m_Radius: 0.3
   m_Height: 3.1689844
   m_Direction: 1
-  m_Center: {x: -0.017126411, y: 1.5844922, z: 0.0061415434}
+  m_Center: {x: 0, y: 1.5844922, z: 0}
 --- !u!136 &-7416386451105407421
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -132,6 +132,6 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.05
-  m_Height: 3.168984
+  m_Height: 3.1689844
   m_Direction: 1
-  m_Center: {x: -0.01712641, y: 1.584492, z: 0.006141543}
+  m_Center: {x: 0, y: 1.5844922, z: 0}
