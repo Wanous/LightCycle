@@ -14,10 +14,10 @@ public class CameraMovementOffline : MonoBehaviour
     public float distance = 5.0f; // Default distance for Normal mode
     private float currentX = 0.0f;
     private float currentY = 20.0f;
-    public float sensitivity = 50.0f;
+    public float sensitivity; // Removed initial assignment
     public LayerMask collisionMask;
-	public bool invert = false;
-	private int inverted = 1;
+    public bool invert; // Removed initial assignment
+    private int inverted = 1;
 
     private enum CameraMode
     {
@@ -35,13 +35,25 @@ public class CameraMovementOffline : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-		if (invert)
-			inverted = -1;
-		else inverted = 1;
+        // Read initial invert setting
+        invert = Setting.Instance.Invert;
+        inverted = invert ? -1 : 1;
     }
 
     void Update()
     {
+        // Dynamically read sensitivity every frame
+        if (Setting.Instance != null)
+        {
+            sensitivity = Setting.Instance.Sensitive;
+            // Optionally update invert every frame if it can change during gameplay
+            if (invert != Setting.Instance.Invert)
+            {
+                invert = Setting.Instance.Invert;
+                inverted = invert ? -1 : 1;
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.C))
         {
             int nextModeIndex = ((int)currentMode + 1) % 3;

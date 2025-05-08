@@ -9,8 +9,10 @@ public class PlayerCameraController : NetworkBehaviour
 
     [Header("Camera Settings")]
     public float distance = 5.0f;
-    public float sensitivity = 50.0f;
-    public bool invert = false;
+    // Removed initial assignment, will be read in Update
+    public float sensitivity;
+    // Removed initial assignment, will be read in Start and Update
+    public bool invert;
     public LayerMask collisionMask;
 
     [Header("Mode Settings")]
@@ -46,12 +48,26 @@ public class PlayerCameraController : NetworkBehaviour
         playerCamera = GetComponent<Camera>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        // Read the initial invert setting
+        invert = Setting.Instance.Invert;
         inverted = invert ? -1 : 1;
     }
 
     void Update()
     {
         if (!isLocalPlayer) return;
+
+        // Dynamically read sensitivity every frame
+        if (Setting.Instance != null)
+        {
+            sensitivity = Setting.Instance.Sensitive;
+            // Optionally update invert every frame if it can change outside of Start
+            if (invert != Setting.Instance.Invert)
+            {
+                invert = Setting.Instance.Invert;
+                inverted = invert ? -1 : 1;
+            }
+        }
 
         HandleInput();
         HandleCursorState();
@@ -60,7 +76,7 @@ public class PlayerCameraController : NetworkBehaviour
     void LateUpdate()
     {
         if (!isLocalPlayer || !controlsEnabled) return;
-        
+
         UpdateCameraPosition();
     }
 
