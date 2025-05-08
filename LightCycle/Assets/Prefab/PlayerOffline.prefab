@@ -4922,6 +4922,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3305550522075108819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1092238390857238325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3108988273922180843}
+  m_Layer: 0
+  m_Name: FrontWheelGround
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3108988273922180843
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092238390857238325}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.424, z: 0.581}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3305550522075108819}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1378947809853937087
 GameObject:
   m_ObjectHideFlags: 0
@@ -9881,6 +9912,8 @@ Transform:
   - {fileID: 3769313302321835159}
   - {fileID: 1619343029662759524}
   - {fileID: 8324952273568087962}
+  - {fileID: 3108988273922180843}
+  - {fileID: 3892369124438390445}
   - {fileID: 4888719388663546754}
   - {fileID: 8447788792629850657}
   - {fileID: 7857786813002602163}
@@ -9937,11 +9970,16 @@ MonoBehaviour:
   gravity: -19.62
   jumpHeight: 2
   canJump: 1
+  slopeForceMultiplier: 5
+  maxSlopeAngle: 45
+  slopeSpeedMultiplier: 0.5
   leanTarget: {fileID: 7857786813002602163}
   maxLeanAngle: 25
   leanSpeed: 5
   maxSlopeLeanAngle: 15
   slopeLeanSensitivity: 1
+  frontWheelCheck: {fileID: 3108988273922180843}
+  rearWheelCheck: {fileID: 3892369124438390445}
   trailLifetime: 4.2
   colliderSpacing: 0.5
   positionOffset: 1
@@ -10192,6 +10230,37 @@ MonoBehaviour:
     y: 0.25
     width: 1
     height: 1
+--- !u!1 &7075589732079679424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3892369124438390445}
+  m_Layer: 0
+  m_Name: backWheelGround
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3892369124438390445
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7075589732079679424}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.386, z: -0.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3305550522075108819}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7344261579789764360
 GameObject:
   m_ObjectHideFlags: 0
