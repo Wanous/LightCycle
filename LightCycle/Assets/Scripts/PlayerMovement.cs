@@ -32,6 +32,14 @@ public class PlayerMovement : MonoBehaviour
     public float jumpHeight = 1.5f;
     public bool canJump = true;
 
+    // --- Slope Movement Parameters ---
+    [Header("Slope Movement")]
+    public float slopeForceMultiplier = 5f;  // Increased force
+    public float maxSlopeAngle = 45f;        // Maximum angle the player can climb
+    private bool isOnSlope = false;
+    private Vector3 slopeNormal;
+    public float slopeSpeedMultiplier = 0.5f; // Adjust speed on slopes
+
     // --- Leaning Parameters ---
     [Header("Leaning")]
     [Tooltip("The Transform to apply lean rotation to (e.g., the bike chassis). If null, leans the root object.")]
@@ -44,6 +52,8 @@ public class PlayerMovement : MonoBehaviour
     public float maxSlopeLeanAngle = 10f;
     [Tooltip("How much the slope affects leaning (0-1)")]
     [Range(0f, 1f)] public float slopeLeanSensitivity = 0.5f;
+	public Transform frontWheelCheck;
+	public Transform rearWheelCheck;
 
     // --- Trail Collision Parameters ---
     [Header("Trail Collision")]
@@ -65,11 +75,11 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
     public float groundCheckRadius = 0.2f;
 
-	[Header("Camera")]
-	public Camera Cam;
-	private float baseFOV = 55f;
-	private float maxFOV = 90f;
-	private float smoothSpeed = 5f;
+    [Header("Camera")]
+    public Camera Cam;
+    private float baseFOV = 55f;
+    private float maxFOV = 90f;
+    private float smoothSpeed = 5f;
 
     // --- Effects ---
     [Header("Effects")]
@@ -98,6 +108,7 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("The time delay before the player respawns after dying.")]
     public float respawnDelay = 2.0f; // Added respawn delay
     private int currentSpawnPointIndex = 0; // Index of the current spawn point
+    private bool hasSpawned = false; // Add this flag
 
     // --- Private Variables ---
     private float currentMoveSpeed;
@@ -113,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
     private float currentLeanAngleX = 0f; // Separate variable for X-axis lean
     private bool isBraking = false;
     private float deathTime; // To store the time of death for respawn delay
+    private Vector3 previousFramePosition; // Store player's previous position
 
     // --- Trail Data Structures ---
     private class TrailPoint
@@ -155,8 +167,12 @@ public class PlayerMovement : MonoBehaviour
                 spawnPoints.Add(spawnPointObject.transform);
             }
             // Initialize the player's position to the first spawn point
-            transform.position = spawnPoints[0].position;
-            currentSpawnPointIndex = 0; // Initialize spawn point index
+            if (!hasSpawned) //prevent from moving player to spawn point more than once
+            {
+                transform.position = spawnPoints[0].position;
+                currentSpawnPointIndex = 0; // Initialize spawn point index
+                hasSpawned = true;
+            }
         }
 
         currentMoveSpeed = minSpeed;
@@ -170,6 +186,8 @@ public class PlayerMovement : MonoBehaviour
         playerToColliderLineRenderer.endWidth = playerToColliderLineWidth;
         playerToColliderLineRenderer.sortingOrder = -1;
         if (segmentLineMaterial != null) playerToColliderLineRenderer.material = segmentLineMaterial;
+
+        previousFramePosition = transform.position; // Initialize previous position
     }
 
     // --- Frame Update ---
@@ -181,7 +199,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 RespawnPlayer();
             }
-            return; 
+            return;
         }
 
         HandleGroundCheck();
@@ -193,34 +211,50 @@ public class PlayerMovement : MonoBehaviour
         UpdateTrailSystem();
         UpdatePlayerToColliderLine();
         UpdateSpeedometerNeedle();
+
+        previousFramePosition = transform.position; // Update previous position
     }
 
     // --- Ground Check Logic ---
     void HandleGroundCheck()
     {
-        if (groundCheckPoint != null)
-        {
-            isGroundedStatus = Physics.CheckSphere(groundCheckPoint.position, groundCheckRadius, groundLayer, QueryTriggerInteraction.Ignore);
-        }
+        bool frontGrounded = Physics.Raycast(frontWheelCheck.position, Vector3.down, out RaycastHit frontHit, 1f, groundLayer);
+        bool rearGrounded = Physics.Raycast(rearWheelCheck.position, Vector3.down, out RaycastHit rearHit, 1f, groundLayer);
+        isGroundedStatus = frontGrounded || rearGrounded;
+
+        if (frontGrounded && rearGrounded)
+            slopeNormal = (frontHit.normal + rearHit.normal).normalized;
+        else if (frontGrounded)
+            slopeNormal = frontHit.normal;
+        else if (rearGrounded)
+            slopeNormal = rearHit.normal;
         else
-        {
-            isGroundedStatus = false;
-        }
+            slopeNormal = Vector3.up;
+
+        isOnSlope = Vector3.Angle(Vector3.up, slopeNormal) > 1f;
+        Debug.DrawRay(frontWheelCheck.position, Vector3.down * 1f, frontGrounded ? Color.green : Color.red);
+        Debug.DrawRay(rearWheelCheck.position, Vector3.down * 1f, rearGrounded ? Color.green : Color.red);
     }
+
 
     // --- Input Handling and Speed Calculation ---
     void HandleMovementInput()
     {
         float accelerationInput = Input.GetAxis("Vertical");
+        float slopeAngle = Vector3.Angle(Vector3.up, slopeNormal);
 
-        if (accelerationInput > 0)  // pressing forwards
+        if (accelerationInput > 0)
         {
             isBraking = false;
             currentDeceleration = progressiveDecelerationRate;
-            currentMoveSpeed += accelerationInput * acceleration * Time.deltaTime;
+            if (isOnSlope && slopeAngle > 5f)
+                currentMoveSpeed -= acceleration * slopeForceMultiplier * Time.deltaTime * (slopeAngle / maxSlopeAngle);
+            else
+                currentMoveSpeed += acceleration * Time.deltaTime;
+
             currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
         }
-        else if (accelerationInput == 0) // No input 
+        else if (accelerationInput == 0)
         {
             if (currentMoveSpeed > minSpeed)
             {
@@ -231,15 +265,19 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                isBraking = false; 
+                isBraking = false;
                 currentMoveSpeed = minSpeed;
                 currentDeceleration = progressiveDecelerationRate;
             }
         }
-        else // Braking/Reversing
+        else
         {
             isBraking = true;
-            currentMoveSpeed += accelerationInput * brakingDeceleration * Time.deltaTime;
+            if (isOnSlope && slopeAngle > 5f)
+                currentMoveSpeed += acceleration * slopeForceMultiplier * Time.deltaTime * (slopeAngle / maxSlopeAngle);
+            else
+                currentMoveSpeed += accelerationInput * brakingDeceleration * Time.deltaTime;
+
             currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
             currentDeceleration = progressiveDecelerationRate;
         }
@@ -250,22 +288,16 @@ public class PlayerMovement : MonoBehaviour
         currentSteerInput = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up * currentSteerInput * adjustedSteerSpeed * Time.deltaTime);
 
-        // Handle Jumping
         if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus)
-        {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
     }
 
     // --- Apply Gravity ---
     void ApplyGravity()
     {
-        // Reset vertical velocity slightly below zero when grounded to help stick to slope
         if (isGroundedStatus && velocity.y < 0)
-        {
-            velocity.y = -2f; 
-        }
-        // Apply gravity constantly
+            velocity.y = -2f;
+
         velocity.y += gravity * Time.deltaTime;
     }
 
@@ -285,20 +317,19 @@ public class PlayerMovement : MonoBehaviour
         // Only apply slope lean if grounded and check point exists
         if (isGroundedStatus && groundCheckPoint != null)
         {
-            // Raycast down to find the ground normal
-            if (Physics.Raycast(groundCheckPoint.position + Vector3.up * 0.1f, Vector3.down, out RaycastHit hit, groundCheckRadius * 2f + 0.1f, groundLayer, QueryTriggerInteraction.Ignore))
+            RaycastHit hit;
+            // Use a raycast from the player's position to the ground
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckRadius * 2f + 0.1f, groundLayer, QueryTriggerInteraction.Ignore))
             {
                 Vector3 groundNormal = hit.normal;
-                // Calculate the slope angle relative to the world up direction
                 float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
 
-                if (slopeAngle > 1f) // Only calculate lean if there's a noticeable slope
+                if (slopeAngle > 1f)
                 {
-                    // Get the direction of the slope perpendicular to the player's forward direction
-                    Vector3 slopeRight = Vector3.Cross(groundNormal, transform.forward).normalized;
-                    // Calculate the lean angle based on how much the player's right vector aligns with the slope's right direction
-                    targetSlopeLeanAngleX = -Vector3.SignedAngle(transform.right, slopeRight, transform.forward);
-                    // Apply sensitivity and clamp to max slope lean angle
+                    // Calculate the direction of the slope
+                    Vector3 slopeDirection = Vector3.Cross(groundNormal, -transform.right).normalized;  // Corrected: Use -transform.right
+                    // Calculate lean angle.  Use the previous frame's position
+                    targetSlopeLeanAngleX = Vector3.SignedAngle(Vector3.up, groundNormal, transform.forward);
                     targetSlopeLeanAngleX *= slopeLeanSensitivity;
                     targetSlopeLeanAngleX = Mathf.Clamp(targetSlopeLeanAngleX, -maxSlopeLeanAngle, maxSlopeLeanAngle);
                 }
@@ -307,24 +338,31 @@ public class PlayerMovement : MonoBehaviour
         // Smoothly interpolate towards the target slope lean angle
         currentLeanAngleX = Mathf.LerpAngle(currentLeanAngleX, targetSlopeLeanAngleX, leanSpeed * Time.deltaTime);
 
-
         // Apply the combined lean rotation to the lean target
         // Make sure this applies relative to the parent's rotation if leanTarget is a child
         leanTarget.localRotation = Quaternion.Euler(currentLeanAngleX, 0f, currentLeanAngleZ);
     }
 
     // --- Apply Final Movement to CharacterController ---
-    void ApplyMovement()
+	void ApplyMovement()
     {
-        // Calculate movement direction based on player's forward direction and current speed
-        Vector3 moveDirection = transform.forward * currentMoveSpeed;
-        // Include the vertical velocity (gravity/jumping)
-        moveDirection.y = velocity.y;
-        // Apply the movement using CharacterController.Move
-        player.Move(moveDirection * Time.deltaTime);
-		float targetFOV = Mathf.Lerp(baseFOV, maxFOV, currentMoveSpeed / maxSpeed);
-		Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, targetFOV, Time.deltaTime * smoothSpeed);
+        Vector3 forward = transform.forward;
+        Vector3 moveDir = isOnSlope ? Vector3.ProjectOnPlane(forward, slopeNormal).normalized : forward;
+
+        Vector3 moveVector = moveDir * currentMoveSpeed;
+        moveVector.y = velocity.y;
+        player.Move(moveVector * Time.deltaTime);
+
+        if (isOnSlope)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir, slopeNormal);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+        }
+
+        float targetFOV = Mathf.Lerp(baseFOV, maxFOV, currentMoveSpeed / maxSpeed);
+        Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, targetFOV, Time.deltaTime * smoothSpeed);
     }
+
 
     // --- Wheel Rotation ---
     void UpdateWheelRotation()
@@ -548,9 +586,7 @@ public class PlayerMovement : MonoBehaviour
         if (speedometerNeedle == null)
         {
             return;
-        }
-
-        float currentSpeed = currentMoveSpeed;
+        }float currentSpeed = currentMoveSpeed;
         float normalizedSpeed = Mathf.InverseLerp(minSpeedForNeedle, maxSpeedForNeedle, currentSpeed);
         normalizedSpeed = Mathf.Clamp01(normalizedSpeed);
         float targetNeedleAngle = Mathf.Lerp(minNeedleAngle, maxNeedleAngle, normalizedSpeed);
@@ -609,6 +645,7 @@ public class PlayerMovement : MonoBehaviour
         currentDeceleration = brakingDeceleration;
         //Clear the trail
         ClearTrail();
+        hasSpawned = false; //reset hasSpawned
         Debug.Log("Player Respawned!");
     }
 
