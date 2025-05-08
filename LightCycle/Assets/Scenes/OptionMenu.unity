@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 6537500}
   - component: {fileID: 6537499}
   m_Layer: 5
-  m_Name: Invert Button
+  m_Name: inverser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1416,7 +1416,7 @@ GameObject:
   m_Component:
   - component: {fileID: 738608325}
   m_Layer: 5
-  m_Name: bouton bruitage
+  m_Name: bouton musique
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1950,7 +1950,7 @@ GameObject:
   - component: {fileID: 835386307}
   - component: {fileID: 835386308}
   m_Layer: 5
-  m_Name: "Intensit\xE9"
+  m_Name: musique
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2023,7 +2023,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1680081210}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -2538,8 +2538,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9654b663d45c2545a4cd2f5379b5ed8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensitivity: 100
-  sensitivitySlider: {fileID: 1476454434}
   playerBody: {fileID: 3305550522075108819, guid: 1d89e31002ea1134188b91f3b282831b, type: 3}
 --- !u!1 &1476454432
 GameObject:
@@ -2552,7 +2550,7 @@ GameObject:
   - component: {fileID: 1476454433}
   - component: {fileID: 1476454434}
   m_Layer: 5
-  m_Name: "Intensit\xE9"
+  m_Name: sensibilite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2625,8 +2623,8 @@ MonoBehaviour:
   m_HandleRect: {fileID: 271159146}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
-  m_WholeNumbers: 0
+  m_MaxValue: 100
+  m_WholeNumbers: 1
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2854,8 +2852,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1651835207}
   - {fileID: 738608325}
+  - {fileID: 1651835207}
   - {fileID: 1365406817}
   - {fileID: 1652427791}
   - {fileID: 1233082077}
@@ -2876,7 +2874,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1651835207}
   m_Layer: 5
-  m_Name: bouton musique
+  m_Name: bouton bruitage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3359,7 +3357,7 @@ GameObject:
   - component: {fileID: 1748890503}
   - component: {fileID: 1748890504}
   m_Layer: 5
-  m_Name: "Intensit\xE9"
+  m_Name: bruitages
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3432,7 +3430,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1962344593}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
