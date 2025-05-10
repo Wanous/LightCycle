@@ -57,10 +57,10 @@ public class Setting : MonoBehaviour
     private void FindAndInitializeUI()
     {
         // Find sliders by name in the current scene
-        GameObject volumeObj = GameObject.Find("musique");
-        GameObject sensitiveObj = GameObject.Find("sensibilite");
-        GameObject bruitageObj = GameObject.Find("bruitages");
-        GameObject invertButtonObj = GameObject.Find("inverser"); // Find the invert button
+        GameObject volumeObj = GameObject.Find("Slider Musique");
+        GameObject sensitiveObj = GameObject.Find("Slider Sensibilité Camera");
+        GameObject bruitageObj = GameObject.Find("Slider Bruitages");
+        GameObject invertButtonObj = GameObject.Find("Bouton Inversé"); // Find the invert button
 
         if (volumeObj != null)
         {
