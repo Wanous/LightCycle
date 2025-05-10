@@ -23,6 +23,9 @@ public class Setting : MonoBehaviour
     public bool Invert = false;
     private Button InvertButtonUI; // Reference to the Button UI element
 
+    [Header("Levels")] 
+    public int unlocked = 1;
+    
     private void Awake()
     {
         // Singleton pattern
@@ -173,5 +176,10 @@ public class Setting : MonoBehaviour
     {
         Music = !Music;
         Debug.Log("Music toggled: " + (Music ? "ON" : "OFF"));
+    }
+
+    public void UpdateUnlocked(int value)
+    {
+        unlocked += value;
     }
 }
