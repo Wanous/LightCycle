@@ -272,12 +272,15 @@ MonoBehaviour:
   moveSpeed: 5
   jumpHeight: 2
   gravity: -9.81
+  turnSmoothTime: 0.1
   groundCheck: {fileID: 8324952273568087962}
   groundDistance: 0.2
   groundMask:
     serializedVersion: 2
     m_Bits: 0
   buildIndicesToDeactivateIn: 040000000500000006000000
+  controller: {fileID: 4185818369374919690}
+  animator: {fileID: 4453924787334463090}
 --- !u!95 &4453924787334463090
 Animator:
   serializedVersion: 7
