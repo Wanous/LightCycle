@@ -58,7 +58,7 @@ public class PlayerMovementCC : MonoBehaviour
             velocity.y = -2f; // A small downward force to ensure better grounding
         }
 
-        float horizontal = Input.GetAxisRaw("Horizontal"); // Raw input for more immediate response
+       float horizontal = Input.GetAxisRaw("Horizontal"); // Raw input for more immediate response
         float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
