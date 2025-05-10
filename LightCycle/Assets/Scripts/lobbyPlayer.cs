@@ -53,6 +53,13 @@ public class PlayerMovementCC : MonoBehaviour
         Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * moveSpeed * Time.deltaTime);
 
+        bool moving = false;
+        if(move.magnitude > 0.01f) // Utilise une petite marge pour éviter les erreurs de virgule flottante
+        {
+            moving = true;
+        }
+        animator.SetBool("Moving", moving);
+
         float speed = new Vector3(x, 0, z).magnitude;
         if (animator != null)
         {
