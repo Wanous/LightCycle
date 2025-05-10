@@ -58,7 +58,7 @@ public class PlayerMovementCC : MonoBehaviour
             velocity.y = -2f; // A small downward force to ensure better grounding
         }
 
-        float horizontal = Input.GetAxisRaw("Horizontal"); // Raw input for more immediate response
+       float horizontal = Input.GetAxisRaw("Horizontal"); // Raw input for more immediate response
         float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
@@ -66,19 +66,7 @@ public class PlayerMovementCC : MonoBehaviour
         // Check if there is any movement input
         bool isMoving = direction.magnitude >= 0.1f;
 
-<<<<<<< HEAD
-        bool moving = false;
-        if(move.magnitude > 0.01f) // Utilise une petite marge pour éviter les erreurs de virgule flottante
-        {
-            moving = true;
-        }
-        animator.SetBool("Moving", moving);
-
-        float speed = new Vector3(x, 0, z).magnitude;
-        if (animator != null)
-=======
         if (isMoving)
->>>>>>> b36832922b5a8090d92fde55da6546289573549a
         {
             // --- Player Rotation (World Relative) ---
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
