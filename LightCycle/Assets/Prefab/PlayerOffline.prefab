@@ -9941,7 +9941,7 @@ CharacterController:
   m_Height: 1
   m_Radius: 0.5
   m_SlopeLimit: 45
-  m_StepOffset: 1
+  m_StepOffset: 0.7
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.15, z: 0}
@@ -9972,18 +9972,19 @@ MonoBehaviour:
   canJump: 1
   slopeForceMultiplier: 5
   maxSlopeAngle: 45
-  slopeSpeedMultiplier: 0.5
+  uphillSpeedMultiplier: 0.5
+  downhillSpeedMultiplier: 1.2
   leanTarget: {fileID: 7857786813002602163}
   maxLeanAngle: 25
   leanSpeed: 5
-  maxSlopeLeanAngle: 15
+  maxSlopeLeanAngle: 10
   slopeLeanSensitivity: 1
   frontWheelCheck: {fileID: 3108988273922180843}
   rearWheelCheck: {fileID: 3892369124438390445}
-  trailLifetime: 4.2
-  colliderSpacing: 0.5
+  trailLifetime: 2.42
+  colliderSpacing: 0.1
   positionOffset: 1
-  collisionActivationDelay: 0.5
+  collisionActivationDelay: 0.2
   segmentLineWidth: 0.3
   playerToColliderLineWidth: 0.3
   trailColliderTag: Trail
@@ -15330,7 +15331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 3305550522075108819}
-  distance: 5
+  distance: 7
   sensitivity: 50
   collisionMask:
     serializedVersion: 2
