@@ -9,8 +9,7 @@ public class PlayerMovementCC : MonoBehaviour
     public float moveSpeed = 6f;
     public float jumpHeight = 2f;
     public float gravity = -9.81f;
-    public float turnSmoothTime = 0.1f; // Adjust for rotation responsiveness
-    float turnSmoothVelocity;
+    public float turnSmoothTime = 0.1f; // Ajustez pour la réactivité de la rotation
 
     [Header("Vérification du sol")]
     public Transform groundCheck;
@@ -20,87 +19,81 @@ public class PlayerMovementCC : MonoBehaviour
     [Header("Scènes désactivées")]
     public int[] buildIndicesToDeactivateIn;
 
-    public CharacterController controller;
+    private CharacterController controller;
+    private Animator animator;
     private Vector3 velocity;
     private bool isGrounded;
-    public Animator animator;
+    private float turnSmoothVelocity;
+
+    // Animator hashes for performance
+    private readonly int runForwardHash = Animator.StringToHash("RunForward");
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
+        animator   = GetComponent<Animator>();
 
-        // Deactivate script in certain scenes
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        if (buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(currentSceneIndex))
+        // Disable this script (and controller) in specific build indices
+        int idx = SceneManager.GetActiveScene().buildIndex;
+        if (buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
         {
-            Debug.Log($"PlayerMovementCC deactivated in scene index: {currentSceneIndex}");
-            this.enabled = false;
-            if (controller != null) controller.enabled = false; // Also disable the CharacterController component
+            Debug.Log($"PlayerMovementCC disabled in scene #{idx}");
+            controller.enabled = false;
+            this.enabled       = false;
         }
     }
 
     void Update()
     {
-        // If the script or controller is disabled, do nothing.
-        if (!this.enabled || (controller != null && !controller.enabled))
+        // If script/controller disabled, force Idle and bail out
+        if (!enabled || (controller != null && !controller.enabled))
         {
             if (animator != null)
-            {
-                animator.SetBool("RunForward", false); // Ensure idle if disabled
-            }
+                animator.SetBool(runForwardHash, false);
             return;
         }
 
+        // 1) Ground check
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        if (isGrounded && velocity.y < 0)
+        if (isGrounded && velocity.y < 0f)
+            velocity.y = -2f;
+
+        // 2) Read input
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        Vector3 dir = new Vector3(h, 0f, v).normalized;
+        bool  moving = dir.magnitude >= 0.1f;
+
+        // 3) Handle movement + rotation
+        if (moving)
         {
-            velocity.y = -2f; // A small downward force to ensure better grounding
-        }
-
-       float horizontal = Input.GetAxisRaw("Horizontal"); // Raw input for more immediate response
-        float vertical = Input.GetAxisRaw("Vertical");
-
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
-
-        // Check if there is any movement input
-        bool isMoving = direction.magnitude >= 0.1f;
-
-        if (isMoving)
-        {
-            // --- Player Rotation (World Relative) ---
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
+            // calculate target angle in world space
+            float targetAngle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+            float angle = Mathf.SmoothDampAngle(
+                transform.eulerAngles.y,
+                targetAngle,
+                ref turnSmoothVelocity,
+                turnSmoothTime
+            );
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            // --- Player Movement (Relative to Player's New Forward) ---
+            // move in that direction
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-            controller.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
-
-            // --- Animation: Play RunForward ---
-            if (animator != null)
-            {
-                animator.SetBool("RunForward", true);
-            }
-        }
-        else
-        {
-            // --- Animation: Stop RunForward (Play Idle) ---
-            if (animator != null)
-            {
-                animator.SetBool("RunForward", false);
-            }
+            controller.Move(moveDir * moveSpeed * Time.deltaTime);
         }
 
-        // --- Jumping ---
+        // 4) Animate
+        if (animator != null)
+            animator.SetBool(runForwardHash, moving);
+
+        // 5) Jump
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            // Optional: Trigger a jump animation
-            // if (animator != null) { animator.SetTrigger("JumpTrigger"); }
+            // e.g. animator.SetTrigger("Jump"); if you have a jump clip
         }
 
-        // --- Gravity ---
+        // 6) Gravity
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
