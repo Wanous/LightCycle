@@ -678,6 +678,7 @@ public class PlayerMovement : MonoBehaviour
         velocity = Vector3.zero;
         currentMoveSpeed = minSpeed;
         currentDeceleration = brakingDeceleration;
+		transform.rotation = Quaternion.identity;
         //Clear the trail
         ClearTrail();
         hasSpawned = false; //reset hasSpawned
