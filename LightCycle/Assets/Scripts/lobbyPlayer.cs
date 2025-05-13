@@ -5,68 +5,109 @@ using System.Linq;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovementCC : MonoBehaviour
 {
-    [Header("Paramètres de déplacement")]
-    public float baseSpeed = 0.2f;         // Vitesse normale
-    public float boostSpeed = 0.5f;        // Vitesse quand on appuie sur Z
-    public float rotationSpeed = 120f;     // Vitesse de rotation (degrés/seconde)
+    [Header("Movement Settings")]
+    public float baseSpeed = 3f;
+    public float boostSpeed = 6f;
+    public float rotationSpeed = 120f;
     public float jumpHeight = 2f;
     public float gravity = -9.81f;
 
-    [Header("Vérification du sol")]
+    [Header("Ground Check")]
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-    [Header("Scènes désactivées")]
+    [Header("Disabled Scenes")]
     public int[] buildIndicesToDeactivateIn;
 
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
+    private Animator animator;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
 
-        int idx = SceneManager.GetActiveScene().buildIndex;
-        if (buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
+        // Spawn initialization
+        GameObject spawnObj = GameObject.FindGameObjectWithTag("SpawnPoint");
+        if(spawnObj != null)
         {
-            Debug.Log($"PlayerMovementCC disabled in scene #{idx}");
+            transform.position = spawnObj.transform.position + Vector3.up * 2f;
+            transform.rotation = spawnObj.transform.rotation;
+        }
+        else
+        {
+            Debug.LogWarning("SpawnPoint not found");
+        }
+
+        // Scene disable check
+        int idx = SceneManager.GetActiveScene().buildIndex;
+        if(buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
+        {
             controller.enabled = false;
-            this.enabled       = false;
+            this.enabled = false;
         }
     }
 
     void Update()
     {
-        if (!enabled || (controller != null && !controller.enabled))
-            return;
+        if(!enabled || controller == null || !controller.enabled) return;
 
+        HandleGroundCheck();
+        HandleMovement();
+        HandleRotation();
+        HandleJump();
+        ApplyGravity();
+        UpdateAnimations();
+    }
+
+    void HandleGroundCheck()
+    {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        if (isGrounded && velocity.y < 0f)
-            velocity.y = -2f;
+        if(isGrounded && velocity.y < 0f) velocity.y = -2f;
+    }
 
-        // Rotation avec Q (gauche) et D (droite)
-        float rotateInput = 0f;
-        if (Input.GetKey(KeyCode.A)) rotateInput = -1f; // A ≙ Q sur clavier AZERTY
-        if (Input.GetKey(KeyCode.D)) rotateInput = 1f;
-        transform.Rotate(Vector3.up, rotateInput * rotationSpeed * Time.deltaTime);
-
-        // Vitesse : boost si Z est pressé
+    void HandleMovement()
+    {
+        float verticalInput = Input.GetAxis("Vertical");
         float currentSpeed = Input.GetKey(KeyCode.Z) ? boostSpeed : baseSpeed;
 
-        // Avance constante dans la direction actuelle
-        Vector3 move = transform.forward * currentSpeed;
+        Vector3 move = transform.forward * currentSpeed * verticalInput; 
+        
         controller.Move(move * Time.deltaTime);
+    }
 
-        // Saut
-        if (isGrounded && Input.GetButtonDown("Jump"))
+    void HandleRotation()
+    {
+        float horizontalInput = Input.GetAxis("Horizontal");
+        transform.Rotate(Vector3.up, horizontalInput * rotationSpeed * Time.deltaTime);
+    }
+
+    void HandleJump()
+    {
+        if(isGrounded && Input.GetButtonDown("Jump"))
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
+    }
 
+    void ApplyGravity()
+    {
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
-}
 
+    void UpdateAnimations()
+    {
+        bool isMoving = Input.GetAxis("Vertical");
+        animator.SetBool("RunForward", isMoving);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
+    }
+}
