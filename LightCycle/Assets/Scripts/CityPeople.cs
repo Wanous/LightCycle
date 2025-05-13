@@ -95,9 +95,16 @@ namespace CityPeople
         {
             if (walkPoints.Length == 0) return;
 
+            int nextPoint;
+            do
+            {
+                nextPoint = Random.Range(0, walkPoints.Length);
+            } while (nextPoint == currentPoint && walkPoints.Length > 1);
+
+            currentPoint = nextPoint;
             agent.destination = walkPoints[currentPoint].position;
-            currentPoint = (currentPoint + 1) % walkPoints.Length;
         }
+
 
         public void SetPalette(Material mat)
         {
