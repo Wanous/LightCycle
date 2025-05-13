@@ -32,7 +32,7 @@ public class PlayerMovementCC : MonoBehaviour
 
         // Spawn initialization
         GameObject spawnObj = GameObject.FindGameObjectWithTag("SpawnPoint");
-        if(spawnObj != null)
+        if (spawnObj != null)
         {
             transform.position = spawnObj.transform.position + Vector3.up * 2f;
             transform.rotation = spawnObj.transform.rotation;
@@ -44,7 +44,7 @@ public class PlayerMovementCC : MonoBehaviour
 
         // Scene disable check
         int idx = SceneManager.GetActiveScene().buildIndex;
-        if(buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
+        if (buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
         {
             controller.enabled = false;
             this.enabled = false;
@@ -53,7 +53,7 @@ public class PlayerMovementCC : MonoBehaviour
 
     void Update()
     {
-        if(!enabled || controller == null || !controller.enabled) return;
+        if (!enabled || controller == null || !controller.enabled) return;
 
         HandleGroundCheck();
         HandleMovement();
@@ -66,7 +66,7 @@ public class PlayerMovementCC : MonoBehaviour
     void HandleGroundCheck()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        if(isGrounded && velocity.y < 0f) velocity.y = -2f;
+        if (isGrounded && velocity.y < 0f) velocity.y = -2f;
     }
 
     void HandleMovement()
@@ -74,8 +74,8 @@ public class PlayerMovementCC : MonoBehaviour
         float verticalInput = Input.GetAxis("Vertical");
         float currentSpeed = Input.GetKey(KeyCode.Z) ? boostSpeed : baseSpeed;
 
-        Vector3 move = transform.forward * currentSpeed * verticalInput; 
-        
+        Vector3 move = transform.forward * currentSpeed * verticalInput;
+
         controller.Move(move * Time.deltaTime);
     }
 
@@ -87,7 +87,7 @@ public class PlayerMovementCC : MonoBehaviour
 
     void HandleJump()
     {
-        if(isGrounded && Input.GetButtonDown("Jump"))
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
@@ -101,8 +101,8 @@ public class PlayerMovementCC : MonoBehaviour
 
     void UpdateAnimations()
     {
-        bool isMoving = Input.GetAxis("Vertical");
-        animator.SetBool("RunForward", isMoving);
+        bool isMovingForward = Input.GetAxis("Vertical") != 0f;
+        animator.SetBool("RunForward", isMovingForward);
     }
 
     void OnDrawGizmosSelected()
