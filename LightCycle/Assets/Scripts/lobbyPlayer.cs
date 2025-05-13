@@ -101,8 +101,10 @@ public class PlayerMovementCC : MonoBehaviour
 
     void UpdateAnimations()
     {
-        bool isMovingForward = Input.GetAxis("Vertical") != 0f;
+        bool isMovingForward = Input.GetAxis("Vertical") > 0.1f;
+        bool isMovingBackward = Input.GetAxis("Vertical") < -0.1f;
         animator.SetBool("RunForward", isMovingForward);
+        animator.SetBool("RunBackward", isMovingBackward);
     }
 
     void OnDrawGizmosSelected()
