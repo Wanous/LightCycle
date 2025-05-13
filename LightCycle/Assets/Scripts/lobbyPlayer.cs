@@ -25,12 +25,13 @@ public class PlayerMovementCC : MonoBehaviour
     private bool isGrounded;
     private Animator animator;
 
+    private bool isJumping;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
 
-        // Spawn initialization
         GameObject spawnObj = GameObject.FindGameObjectWithTag("SpawnPoint");
         if (spawnObj != null)
         {
@@ -42,7 +43,6 @@ public class PlayerMovementCC : MonoBehaviour
             Debug.LogWarning("SpawnPoint not found");
         }
 
-        // Scene disable check
         int idx = SceneManager.GetActiveScene().buildIndex;
         if (buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
         {
@@ -66,7 +66,11 @@ public class PlayerMovementCC : MonoBehaviour
     void HandleGroundCheck()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        if (isGrounded && velocity.y < 0f) velocity.y = -2f;
+        if (isGrounded && velocity.y < 0f)
+        {
+            velocity.y = -2f;
+            isJumping = false; // Reset jump state on landing
+        }
     }
 
     void HandleMovement()
@@ -75,7 +79,6 @@ public class PlayerMovementCC : MonoBehaviour
         float currentSpeed = Input.GetKey(KeyCode.Z) ? boostSpeed : baseSpeed;
 
         Vector3 move = transform.forward * currentSpeed * verticalInput;
-
         controller.Move(move * Time.deltaTime);
     }
 
@@ -90,6 +93,7 @@ public class PlayerMovementCC : MonoBehaviour
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            isJumping = true;
         }
     }
 
@@ -101,15 +105,20 @@ public class PlayerMovementCC : MonoBehaviour
 
     void UpdateAnimations()
     {
-        bool isMovingForward = Input.GetAxis("Vertical") > 0.1f;
-        bool isMovingBackward = Input.GetAxis("Vertical") < -0.1f;
-        animator.SetBool("RunForward", isMovingForward);
-        animator.SetBool("RunBackward", isMovingBackward);
+        float verticalInput = Input.GetAxis("Vertical");
+        bool isRunning = Mathf.Abs(verticalInput) > 0.1f;
+
+        animator.SetBool("RunForward", isRunning && verticalInput > 0f);
+        animator.SetBool("RunBackward", isRunning && verticalInput < 0f);
+        animator.SetBool("IsJumping", isJumping);
     }
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
+        }
     }
 }
