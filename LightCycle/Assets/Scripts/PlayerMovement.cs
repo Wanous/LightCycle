@@ -2,21 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI; // Required for UI elements like RectTransform
+using UnityEngine.UI;
 
-// Require necessary components to ensure they exist on the GameObject
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    // --- Player Components ---
     [Header("Components")]
     public CharacterController player;
-    [Tooltip("Assign a child GameObject positioned at the player's base for ground checks")]
-    public Transform groundCheckPoint; // Note: This seems unused if front/rearWheelCheck are primary for grounding
-    [Tooltip("Material to use for the line segments between colliders")]
+    public Transform groundCheckPoint;
     public Material segmentLineMaterial;
 
-    // --- Movement Parameters ---
     [Header("Movement")]
     public float minSpeed = 2f;
     public float maxSpeed = 30f;
@@ -24,67 +19,47 @@ public class PlayerMovement : MonoBehaviour
     public float brakingDeceleration = 15f;
     public float progressiveDecelerationRate = 0.2f;
     private float currentDeceleration;
-    [Tooltip("Base steer speed at minimum speed")]
     public float baseSteerSpeed = 120f;
-    [Tooltip("Factor to reduce steer speed as speed increases (0 for no reduction, higher values for more reduction)")]
     [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 1.5f;
     public bool canJump = true;
 
-    // --- Slope Movement Parameters ---
     [Header("Slope Movement")]
-    public float slopeForceMultiplier = 5f; // Note: This variable is declared but not explicitly used in ApplyMovement for force.
-    public float maxSlopeAngle = 45f; // Note: This variable is declared but not explicitly used to limit movement on slopes.
+    public float slopeForceMultiplier = 5f;
+    public float maxSlopeAngle = 45f;
     private bool isOnSlope = false;
     private Vector3 slopeNormal;
     public float uphillSpeedMultiplier = 0.5f;
     public float downhillSpeedMultiplier = 1.2f;
-    private float slopeAngle; // Calculated in HandleGroundCheck
+    private float slopeAngle;
 
-    // --- Leaning Parameters ---
     [Header("Leaning")]
-    [Tooltip("The Transform to apply lean rotation to (e.g., the bike chassis). If null, leans the root object.")]
     public Transform leanTarget;
-    [Tooltip("Maximum lean angle in degrees when turning")]
     public float maxLeanAngle = 20f;
-    [Tooltip("How quickly the player leans into/out of turns")]
     public float leanSpeed = 4f;
-    [Tooltip("Maximum lean angle in degrees when on a slope")]
     public float maxSlopeLeanAngle = 10f;
-    [Tooltip("How much the slope affects leaning (0-1)")]
     [Range(0f, 1f)] public float slopeLeanSensitivity = 0.5f;
-    [Tooltip("Transform for the left side chassis ground check raycast origin. Place on the chassis.")]
     public Transform leftChassisGroundCheck;
-    [Tooltip("Transform for the right side chassis ground check raycast origin. Place on the chassis.")]
     public Transform rightChassisGroundCheck;
-    [Tooltip("Max distance for the chassis side ground check raycasts.")]
     public float chassisSideCheckMaxDistance = 0.5f;
-    [Tooltip("Max distance of the raycast downwards from the vehicle's center for slope detection during leaning.")]
     public float chassisCentralCheckMaxDistance = 0.6f;
 
-
-    // --- Trail Collision Parameters ---
     [Header("Trail Collision")]
     public float trailLifetime = 4.2f;
     public float colliderSpacing = 1.0f;
     public float positionOffset = 1.0f;
-    [Tooltip("Delay in seconds before a trail collider becomes active to prevent self-collision.")]
     public float collisionActivationDelay = 0.5f;
     public float segmentLineWidth = 0.2f;
     public float playerToColliderLineWidth = 0.3f;
-    [Tooltip("The tag to apply to the trail collider objects")]
     public string trailColliderTag = "Trail";
-    [Tooltip("The tag of the colliders that will cause death")]
     public string hazardTag = "Hazard";
 
-    // --- Ground Check Parameters ---
     [Header("Ground Check")]
-    [Tooltip("The physics layer(s) considered 'ground'")]
     public LayerMask groundLayer;
-    public float groundCheckRadius = 0.2f; // Used for central lean ray, but front/rear wheel checks use fixed 1f
-    public Transform frontWheelCheck; // Moved from Leaning to Ground Check as it's for grounding
-    public Transform rearWheelCheck;  // Moved from Leaning to Ground Check
+    public float groundCheckRadius = 0.2f;
+    public Transform frontWheelCheck;
+    public Transform rearWheelCheck;
 
     [Header("Camera")]
     public Camera Cam;
@@ -92,19 +67,16 @@ public class PlayerMovement : MonoBehaviour
     private float maxFOV = 90f;
     private float smoothSpeed = 5f;
 
-    // --- Effects ---
     [Header("Effects")]
     [SerializeField] ParticleSystem OrangeEffect;
     [SerializeField] ParticleSystem darkOrangeEffect;
     [SerializeField] ParticleSystem BlackEffect;
 
-    // --- Wheel Rotation ---
     [Header("Wheel Rotation")]
     public Transform frontWheel;
     public Transform rearWheel;
     public float wheelRotationMultiplier = 40f;
 
-    // --- Speedometer Parameters ---
     [Header("Speedometer")]
     public RectTransform speedometerNeedle;
     public float minSpeedForNeedle = 0f;
@@ -112,31 +84,28 @@ public class PlayerMovement : MonoBehaviour
     public float minNeedleAngle = 0f;
     public float maxNeedleAngle = -270f;
 
-    // --- Respawn Parameters ---
     [Header("Respawn")]
     public List<Transform> spawnPoints;
     public float respawnDelay = 2.0f;
     private int currentSpawnPointIndex = 0;
     private bool hasSpawned = false;
 
-    // --- Private Variables ---
     private float currentMoveSpeed;
     private Vector3 velocity;
-    private bool isGroundedStatus = false; // Overall grounded status based on wheels
+    private bool isGroundedStatus = false;
     private bool isDead = false;
     private GameObject playerToColliderLineObject;
     private LineRenderer playerToColliderLineRenderer;
     private float frontWheelRollAngle = 0f;
     private float rearWheelRollAngle = 0f;
     private float currentSteerInput = 0f;
-    private float currentLeanAngleZ = 0f; // Z-axis lean (steering)
-    private float currentLeanAngleX = 0f; // X-axis lean (slope/side)
+    private float currentLeanAngleZ = 0f;
+    private float currentLeanAngleX = 0f;
     private bool isBraking = false;
     private float deathTime;
     private Vector3 previousFramePosition;
-    private Vector3 storedSlopeNormal = Vector3.up; // Stores the normal of the ground last touched by wheels
+    private Vector3 storedSlopeNormal = Vector3.up;
 
-    // --- Trail Data Structures ---
     private class TrailPoint
     {
         public Vector3 WorldPosition;
@@ -145,33 +114,20 @@ public class PlayerMovement : MonoBehaviour
     private List<TrailPoint> trailPoints = new List<TrailPoint>();
     private List<GameObject> trailColliderObjects = new List<GameObject>();
 
-    // --- Initialization ---
     void Start()
     {
         if (player == null) player = GetComponent<CharacterController>();
 
-        // Null Checks
-        if (player == null) { Debug.LogError("CharacterController missing!", this); this.enabled = false; return; }
-        // groundCheckPoint is not strictly necessary if front/rearWheelCheck are used for main ground detection
-        // if (groundCheckPoint == null) Debug.LogWarning("Ground Check Point not assigned (though front/rear wheel checks are primary).", this);
-        if (segmentLineMaterial == null) Debug.LogWarning("Segment Line Material not assigned.", this);
-        if (frontWheel == null) Debug.LogWarning("Front Wheel not assigned.", this);
-        if (rearWheel == null) Debug.LogWarning("Rear Wheel not assigned.", this);
-        if (leanTarget == null) { Debug.LogWarning("Lean Target not assigned. Leaning root object.", this); leanTarget = this.transform; }
-        if (groundLayer.value == 0) { Debug.LogError("Ground Layer not set!", this); this.enabled = false; return; }
-        if (speedometerNeedle == null) Debug.LogWarning("Speedometer Needle not assigned.", this);
-        if (frontWheelCheck == null) { Debug.LogError("Front Wheel Check Transform not assigned!", this); this.enabled = false; return; }
-        if (rearWheelCheck == null) { Debug.LogError("Rear Wheel Check Transform not assigned!", this); this.enabled = false; return; }
-        // New Lean Check Transforms
-        if (leftChassisGroundCheck == null) { Debug.LogWarning("Left Chassis Ground Check Transform not assigned. Lean correction might be impaired.", this); }
-        if (rightChassisGroundCheck == null) { Debug.LogWarning("Right Chassis Ground Check Transform not assigned. Lean correction might be impaired.", this); }
-
+        if (player == null) { this.enabled = false; return; }
+        if (leanTarget == null) { leanTarget = this.transform; }
+        if (groundLayer.value == 0) { this.enabled = false; return; }
+        if (frontWheelCheck == null) { this.enabled = false; return; }
+        if (rearWheelCheck == null) { this.enabled = false; return; }
 
         spawnPoints = new List<Transform>();
         GameObject[] spawnPointObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
         if (spawnPointObjects.Length == 0)
         {
-            Debug.LogError("No Spawn Points found with tag 'SpawnPoint'.", this);
             this.enabled = false; return;
         }
         foreach (GameObject spawnPointObject in spawnPointObjects)
@@ -200,200 +156,169 @@ public class PlayerMovement : MonoBehaviour
         previousFramePosition = transform.position;
     }
 
-    // --- Frame Update ---
     void Update()
     {
         if (isDead)
         {
             if (Time.time >= deathTime + respawnDelay)
             {
-                // Respawn logic is now self-contained and re-enables script
+                RespawnPlayer();
             }
-            return; // TriggerDeathSequence now disables script, so this might not be hit often post-death
+            return;
         }
 
-        HandleGroundCheck();    // Determines isGroundedStatus and slopeNormal from wheels
-        HandleMovementInput();  // Handles acceleration, speed, steering
-        ApplyGravity();         // Applies gravity to velocity.y
-        HandleLeaning();        // Calculates and applies lean to leanTarget
-        ApplyMovement();        // Moves the CharacterController
-        UpdateWheelRotation();  // Rotates wheel visuals
-        UpdateTrailSystem();    // Manages light trail colliders
-        UpdatePlayerToColliderLine(); // Visual line to last trail point
-        UpdateSpeedometerNeedle(); // Updates speedometer UI
+        HandleGroundCheck();
+        HandleMovementInput();
+        ApplyGravity();
+        HandleLeaning();
+        ApplyMovement();
+        UpdateWheelRotation();
+        UpdateTrailSystem();
+        UpdatePlayerToColliderLine();
+        UpdateSpeedometerNeedle();
 
         previousFramePosition = transform.position;
     }
 
-    // --- Ground Check Logic (Wheels) ---
     void HandleGroundCheck()
     {
-        // Raycast downwards from front and rear wheel positions
-        // The length of this ray (1f) should be tuned to your vehicle's wheel radius/suspension
         bool frontGrounded = Physics.Raycast(frontWheelCheck.position, Vector3.down, out RaycastHit frontHit, 1f, groundLayer);
         bool rearGrounded = Physics.Raycast(rearWheelCheck.position, Vector3.down, out RaycastHit rearHit, 1f, groundLayer);
-        isGroundedStatus = frontGrounded || rearGrounded; // Player is grounded if at least one wheel is
+        isGroundedStatus = frontGrounded || rearGrounded;
 
-        // Determine the combined slope normal based on wheel contacts
         if (frontGrounded && rearGrounded)
-            slopeNormal = (frontHit.normal + rearHit.normal).normalized; // Average normal if both wheels hit
+            slopeNormal = (frontHit.normal + rearHit.normal).normalized;
         else if (frontGrounded)
-            slopeNormal = frontHit.normal; // Use front wheel normal
+            slopeNormal = frontHit.normal;
         else if (rearGrounded)
-            slopeNormal = rearHit.normal; // Use rear wheel normal
+            slopeNormal = rearHit.normal;
         else
-            slopeNormal = Vector3.up; // Assume flat (no slope) if airborne
+            slopeNormal = Vector3.up;
 
-        // Store the slope normal when grounded for use when airborne (prevents snapping)
         if (isGroundedStatus)
         {
             storedSlopeNormal = slopeNormal;
         }
         else
         {
-            // When in the air, keep using the last grounded normal for consistent behavior (e.g. air control if any, or lean persistence)
             slopeNormal = storedSlopeNormal;
         }
 
-        // Determine if on a slope and the angle of the slope
-        isOnSlope = Vector3.Angle(Vector3.up, slopeNormal) > 1f; // Threshold for being "on a slope"
-        slopeAngle = Vector3.Angle(Vector3.up, slopeNormal); // Actual angle of the slope
+        isOnSlope = Vector3.Angle(Vector3.up, slopeNormal) > 1f;
+        slopeAngle = Vector3.Angle(Vector3.up, slopeNormal);
 
-        // Debug rays for wheel ground checks
         Debug.DrawRay(frontWheelCheck.position, Vector3.down * 1f, frontGrounded ? Color.green : Color.red);
         Debug.DrawRay(rearWheelCheck.position, Vector3.down * 1f, rearGrounded ? Color.green : Color.red);
     }
 
-
-    // --- Input Handling and Speed Calculation ---
     void HandleMovementInput()
     {
         float accelerationInput = Input.GetAxis("Vertical");
         float speedMultiplier = 1f;
 
-        if (isOnSlope && isGroundedStatus) // Apply speed multiplier only if grounded on a slope
+        if (isOnSlope && isGroundedStatus)
         {
-            // Check dot product of forward direction with world down, projected onto slope plane might be more robust
-            // For simplicity, checking if player is generally pointing downhill/uphill relative to world up.
-            // A more accurate check would involve projecting transform.forward onto the slope plane and then checking its Y component.
-            if (Vector3.Dot(transform.forward, Vector3.ProjectOnPlane(Vector3.down, slopeNormal).normalized) > 0.1f) // Simplified check for downhill
+            if (Vector3.Dot(transform.forward, Vector3.ProjectOnPlane(Vector3.down, slopeNormal).normalized) > 0.1f)
             {
                 speedMultiplier = downhillSpeedMultiplier;
             }
-            else if (Vector3.Dot(transform.forward, Vector3.ProjectOnPlane(Vector3.up, slopeNormal).normalized) > 0.1f) // Simplified check for uphill
+            else if (Vector3.Dot(transform.forward, Vector3.ProjectOnPlane(Vector3.up, slopeNormal).normalized) > 0.1f)
             {
                 speedMultiplier = uphillSpeedMultiplier;
             }
         }
 
-        if (accelerationInput > 0) // Accelerating
+        if (accelerationInput > 0)
         {
             isBraking = false;
-            currentDeceleration = progressiveDecelerationRate; // Reset deceleration when accelerating
+            currentDeceleration = progressiveDecelerationRate;
             currentMoveSpeed += acceleration * speedMultiplier * Time.deltaTime;
             currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
         }
-        else if (accelerationInput == 0) // No throttle input (coasting/natural deceleration)
+        else if (accelerationInput == 0)
         {
             if (currentMoveSpeed > minSpeed)
             {
-                isBraking = false; // Not actively braking, but decelerating
+                isBraking = false;
                 currentMoveSpeed -= currentDeceleration * Time.deltaTime;
                 currentMoveSpeed = Mathf.Max(currentMoveSpeed, minSpeed);
-                currentDeceleration += progressiveDecelerationRate * Time.deltaTime; // Deceleration increases over time
+                currentDeceleration += progressiveDecelerationRate * Time.deltaTime;
             }
             else
             {
                 isBraking = false;
                 currentMoveSpeed = minSpeed;
-                currentDeceleration = progressiveDecelerationRate; // Reset deceleration
+                currentDeceleration = progressiveDecelerationRate;
             }
         }
-        else // Braking/Reversing (accelerationInput < 0)
+        else
         {
             isBraking = true;
-            // Using brakingDeceleration for more responsive braking.
-            // If you want reverse, you'd handle negative currentMoveSpeed or a separate reverse gear.
-            currentMoveSpeed += accelerationInput * brakingDeceleration * Time.deltaTime; // Effectively decelerates
-            currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed); // Assuming minSpeed is the lowest forward speed
-            currentDeceleration = progressiveDecelerationRate; // Reset progressive deceleration
+            currentMoveSpeed += accelerationInput * brakingDeceleration * Time.deltaTime;
+            currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed);
+            currentDeceleration = progressiveDecelerationRate;
         }
 
-        // Steering
         float speedFactor = Mathf.InverseLerp(minSpeed, maxSpeed, currentMoveSpeed);
         float adjustedSteerSpeed = baseSteerSpeed * (1f - (speedFactor * steerSpeedReductionFactor));
         currentSteerInput = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up * currentSteerInput * adjustedSteerSpeed * Time.deltaTime);
 
-        // Jumping
         if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
     }
 
-    // --- Apply Gravity ---
     void ApplyGravity()
     {
         if (isGroundedStatus && velocity.y < 0)
         {
-            // Apply a small downward force to stick to slopes better, CharacterController specific behavior
-            velocity.y = -5f; // Adjust this value as needed, -2f to -5f is common
+            velocity.y = -5f;
         }
         else
         {
-            velocity.y += gravity * Time.deltaTime; // Apply gravity
+            velocity.y += gravity * Time.deltaTime;
         }
     }
 
-    // --- Apply Leaning Visual ---
     void HandleLeaning()
     {
         if (leanTarget == null) return;
 
-        // --- Z-axis Lean (Steering + Speed) ---
         float targetSteerLeanAngleZ = -currentSteerInput * maxLeanAngle;
-        Vector3 lateralVelocity = Vector3.ProjectOnPlane(player.velocity, transform.forward); // Use CharacterController's velocity
+        Vector3 lateralVelocity = Vector3.ProjectOnPlane(player.velocity, transform.forward);
         float lateralSpeed = lateralVelocity.magnitude;
         float speedFactorForLean = Mathf.InverseLerp(minSpeed, maxSpeed * 0.8f, currentMoveSpeed);
-        float speedLeanInfluence = Mathf.Sign(-currentSteerInput) * lateralSpeed * 1.0f * speedFactorForLean; // Adjust 1.0f multiplier
+        float speedLeanInfluence = Mathf.Sign(-currentSteerInput) * lateralSpeed * 1.0f * speedFactorForLean;
         targetSteerLeanAngleZ += speedLeanInfluence;
         targetSteerLeanAngleZ = Mathf.Clamp(targetSteerLeanAngleZ, -maxLeanAngle * 1.5f, maxLeanAngle * 1.5f);
         currentLeanAngleZ = Mathf.LerpAngle(currentLeanAngleZ, targetSteerLeanAngleZ, leanSpeed * Time.deltaTime);
 
-        // --- X-axis Lean (Slope/Side Correction) ---
-        float targetSlopeLeanAngleX = 0f; // Default to trying to be upright
+        float targetSlopeLeanAngleX = 0f;
 
-        if (isGroundedStatus) // Only apply active leaning/correction if grounded based on wheel checks
+        if (isGroundedStatus)
         {
-            // Primary determination of slope based on a central raycast under the main body/pivot
             RaycastHit centralHit;
-            Vector3 groundNormalForLean = storedSlopeNormal; // Fallback to wheel-derived normal
-            bool centralRayHit = Physics.Raycast(transform.position + transform.up * 0.1f, // Start ray slightly above pivot
-                                                 Vector3.down, out centralHit,
-                                                 chassisCentralCheckMaxDistance,
-                                                 groundLayer, QueryTriggerInteraction.Ignore);
+            Vector3 groundNormalForLean = storedSlopeNormal;
+            bool centralRayHit = Physics.Raycast(transform.position + transform.up * 0.1f,
+                                             Vector3.down, out centralHit,
+                                             chassisCentralCheckMaxDistance,
+                                             groundLayer, QueryTriggerInteraction.Ignore);
             if (centralRayHit)
             {
-                groundNormalForLean = centralHit.normal; // Use hit normal if central ray connects
+                groundNormalForLean = centralHit.normal;
             }
-            // Debug central lean ray
             Debug.DrawRay(transform.position + transform.up * 0.1f, Vector3.down * chassisCentralCheckMaxDistance, centralRayHit ? Color.yellow : Color.white);
-
 
             float centralBodySlopeAngle = Vector3.Angle(Vector3.up, groundNormalForLean);
 
-            if (centralBodySlopeAngle > 1.5f) // If the ground under the body center is sloped (threshold of 1.5 degrees)
+            if (centralBodySlopeAngle > 1.5f)
             {
-                // Calculate target lean based on this central slope.
-                // This makes the chassis try to align its 'up' vector perpendicular to the groundNormalForLean.
                 targetSlopeLeanAngleX = Vector3.SignedAngle(transform.up, groundNormalForLean, transform.forward) * slopeLeanSensitivity;
             }
-            // else, targetSlopeLeanAngleX remains 0 from initialization (try to be upright based on central check)
 
-
-            // --- Correction using Side Chassis Raycasts ---
-            if (leftChassisGroundCheck != null && rightChassisGroundCheck != null) // Ensure transforms are assigned
+            if (leftChassisGroundCheck != null && rightChassisGroundCheck != null)
             {
                 RaycastHit leftChassisHitInfo, rightChassisHitInfo;
                 bool leftChassisGrounded = Physics.Raycast(leftChassisGroundCheck.position, Vector3.down, out leftChassisHitInfo, chassisSideCheckMaxDistance, groundLayer);
@@ -402,75 +327,58 @@ public class PlayerMovement : MonoBehaviour
                 Debug.DrawRay(leftChassisGroundCheck.position, Vector3.down * chassisSideCheckMaxDistance, leftChassisGrounded ? Color.cyan : Color.magenta);
                 Debug.DrawRay(rightChassisGroundCheck.position, Vector3.down * chassisSideCheckMaxDistance, rightChassisGrounded ? Color.cyan : Color.magenta);
 
-                // Get overall terrain flatness based on wheel contacts (storedSlopeNormal)
                 float terrainSlopeAngleFromWheels = Vector3.Angle(Vector3.up, storedSlopeNormal);
 
-                if (terrainSlopeAngleFromWheels < 5.0f) // If the general terrain (from wheels) is considered flat (e.g., less than 5 degrees)
+                if (terrainSlopeAngleFromWheels < 5.0f)
                 {
                     bool leftSideOnFlat = leftChassisGrounded && Vector3.Angle(Vector3.up, leftChassisHitInfo.normal) < 5.0f;
                     bool rightSideOnFlat = rightChassisGrounded && Vector3.Angle(Vector3.up, rightChassisHitInfo.normal) < 5.0f;
 
                     if (leftSideOnFlat && rightSideOnFlat)
                     {
-                        targetSlopeLeanAngleX = 0f; // Both chassis sides on flat ground, force upright. This is key for reset.
+                        targetSlopeLeanAngleX = 0f;
                     }
-                    // If one side is hanging (e.g., off a ledge) but the other is on flat ground,
-                    // and the bike is leaned towards the hanging side, encourage it to level out.
-                    else if (leftSideOnFlat && !rightChassisGrounded && currentLeanAngleX > 1.0f) // Leaned right, but right side has no ground, left is flat
+                    else if (leftSideOnFlat && !rightChassisGrounded && currentLeanAngleX > 1.0f)
                     {
-                        // Encourage leveling if the supporting (left) side is flat.
-                        // Lerp towards 0 or a smaller lean angle.
-                        targetSlopeLeanAngleX = Mathf.Lerp(targetSlopeLeanAngleX, 0f, 0.1f); // Gently try to correct
+                        targetSlopeLeanAngleX = Mathf.Lerp(targetSlopeLeanAngleX, 0f, 0.1f);
                     }
-                    else if (rightSideOnFlat && !leftChassisGrounded && currentLeanAngleX < -1.0f) // Leaned left, but left side has no ground, right is flat
+                    else if (rightSideOnFlat && !leftChassisGrounded && currentLeanAngleX < -1.0f)
                     {
-                        targetSlopeLeanAngleX = Mathf.Lerp(targetSlopeLeanAngleX, 0f, 0.1f); // Gently try to correct
+                        targetSlopeLeanAngleX = Mathf.Lerp(targetSlopeLeanAngleX, 0f, 0.1f);
                     }
                 }
             }
-            // Clamp the final target lean angle for X-axis
             targetSlopeLeanAngleX = Mathf.Clamp(targetSlopeLeanAngleX, -maxSlopeLeanAngle, maxSlopeLeanAngle);
         }
-        // If not isGroundedStatus (in air), targetSlopeLeanAngleX remains 0 from its initialization.
-        // This means in air, the bike will try to self-right its X-axis lean naturally via the Lerp.
 
         currentLeanAngleX = Mathf.LerpAngle(currentLeanAngleX, targetSlopeLeanAngleX, leanSpeed * Time.deltaTime);
 
-        // Apply the combined lean rotation to the lean target
         leanTarget.localRotation = Quaternion.Euler(currentLeanAngleX, 0f, currentLeanAngleZ);
     }
 
-
-    // --- Apply Final Movement to CharacterController ---
     void ApplyMovement()
     {
-        Vector3 forwardDirection = transform.forward; // Player's current forward direction
-        Vector3 moveDirectionOnSlope = forwardDirection; // Default to player's forward
+        Vector3 forwardDirection = transform.forward;
+        Vector3 moveDirectionOnSlope = forwardDirection;
 
         if (isOnSlope && isGroundedStatus)
         {
-            // Project the forward vector onto the slope plane
             moveDirectionOnSlope = Vector3.ProjectOnPlane(forwardDirection, slopeNormal).normalized;
 
-            // Align player rotation smoothly to the slope normal for the 'up' vector
             Quaternion targetRotation = Quaternion.LookRotation(moveDirectionOnSlope, slopeNormal);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f); // Adjust 10f for alignment speed
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
-        // If not on a slope but grounded, ensure the player is upright (or lerp to upright if you want smooth transition from slope)
         else if (isGroundedStatus)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(transform.forward, Vector3.up); // Standard upright rotation
+            Quaternion targetRotation = Quaternion.LookRotation(transform.forward, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
 
+        Vector3 moveVector = moveDirectionOnSlope * currentMoveSpeed;
+        moveVector.y = velocity.y;
 
-        // Construct the final movement vector
-        Vector3 moveVector = moveDirectionOnSlope * currentMoveSpeed; // Horizontal movement
-        moveVector.y = velocity.y; // Vertical movement (gravity, jump)
+        player.Move(moveVector * Time.deltaTime);
 
-        player.Move(moveVector * Time.deltaTime); // Apply movement via CharacterController
-
-        // Camera FOV adjustment based on speed
         if (Cam != null)
         {
             float targetFOV = Mathf.Lerp(baseFOV, maxFOV, currentMoveSpeed / maxSpeed);
@@ -478,8 +386,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
-    // --- Wheel Rotation ---
     void UpdateWheelRotation()
     {
         float rotationSpeed = currentMoveSpeed * wheelRotationMultiplier;
@@ -487,8 +393,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (frontWheel != null)
         {
-            float targetSteerAngle = currentSteerInput * 30f; // Max visual steer angle for front wheel
-            frontWheelRollAngle -= rollDelta; // Assuming negative roll for forward movement
+            float targetSteerAngle = currentSteerInput * 30f;
+            frontWheelRollAngle -= rollDelta;
             frontWheelRollAngle %= 360f;
             frontWheel.localRotation = Quaternion.Euler(frontWheelRollAngle, targetSteerAngle, 0f);
         }
@@ -501,7 +407,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // --- Trail System Logic ---
     void UpdateTrailSystem()
     {
         RecordTrailPosition();
@@ -529,12 +434,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (removeCount > 0)
         {
-            for (int i = 0; i < removeCount && trailColliderObjects.Count > 0; i++) // Ensure trailColliderObjects is not empty
+            for (int i = 0; i < removeCount && trailColliderObjects.Count > 0; i++)
             {
                 if (trailColliderObjects[0] != null) Destroy(trailColliderObjects[0]);
                 trailColliderObjects.RemoveAt(0);
             }
-            // If more points expired than colliders (should be rare with current logic but good to be safe)
             if (trailPoints.Count < removeCount) removeCount = trailPoints.Count;
 
             trailPoints.RemoveRange(0, removeCount);
@@ -568,14 +472,14 @@ public class PlayerMovement : MonoBehaviour
 
         CapsuleCollider capsule = colliderObj.AddComponent<CapsuleCollider>();
         capsule.isTrigger = true;
-        capsule.direction = 2; // Z-axis aligned
+        capsule.direction = 2;
 
         Rigidbody rb = colliderObj.AddComponent<Rigidbody>();
         rb.isKinematic = true;
         rb.useGravity = false;
 
         TrailSegmentCollider segmentHelper = colliderObj.AddComponent<TrailSegmentCollider>();
-        segmentHelper.Initialize(collisionActivationDelay); // Collider initially disabled by helper
+        segmentHelper.Initialize(collisionActivationDelay);
 
         LineRenderer line = colliderObj.AddComponent<LineRenderer>();
         line.useWorldSpace = true;
@@ -604,7 +508,6 @@ public class PlayerMovement : MonoBehaviour
         LineRenderer line = colliderObj.GetComponent<LineRenderer>();
         if (capsule == null || line == null)
         {
-            Debug.LogError("Missing components on trail segment!", colliderObj);
             return;
         }
 
@@ -620,7 +523,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         capsule.radius = segmentLineWidth / 2f;
-        capsule.height = segmentLength + (capsule.radius * 2f); // Account for caps
+        capsule.height = segmentLength + (capsule.radius * 2f);
 
         line.SetPosition(0, startPos);
         line.SetPosition(1, endPos);
@@ -632,8 +535,8 @@ public class PlayerMovement : MonoBehaviour
         if (trailPoints.Count > 0)
         {
             playerToColliderLineRenderer.enabled = true;
-            playerToColliderLineRenderer.SetPosition(0, transform.position); // Current player position
-            playerToColliderLineRenderer.SetPosition(1, trailPoints[trailPoints.Count - 1].WorldPosition); // Last trail point
+            playerToColliderLineRenderer.SetPosition(0, transform.position);
+            playerToColliderLineRenderer.SetPosition(1, trailPoints[trailPoints.Count - 1].WorldPosition);
         }
         else
         {
@@ -652,74 +555,53 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (isDead) return; // Already dead, do nothing
+        if (isDead) return;
 
-        // Check for collision with own trail OR hazard tag OR out of bounds
-        bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 1f; // Only die from hazard if moving
+        bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15f;
         if (other.gameObject.CompareTag(trailColliderTag) || isHazardCollision || other.gameObject.CompareTag("plane") || transform.position.y < -10)
         {
             TriggerDeathSequence();
-            // No need to call StartCoroutine(DelayedRespawn()) here, TriggerDeathSequence handles disabling
-            // and Update will call RespawnPlayer after delay if this script is re-enabled by RespawnPlayer.
-            // The respawn delay is handled by checking Time.time in the main Update loop of the *next* enabled frame.
-            // For this to work, RespawnPlayer must re-enable this script.
         }
     }
 
-    // --- Death Logic ---
     void TriggerDeathSequence()
     {
-        if (isDead) return; // Prevent multiple triggers
+        if (isDead) return;
         isDead = true;
-        deathTime = Time.time; // Record time of death for respawn delay
+        deathTime = Time.time;
 
         if (OrangeEffect != null) OrangeEffect.Play();
         if (darkOrangeEffect != null) darkOrangeEffect.Play();
         if (BlackEffect != null) BlackEffect.Play();
 
-        if (player != null) player.enabled = false; // Disable CharacterController
-        // Important: Disable this script. RespawnPlayer will re-enable it.
-        // This prevents Update from running while "dead" other than the respawn check.
-        // However, the respawn check needs to be moved if the script is disabled.
-        // Let's keep it enabled but use the isDead flag to gate most of Update.
-        // this.enabled = false; // Reconsidering this line.
-        // If this script is disabled, the Update loop won't run to check for respawn.
-        // So, keep script enabled, and Update checks `isDead`.
+        if (player != null) player.enabled = false; 
     }
 
-    // --- Respawn Logic ---
     void RespawnPlayer()
     {
-        isDead = false; // No longer dead
+        isDead = false;
         if (player != null)
         {
-            player.enabled = true; // Re-enable CharacterController
+            player.enabled = true;
         }
-        // this.enabled = true; // Ensure script is enabled if it was disabled
+        this.enabled = true;
 
-        // Select next spawn point
         currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
-        // Teleport player: CharacterController needs to be temporarily disabled for direct transform.position change to work reliably
         if (player != null) player.enabled = false;
         transform.position = spawnPoints[currentSpawnPointIndex].position;
-        transform.rotation = spawnPoints[currentSpawnPointIndex].rotation; // Also reset rotation to spawn point's rotation
+        transform.rotation = spawnPoints[currentSpawnPointIndex].rotation;
         if (player != null) player.enabled = true;
 
-
-        // Reset state
         velocity = Vector3.zero;
         currentMoveSpeed = minSpeed;
-        currentDeceleration = brakingDeceleration; // Reset to base deceleration
-        // transform.rotation = Quaternion.identity; // Or spawn point's rotation
-        storedSlopeNormal = Vector3.up; // Reset slope normal memory
-        currentLeanAngleX = 0f; // Reset lean angles
+        currentDeceleration = brakingDeceleration;
+        transform.rotation = Quaternion.identity;
+        storedSlopeNormal = Vector3.up;
+        currentLeanAngleX = 0f;
         currentLeanAngleZ = 0f;
-        if (leanTarget != null) leanTarget.localRotation = Quaternion.identity; // Reset lean target's local rotation
+        if (leanTarget != null) leanTarget.localRotation = Quaternion.identity;
 
         ClearTrail();
-        // hasSpawned = false; // This flag is for initial spawn, not respawn. Keep true.
-
-        Debug.Log($"Player Respawned at {spawnPoints[currentSpawnPointIndex].name}!");
     }
 
     void ClearTrail()
@@ -745,7 +627,6 @@ public class PlayerMovement : MonoBehaviour
         trailPoints.Clear();
     }
 
-    // Helper Script for Trail Collider Activation Delay
     public class TrailSegmentCollider : MonoBehaviour
     {
         private float creationTime;
@@ -758,13 +639,12 @@ public class PlayerMovement : MonoBehaviour
             capsuleCollider = GetComponent<CapsuleCollider>();
             if (capsuleCollider == null)
             {
-                Debug.LogError("TrailSegmentCollider requires a CapsuleCollider component!", this);
-                enabled = false; // Disable this script if no collider
+                enabled = false;
                 return;
             }
             creationTime = Time.time;
             activationDelay = delay;
-            capsuleCollider.enabled = false; // Initially disable the collider
+            capsuleCollider.enabled = false;
             isInitialized = true;
         }
 
@@ -772,15 +652,13 @@ public class PlayerMovement : MonoBehaviour
         {
             if (!isInitialized || capsuleCollider == null) return;
 
-            // If collider is still disabled and activation time has passed
             if (!capsuleCollider.enabled)
             {
                 if (Time.time >= creationTime + activationDelay)
                 {
-                    capsuleCollider.enabled = true; // Enable the collider
+                    capsuleCollider.enabled = true;
                 }
             }
         }
     }
 }
-
