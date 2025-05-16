@@ -2245,26 +2245,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SerializedVersion: 0
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: fa2c8e59fad87cd44b3b9a7d9ebb2047, type: 2}
-  m_BuildHeightMesh: 0
 --- !u!1001 &476332487
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3893,15 +3873,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2850497447276444079, guid: 56a95393ba25b4948b7f8cd7bae68200, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -345.29
       objectReference: {fileID: 0}
     - target: {fileID: 2850497447276444079, guid: 56a95393ba25b4948b7f8cd7bae68200, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 325.038
       objectReference: {fileID: 0}
     - target: {fileID: 2850497447276444079, guid: 56a95393ba25b4948b7f8cd7bae68200, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 281
       objectReference: {fileID: 0}
     - target: {fileID: 2850497447276444079, guid: 56a95393ba25b4948b7f8cd7bae68200, type: 3}
       propertyPath: m_LocalRotation.w
