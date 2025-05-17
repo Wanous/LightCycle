@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovementCC : MonoBehaviour
@@ -17,75 +16,181 @@ public class PlayerMovementCC : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
-    [Header("Disabled Scenes")]
-    public int[] buildIndicesToDeactivateIn;
+    [Header("Scene Activation")]
+    public string[] sceneNamePrefixesToDeactivate = { "multi" };
+    public bool debugActivationState = true;
+    public bool completelyDeactivateObject = true;
+    public float sceneCheckInterval = 1f;
 
+    // Component references
     private CharacterController controller;
-    private Vector3 velocity;
-    private bool isGrounded;
     private Animator animator;
 
+    // Movement variables
+    private Vector3 velocity;
+    private bool isGrounded;
     private bool isJumping;
 
-    void Start()
+    // State management
+    private bool shouldBeActive = true;
+    private float timeSinceLastSceneCheck = 0f;
+
+    // Cone detection
+    private bool isInsideCone = false;
+
+    void Awake()
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
 
-        GameObject spawnObj = GameObject.FindGameObjectWithTag("SpawnPoint");
-        if (spawnObj != null)
-        {
-            transform.position = spawnObj.transform.position + Vector3.up * 2f;
-            transform.rotation = spawnObj.transform.rotation;
-        }
-        else
-        {
-            Debug.LogWarning("SpawnPoint not found");
-        }
+        if (controller == null)
+            Debug.LogError("Missing CharacterController component!", this);
+        if (animator == null)
+            Debug.LogWarning("Missing Animator component!", this);
+    }
 
-        int idx = SceneManager.GetActiveScene().buildIndex;
-        if (buildIndicesToDeactivateIn != null && buildIndicesToDeactivateIn.Contains(idx))
+    void Start()
+    {
+        CheckSceneActivation();
+        UpdateActivationState();
+
+        if (shouldBeActive)
         {
-            controller.enabled = false;
-            this.enabled = false;
+            GoToSpawnPoint();
+            DebugLog("Player initialized at spawn point in active state");
         }
     }
 
     void Update()
     {
-        if (!enabled || controller == null || !controller.enabled) return;
+        timeSinceLastSceneCheck += Time.deltaTime;
+        if (timeSinceLastSceneCheck >= sceneCheckInterval)
+        {
+            timeSinceLastSceneCheck -= sceneCheckInterval;
+            CheckSceneActivation();
+            UpdateActivationState();
+        }
 
-        HandleGroundCheck();
-        HandleMovement();
-        HandleRotation();
-        HandleJump();
-        ApplyGravity();
-        UpdateAnimations();
+        if (shouldBeActive && !isInsideCone)
+        {
+            HandleGroundCheck();
+            HandleMovement();
+            HandleRotation();
+            HandleJump();
+            ApplyGravity();
+            UpdateAnimations();
+        }
     }
 
+    void CheckSceneActivation()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        bool newShouldBeActive = true;
+
+        if (sceneNamePrefixesToDeactivate != null && sceneNamePrefixesToDeactivate.Length > 0)
+        {
+            foreach (string prefix in sceneNamePrefixesToDeactivate)
+            {
+                if (!string.IsNullOrEmpty(prefix) &&
+                    currentScene.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    newShouldBeActive = false;
+                    DebugLog($"Scene '{currentScene}' matches deactivation prefix '{prefix}'");
+                    break;
+                }
+            }
+        }
+
+        if (newShouldBeActive != shouldBeActive)
+        {
+            shouldBeActive = newShouldBeActive;
+            DebugLog($"Activation state changed to: {shouldBeActive} in scene: {currentScene}");
+            if (shouldBeActive)
+            {
+                GoToSpawnPoint();
+            }
+        }
+        else
+        {
+            DebugLog($"Activation state remains: {shouldBeActive} in scene: {currentScene}");
+        }
+    }
+
+    void UpdateActivationState()
+    {
+        if (controller != null)
+        {
+            controller.enabled = shouldBeActive;
+            DebugLog($"CharacterController enabled: {controller.enabled}");
+        }
+
+        if (animator != null)
+        {
+            animator.enabled = shouldBeActive;
+            if (!shouldBeActive)
+            {
+                animator.Rebind();
+                animator.Update(0f);
+            }
+            DebugLog($"Animator enabled: {animator.enabled}");
+        }
+
+        this.enabled = shouldBeActive;
+        DebugLog($"Main script enabled: {this.enabled}");
+
+        if (!shouldBeActive && completelyDeactivateObject)
+        {
+            gameObject.SetActive(false);
+            DebugLog("Player GameObject completely deactivated");
+        }
+        else if (shouldBeActive && completelyDeactivateObject && !gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+            DebugLog("Player GameObject reactivated");
+            GoToSpawnPoint();
+        }
+    }
+
+    void GoToSpawnPoint()
+    {
+        GameObject spawnPoint = GameObject.FindGameObjectWithTag("SpawnPoint");
+        if (spawnPoint != null)
+        {
+            transform.position = spawnPoint.transform.position + Vector3.up * 2f;
+            transform.rotation = spawnPoint.transform.rotation;
+            DebugLog("Player moved to spawn point");
+        }
+        else
+        {
+            DebugLogWarning("SpawnPoint not found - cannot move to it");
+        }
+    }
+
+    #region Movement Methods
     void HandleGroundCheck()
     {
+        if (groundCheck == null) return;
+
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        if (isGrounded && velocity.y < 0f)
+        if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
-            isJumping = false; // Reset jump state on landing
+            if (isJumping) isJumping = false;
         }
     }
 
     void HandleMovement()
     {
-        float verticalInput = Input.GetAxis("Vertical");
-        float currentSpeed = Input.GetKey(KeyCode.Z) ? boostSpeed : baseSpeed;
-
-        Vector3 move = transform.forward * currentSpeed * verticalInput;
+        float vertical = Input.GetAxis("Vertical");
+        float speed = Input.GetKey(KeyCode.Z) ? boostSpeed : baseSpeed;
+        Vector3 move = transform.forward * speed * vertical;
         controller.Move(move * Time.deltaTime);
     }
 
     void HandleRotation()
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
-        transform.Rotate(Vector3.up, horizontalInput * rotationSpeed * Time.deltaTime);
+        float horizontal = Input.GetAxis("Horizontal");
+        transform.Rotate(Vector3.up, horizontal * rotationSpeed * Time.deltaTime);
     }
 
     void HandleJump()
@@ -105,12 +210,48 @@ public class PlayerMovementCC : MonoBehaviour
 
     void UpdateAnimations()
     {
-        float verticalInput = Input.GetAxis("Vertical");
-        bool isRunning = Mathf.Abs(verticalInput) > 0.1f;
+        if (animator == null) return;
 
-        animator.SetBool("RunForward", isRunning && verticalInput > 0f);
-        animator.SetBool("RunBackward", isRunning && verticalInput < 0f);
+        float vertical = Input.GetAxis("Vertical");
+        bool moving = Mathf.Abs(vertical) > 0.1f;
+
+        animator.SetBool("RunForward", moving && vertical > 0);
+        animator.SetBool("RunBackward", moving && vertical < 0);
         animator.SetBool("IsJumping", isJumping);
+    }
+    #endregion
+
+    #region Cone Detection
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Cone"))
+        {
+            isInsideCone = true;
+            DebugLog("Entered a cone!");
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Cone"))
+        {
+            isInsideCone = false;
+            DebugLog("Exited a cone!");
+        }
+    }
+    #endregion
+
+    #region Debug Utilities
+    void DebugLog(string message)
+    {
+        if (debugActivationState)
+            Debug.Log($"[PlayerController] {message}", this);
+    }
+
+    void DebugLogWarning(string message)
+    {
+        if (debugActivationState)
+            Debug.LogWarning($"[PlayerController] {message}", this);
     }
 
     void OnDrawGizmosSelected()
@@ -121,4 +262,5 @@ public class PlayerMovementCC : MonoBehaviour
             Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
         }
     }
+    #endregion
 }
