@@ -4968,7 +4968,6 @@ GameObject:
   - component: {fileID: 8857033551133423641}
   - component: {fileID: 7062375816970038901}
   - component: {fileID: 6348027724353135135}
-  - component: {fileID: 2142010723071600662}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5075,66 +5074,6 @@ MonoBehaviour:
   behindPlayerHeight: 2
   focusDistance: 5
   focusHeightOffset: 2
---- !u!114 &2142010723071600662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1833334435338955633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  volumeTrigger: {fileID: 7512891331488214307}
-  volumeLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  stopNaNPropagation: 1
-  finalBlitToCameraTarget: 0
-  antialiasingMode: 0
-  temporalAntialiasing:
-    jitterSpread: 0.75
-    sharpness: 0.25
-    stationaryBlending: 0.95
-    motionBlending: 0.85
-  subpixelMorphologicalAntialiasing:
-    quality: 2
-  fastApproximateAntialiasing:
-    fastMode: 0
-    keepAlpha: 0
-  fog:
-    enabled: 1
-    excludeSkybox: 1
-  debugLayer:
-    lightMeter:
-      width: 512
-      height: 256
-      showCurves: 1
-    histogram:
-      width: 512
-      height: 256
-      channel: 3
-    waveform:
-      exposure: 0.12
-      height: 256
-    vectorscope:
-      size: 256
-      exposure: 0.12
-    overlaySettings:
-      linearDepth: 0
-      motionColorIntensity: 4
-      motionGridSize: 64
-      colorBlindnessType: 0
-      colorBlindnessStrength: 1
-  m_Resources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4, type: 2}
-  m_ShowToolkit: 0
-  m_ShowCustomSorter: 0
-  breakBeforeColorGrading: 0
-  m_BeforeTransparentBundles: []
-  m_BeforeStackBundles: []
-  m_AfterStackBundles: []
 --- !u!1 &2908749224153200739
 GameObject:
   m_ObjectHideFlags: 0
@@ -10127,8 +10066,10 @@ MonoBehaviour:
   leanSpeed: 5
   maxSlopeLeanAngle: 15
   slopeLeanSensitivity: 0.273
-  frontWheelCheck: {fileID: 0}
-  rearWheelCheck: {fileID: 0}
+  leftChassisGroundCheck: {fileID: 0}
+  rightChassisGroundCheck: {fileID: 0}
+  chassisSideCheckMaxDistance: 0.5
+  chassisCentralCheckMaxDistance: 0.6
   trailLifetime: 4.2
   colliderSpacing: 0.5
   positionOffset: 1
@@ -10141,6 +10082,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   groundCheckRadius: 0.2
+  frontWheelCheck: {fileID: 0}
+  rearWheelCheck: {fileID: 0}
   Cam: {fileID: 0}
   OrangeEffect: {fileID: 5962045158563180131}
   darkOrangeEffect: {fileID: 4518089884585412186}
@@ -10239,7 +10182,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1812, y: 159.29999}
+  m_AnchoredPosition: {x: 1814, y: 142}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6677667356035944858
@@ -10270,7 +10213,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 3463b4c50b26d214aa72c2d721fae3f0, type: 3}
+  m_Texture: {fileID: 2800000, guid: c4f003168b4c5ac4a890893c804f8bc1, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -10352,12 +10295,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.72
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -15280,7 +15223,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2293927502695053130}
-  - component: {fileID: 1211453818911590496}
   m_Layer: 3
   m_Name: motionBlur
   m_TagString: Untagged
@@ -15303,23 +15245,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3305550522075108819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1211453818911590496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8638657935976589796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sharedProfile: {fileID: 11400000, guid: de0afebe1999e707eb6bba7a284a4766, type: 2}
-  isGlobal: 1
-  blendDistance: 0
-  weight: 1
-  priority: 0
 --- !u!1 &8829157180006136095
 GameObject:
   m_ObjectHideFlags: 0
@@ -15385,7 +15310,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1812, y: 168.79999}
+  m_AnchoredPosition: {x: 1814, y: 152}
   m_SizeDelta: {x: 64, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5413804841027675981
