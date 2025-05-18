@@ -8816,6 +8816,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1294160049}
   - component: {fileID: 1294160048}
+  - component: {fileID: 1294160050}
   m_Layer: 0
   m_Name: sonmap3
   m_TagString: Untagged
@@ -8935,6 +8936,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1294160050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294160047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5bda79073f7353f81c26071ef9e69f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 1294160048}
+  DefaultVolume: 0.5
 --- !u!4 &1297347279 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 283491861412938182, guid: d85f77d368a7cb74d88aeccc3c5a5348, type: 3}

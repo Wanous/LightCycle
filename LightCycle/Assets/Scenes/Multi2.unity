@@ -8555,6 +8555,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2001283453}
   - component: {fileID: 2001283452}
+  - component: {fileID: 2001283454}
   m_Layer: 0
   m_Name: sommulti2
   m_TagString: Untagged
@@ -8674,6 +8675,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2001283454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001283451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5bda79073f7353f81c26071ef9e69f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 2001283452}
+  DefaultVolume: 0.5
 --- !u!1001 &2005040960
 PrefabInstance:
   m_ObjectHideFlags: 0
