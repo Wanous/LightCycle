@@ -5963,6 +5963,7 @@ GameObject:
   m_Component:
   - component: {fileID: 597478514}
   - component: {fileID: 597478513}
+  - component: {fileID: 597478515}
   m_Layer: 0
   m_Name: son
   m_TagString: Untagged
@@ -6082,6 +6083,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &597478515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 597478512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5bda79073f7353f81c26071ef9e69f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 597478513}
+  DefaultVolume: 0.5
 --- !u!1001 &601395619
 PrefabInstance:
   m_ObjectHideFlags: 0
