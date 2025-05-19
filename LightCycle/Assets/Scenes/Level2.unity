@@ -303,12 +303,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 100336814}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -280.16678, y: 329.71082, z: 279.67047}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1240.1667, y: -210.28918, z: 279.67047}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637886567}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &102017038 stripped
 Transform:
@@ -691,8 +691,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1953,6 +1953,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1882061928368989805, guid: 9d815b9999bfa4e45a8639a6f090e6db, type: 3}
   m_PrefabInstance: {fileID: 599830157}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &637886566
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 637886567}
+  m_Layer: 0
+  m_Name: "Cin\xE9matique"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &637886567
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637886566}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 960, y: 540, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 100336816}
+  - {fileID: 686920756}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &655003224
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2206,7 +2239,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 425044431}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637886567}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -7641,5 +7674,4 @@ SceneRoots:
   - {fileID: 326308557}
   - {fileID: 1629031499}
   - {fileID: 1874568164}
-  - {fileID: 100336816}
-  - {fileID: 686920756}
+  - {fileID: 637886567}
