@@ -10,7 +10,7 @@ public class MotoSound : MonoBehaviour
 
     void Update()
     {
-        float vitesseActuelle = motoRigidbody.velocity.magnitude;
+        float vitesseActuelle = motoRigidbody.linearVelocity.magnitude;
         moteurAudio.pitch = Mathf.Lerp(pitchMin, pitchMax, vitesseActuelle / vitesseMax);
     }
 
