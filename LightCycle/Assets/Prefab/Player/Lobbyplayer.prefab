@@ -279,7 +279,11 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 64
-  buildIndicesToDeactivateIn: 040000000500000006000000
+  sceneNamePrefixesToDeactivate:
+  - multi
+  debugActivationState: 1
+  completelyDeactivateObject: 1
+  sceneCheckInterval: 1
 --- !u!95 &4453924787334463090
 Animator:
   serializedVersion: 7
