@@ -1,10 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO.Enumeration;
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine.Serialization;
-using UnityEngine.UI; // Required for UI elements like RectTransform
+
 
 // Require necessary components to ensure they exist on the GameObject
 [RequireComponent(typeof(CharacterController))]
@@ -38,22 +35,30 @@ public class EnemyAI : MonoBehaviour
     [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 2f;
-    public bool canJump = true; 
-    private bool canaccelerate = true;
-    private bool canslowdown = true;
-    private bool canfollowthetarget = true;
-    private bool candetecteobject = true;
+    private readonly bool showdetection = false;
+    public bool canJump = true;
+    private readonly bool canaccelerate = true;
+    private readonly bool canslowdown = true;
+    private readonly bool canfollowthetarget = true;
+    private readonly bool candetecteobjectandvoid = true;
+    
+    // --- SpawnPoint Parameters ---
+    private SpawnPointEnemy spawnpoint;
 
+    public void Spawnpointset(SpawnPointEnemy spawnPointEnemy)
+    {
+        spawnpoint = spawnPointEnemy;
+    }
+    
     // --- Slope Movement Parameters ---
     [Header("Slope Movement")]
     public float slopeForceMultiplier = 5f; // Note: This variable is declared but not explicitly used in ApplyMovement for force.
     public float maxSlopeAngle = 45f; // Note: This variable is declared but not explicitly used to limit movement on slopes.
-    private bool isOnSlope = false;
+    private bool isOnSlope;
     private Vector3 slopeNormal;
     public float uphillSpeedMultiplier = 0.5f;
     public float downhillSpeedMultiplier = 1.2f;
-    private float slopeAngle; // Calculated in HandleGroundCheck
-
+    
     // --- Leaning Parameters ---
     [Header("Leaning")]
         
@@ -100,14 +105,6 @@ public class EnemyAI : MonoBehaviour
     public Transform frontWheelCheck; // Moved from Leaning to Ground Check as it's for grounding
     public Transform rearWheelCheck;  // Moved from Leaning to Ground Check
     
-    /*
-    [Header("Camera")]
-    public Camera Cam;
-    private float baseFOV = 55f;
-    private float maxFOV = 90f;
-    private float smoothSpeed = 5f;
-    */
-
     // --- Effects ---
     [FormerlySerializedAs("OrangeEffect")]
     [Header("Effects")]
@@ -121,41 +118,23 @@ public class EnemyAI : MonoBehaviour
     public Transform rearWheel;
     public float wheelRotationMultiplier = -50f;
 
-    /*
-    // --- Speedometer Parameters ---
-    [Header("Speedometer")]
-    public RectTransform speedometerNeedle;
-    public float minSpeedForNeedle = 0f;
-    public float maxSpeedForNeedle = 55f;
-    public float minNeedleAngle = 0f;
-    public float maxNeedleAngle = -265f;
-    */
-
-    /*
-    // --- Respawn Parameters ---
-    [Header("Respawn")]
-    public List<Transform> spawnPoints;
-    public float respawnDelay = 2.0f;
-    private int currentSpawnPointIndex = 0;
-    private bool hasSpawned = false;
-    */
-    
-    
     // --- Private Variables ---
     private float currentMoveSpeed;
     private Vector3 velocity;
-    private bool isGroundedStatus = false; // Overall grounded status based on wheels
-    private bool isDead = false;
+    private bool isGroundedStatus; // Overall grounded status based on wheels
+    private bool isDead;
     private GameObject playerToColliderLineObject;
     private LineRenderer playerToColliderLineRenderer;
-    private float frontWheelRollAngle = 0f;
-    private float rearWheelRollAngle = 0f;
-    private float currentSteerInput = 0f;
-    private float currentLeanAngleZ = 0f; // Z-axis lean (steering)
-    private float currentLeanAngleX = 0f; // X-axis lean (slope/side)
-    private bool isBraking = false;
+    private float frontWheelRollAngle;
+    private float rearWheelRollAngle;
+    private float currentSteerInput;
+    private float currentLeanAngleZ; // Z-axis lean (steering)
+    private float currentLeanAngleX; // X-axis lean (slope/side)
+    private bool isBraking;
+    /*
     private float deathTime;
     private Vector3 previousFramePosition;
+    */
     private Vector3 storedSlopeNormal = Vector3.up; // Stores the normal of the ground last touched by wheels
 
     // --- Trail Data Structures ---
@@ -164,50 +143,82 @@ public class EnemyAI : MonoBehaviour
         public Vector3 WorldPosition;
         public float Timestamp;
     }
-    private List<TrailPoint> trailPoints = new List<TrailPoint>();
-    private List<GameObject> trailColliderObjects = new List<GameObject>();
+    private readonly List<TrailPoint> trailPoints = new List<TrailPoint>();
+    private readonly List<GameObject> trailColliderObjects = new List<GameObject>();
 
     // --- Initialization ---
     void Start()
     {
+        // Initialisation
+        isOnSlope = false;
+        isGroundedStatus = false; // Overall grounded status based on wheels
+        isDead = false;
+        frontWheelRollAngle = 0f;
+        rearWheelRollAngle = 0f;
+        currentSteerInput = 0f;
+        currentLeanAngleZ = 0f; // Z-axis lean (steering)
+        currentLeanAngleX = 0f; // X-axis lean (slope/side)
+        isBraking = false;
+        
         if (enemy == null) enemy = GetComponent<CharacterController>();
+        
         groundLayer = LayerMask.GetMask("Ground");
+        
         // Null Checks
-        if (enemy == null) { Debug.LogError("CharacterController missing!", this); this.enabled = false; return; }
+        if (enemy == null)
+        {
+            Debug.LogError("CharacterController missing!", this);
+            this.enabled = false;
+            return;
+        }
+        
         // groundCheckPoint is not strictly necessary if front/rearWheelCheck are used for main ground detection
-        if (groundCheckPoint == null) Debug.LogWarning("Ground Check Point not assigned (though front/rear wheel checks are primary).", this);
+        if (groundCheckPoint == null)
+            Debug.LogWarning("Ground Check Point not assigned (though front/rear wheel checks are primary).", this);
         if (segmentLineMaterial == null) Debug.LogWarning("Segment Line Material not assigned.", this);
         if (frontWheel == null) Debug.LogWarning("Front Wheel not assigned.", this);
         if (rearWheel == null) Debug.LogWarning("Rear Wheel not assigned.", this);
-        if (leanTarget == null) { Debug.LogWarning("Lean Target not assigned. Leaning root object.", this); leanTarget = this.transform; }
-        if (groundLayer.value == 0) { Debug.LogError("Ground Layer not set!", this); this.enabled = false; return; }
-        // if (speedometerNeedle == null) Debug.LogWarning("Speedometer Needle not assigned.", this);
-        if (frontWheelCheck == null) { Debug.LogError("Front Wheel Check Transform not assigned!", this); this.enabled = false; return; }
-        if (rearWheelCheck == null) { Debug.LogError("Rear Wheel Check Transform not assigned!", this); this.enabled = false; return; }
-        // New Lean Check Transforms
-        if (leftChassisGroundCheck == null) { Debug.LogWarning("Left Chassis Ground Check Transform not assigned. Lean correction might be impaired.", this); }
-        if (rightChassisGroundCheck == null) { Debug.LogWarning("Right Chassis Ground Check Transform not assigned. Lean correction might be impaired.", this); }
+        if (leanTarget == null)
+        {
+            Debug.LogWarning("Lean Target not assigned. Leaning root object.", this);
+            leanTarget = this.transform;
+        }
 
-        /*
-        spawnPoints = new List<Transform>();
-        GameObject[] spawnPointObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
-        if (spawnPointObjects.Length == 0)
+        if (groundLayer.value == 0)
         {
-            Debug.LogError("No Spawn Points found with tag 'SpawnPoint'.", this);
-            this.enabled = false; return;
+            Debug.LogError("Ground Layer not set!", this);
+            this.enabled = false;
+            return;
         }
-        foreach (GameObject spawnPointObject in spawnPointObjects)
+
+        // if (speedometerNeedle == null) Debug.LogWarning("Speedometer Needle not assigned.", this);
+        if (frontWheelCheck == null)
         {
-            spawnPoints.Add(spawnPointObject.transform);
+            Debug.LogError("Front Wheel Check Transform not assigned!", this);
+            this.enabled = false;
+            return;
         }
-        if (!hasSpawned)
+
+        if (rearWheelCheck == null)
         {
-            transform.position = spawnPoints[0].position;
-            currentSpawnPointIndex = 0;
-            hasSpawned = true;
+            Debug.LogError("Rear Wheel Check Transform not assigned!", this);
+            this.enabled = false;
+            return;
         }
-        */
-        
+
+        // New Lean Check Transforms
+        if (leftChassisGroundCheck == null)
+        {
+            Debug.LogWarning("Left Chassis Ground Check Transform not assigned. Lean correction might be impaired.",
+                this);
+        }
+
+        if (rightChassisGroundCheck == null)
+        {
+            Debug.LogWarning("Right Chassis Ground Check Transform not assigned. Lean correction might be impaired.",
+                this);
+        }
+
         currentMoveSpeed = minSpeed;
         currentDeceleration = brakingDeceleration;
 
@@ -219,24 +230,11 @@ public class EnemyAI : MonoBehaviour
         playerToColliderLineRenderer.endWidth = playerToColliderLineWidth;
         playerToColliderLineRenderer.sortingOrder = -1;
         if (segmentLineMaterial != null) playerToColliderLineRenderer.material = segmentLineMaterial;
-
-        previousFramePosition = transform.position;
     }
 
     // --- Frame Update ---
     void Update()
     {
-        /*
-        if (isDead)
-        {
-            if (Time.time >= deathTime + respawnDelay)
-            {
-                // Respawn logic is now self-contained and re-enables script
-            }
-            return; // TriggerDeathSequence now disables script, so this might not be hit often post-death
-        }
-        */
-        
         HandleGroundCheck();    // Determines isGroundedStatus and slopeNormal from wheels
         HandleMovementInput();  // Handles acceleration, speed, steering
         ApplyGravity();         // Applies gravity to velocity.y
@@ -245,10 +243,6 @@ public class EnemyAI : MonoBehaviour
         UpdateWheelRotation();  // Rotates wheel visuals
         UpdateTrailSystem();    // Manages light trail colliders
         UpdatePlayerToColliderLine(); // Visual line to last trail point
-        /*
-        UpdateSpeedometerNeedle(); // Updates speedometer UI
-        */
-        previousFramePosition = transform.position;
     }
 
     // --- Ground Check Logic (Wheels) ---
@@ -283,16 +277,17 @@ public class EnemyAI : MonoBehaviour
 
         // Determine if on a slope and the angle of the slope
         isOnSlope = Vector3.Angle(Vector3.up, slopeNormal) > 1f; // Threshold for being "on a slope"
-        slopeAngle = Vector3.Angle(Vector3.up, slopeNormal); // Actual angle of the slope
-
+        
         // Debug rays for wheel ground checks
         Debug.DrawRay(frontWheelCheck.position, Vector3.down * 1f, frontGrounded ? Color.green : Color.red);
         Debug.DrawRay(rearWheelCheck.position, Vector3.down * 1f, rearGrounded ? Color.green : Color.red);
     }
 
+
     private readonly float log180 = Mathf.Log(180);
 
     // --- Input Handling and Speed Calculation ---
+    // ReSharper disable Unity.PerformanceAnalysis
     void HandleMovementInput()
     {
         
@@ -302,8 +297,6 @@ public class EnemyAI : MonoBehaviour
         Vector3 target = GetPositionOnCircle(player.position, player.eulerAngles.y);
         
         float signedangle = CalculAngletoCible(transform, target);
-        
-        
         
         
         // Steering
@@ -326,49 +319,81 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        int i;
         bool jump = false;
-        bool obstaclel = false;
-        bool obstacler = false;
         
-        // Handle Detection of Obstacle
-        if (candetecteobject)
+        // Handle Detection of Obstacle and Void
+        if (candetecteobjectandvoid)
         {
-            RaycastHit obstacleHitr = default;
-            RaycastHit obstacleHitl = default;
-        
-            i = 90;
-            while ( i > 45  && !obstaclel && !obstacler)
+            RaycastHit obstacleHitL = default;
+            RaycastHit obstacleHitR = default;
+
+            bool obstacleL = false;
+            bool obstacleR = false;
+            bool voidL = true;
+            bool voidR = true;
+
+            float i = 75;
+
+            while (i > 10 && !obstacleL && !obstacleR && voidL && voidR)
             {
-                Vector3 lookingright = GetPositionOnCircle(transform.position, transform.eulerAngles.y - i, 1);
-                Vector3 lookingleft = GetPositionOnCircle(transform.position, transform.eulerAngles.y + i, 1);
-                obstacler |= Physics.Raycast(transform.position, lookingleft, out obstacleHitr, 5f);
-                obstaclel |= Physics.Raycast(transform.position, lookingright, out obstacleHitl, 5f);
+                // Rotate enemy's forward vector to left and right
+                Vector3 dirLeft = Quaternion.AngleAxis(-i, Vector3.up) * enemy.transform.forward;
+                Vector3 dirRight = Quaternion.AngleAxis(i, Vector3.up) * enemy.transform.forward;
+
+                // Obstacle raycasts (horizontal)
+                obstacleL |= Physics.Raycast(enemy.transform.position, dirLeft, out obstacleHitL, 1.5f);
+                obstacleR |= Physics.Raycast(enemy.transform.position, dirRight, out obstacleHitR, 1.5f);
+
+                // Calculate ground check origins 2.5 units ahead
+                Vector3 leftCheckPos = enemy.transform.position + dirLeft * 2.5f;
+                Vector3 rightCheckPos = enemy.transform.position + dirRight * 2.5f;
+
+                // Void detection (vertical downward)
+                bool leftGround = Physics.Raycast(leftCheckPos, Vector3.down, 2f, groundLayer);
+                bool rightGround = Physics.Raycast(rightCheckPos, Vector3.down, 2f, groundLayer);
+
+                voidL &= leftGround;
+                voidR &= rightGround;
+        
+                // Debug rays
+                if (showdetection)
+                {
+                    Debug.DrawRay(enemy.transform.position, dirLeft * 2.5f, Color.red);
+                    Debug.DrawRay(enemy.transform.position, dirRight * 2.5f, Color.green);
+                    Debug.DrawRay(leftCheckPos, Vector3.down * 2f, Color.black);
+                    Debug.DrawRay(rightCheckPos, Vector3.down * 2f, Color.black);
+                }
+
                 i--;
             }
-            
-            if (obstaclel && obstacler)
+
+            // Decision logic
+            if (!voidR || (obstacleHitL.distance < obstacleHitR.distance))
             {
-                if (obstacleHitl.distance < obstacleHitr.distance)
+                if (canJump && obstacleHitL.distance < 1f)
                 {
-                    if(obstacleHitl.distance < 2f)jump = true;
-                    currentSteerInput = 1;
+                    currentSteerInput = 1; // steer right
+                    jump = true;
                 }
-                else if (obstacleHitl.distance > obstacleHitr.distance)
+                else
                 {
-                    if(obstacleHitr.distance < 2f)jump = true;
-                    currentSteerInput = -1;
+                    currentSteerInput = -1; // steer left
                 }
             }
-            else if (obstaclel)
+            else if (!voidL || (obstacleHitR.distance < obstacleHitL.distance))
             {
-                currentSteerInput = 1;
-            }
-            else if (obstacler)
-            {
-                currentSteerInput = -1;
+                if (canJump && obstacleHitR.distance < 1f)
+                {
+                    currentSteerInput = -1; // steer left
+                    jump = true;
+                }
+                else
+                {
+                    currentSteerInput = 1; // steer right
+                }
             }
         }
+
         
         // Handle Jumping
         if (canJump)
@@ -381,6 +406,7 @@ public class EnemyAI : MonoBehaviour
         
         transform.Rotate(Vector3.up * currentSteerInput * adjustedSteerSpeed * Time.deltaTime);
         
+        float distance = Vector3.Distance(target, enemy.transform.position);
         float accelerationInput = 0;
 
         // Handle Acceleration
@@ -388,7 +414,6 @@ public class EnemyAI : MonoBehaviour
         {
             accelerationInput += 1;
             
-            float distance = Vector3.Distance(target, enemy.transform.position);
             if ( distance < maxdistanceofdash && distance > mindistanceofdash) accelerationInput -= 1;
 
         }
@@ -398,7 +423,7 @@ public class EnemyAI : MonoBehaviour
         {
             bool obstacles = Physics.Raycast(transform.position, GetPositionOnCircle(transform.position, transform.eulerAngles.y, 1), out RaycastHit _, 5);
             // If there is an Obstacle in Front Slowdown the moto
-            if (obstacler || obstaclel || obstacles || Mathf.Abs(signedangle) > angleToSlowDown)
+            if (isBraking || (distance < maxdistanceofdash && distance > mindistanceofdash) || obstacles || Mathf.Abs(signedangle) > angleToSlowDown)
             {
                 accelerationInput -= 1;
             }
@@ -454,13 +479,13 @@ public class EnemyAI : MonoBehaviour
         }
     }
     
-    public float CalculAngletoCible(Transform ai, Vector3 player)
+    private float CalculAngletoCible(Transform ai, Vector3 playerdirection)
     {
         // Direction of the AI
         Vector3 directionAI = ai.forward;
 
         // Direction to the player
-        Vector3 directiontoPlayer = (player - ai.position).normalized;
+        Vector3 directiontoPlayer = (playerdirection - ai.position).normalized;
 
         // Calcul of the signed angle around the axis Y
         float angle = Vector3.SignedAngle(directionAI, directiontoPlayer, Vector3.up);
@@ -476,7 +501,7 @@ public class EnemyAI : MonoBehaviour
         return origin + new Vector3(x, 0, z);
     }
     
-    // --- Apply Gravity ---
+   // --- Apply Gravity ---
     void ApplyGravity()
     {
         if (isGroundedStatus && velocity.y < 0)
@@ -493,7 +518,7 @@ public class EnemyAI : MonoBehaviour
     // --- Apply Leaning Visual ---
     void HandleLeaning()
     {
-        if (leanTarget == null) return;
+        if (leanTarget is null) return;
 
         // --- Z-axis Lean (Steering + Speed) ---
         float targetSteerLeanAngleZ = -currentSteerInput * maxLeanAngle;
@@ -511,10 +536,9 @@ public class EnemyAI : MonoBehaviour
         if (isGroundedStatus) // Only apply active leaning/correction if grounded based on wheel checks
         {
             // Primary determination of slope based on a central raycast under the main body/pivot
-            RaycastHit centralHit;
             Vector3 groundNormalForLean = storedSlopeNormal; // Fallback to wheel-derived normal
             bool centralRayHit = Physics.Raycast(transform.position + transform.up * 0.1f, // Start ray slightly above pivot
-                                                 Vector3.down, out centralHit,
+                                                 Vector3.down, out RaycastHit centralHit,
                                                  chassisCentralCheckMaxDistance,
                                                  groundLayer, QueryTriggerInteraction.Ignore);
             if (centralRayHit)
@@ -539,9 +563,8 @@ public class EnemyAI : MonoBehaviour
             // --- Correction using Side Chassis Raycasts ---
             if (leftChassisGroundCheck != null && rightChassisGroundCheck != null) // Ensure transforms are assigned
             {
-                RaycastHit leftChassisHitInfo, rightChassisHitInfo;
-                bool leftChassisGrounded = Physics.Raycast(leftChassisGroundCheck.position, Vector3.down, out leftChassisHitInfo, chassisSideCheckMaxDistance, groundLayer);
-                bool rightChassisGrounded = Physics.Raycast(rightChassisGroundCheck.position, Vector3.down, out rightChassisHitInfo, chassisSideCheckMaxDistance, groundLayer);
+                bool leftChassisGrounded = Physics.Raycast(leftChassisGroundCheck.position, Vector3.down, out RaycastHit leftChassisHitInfo, chassisSideCheckMaxDistance, groundLayer);
+                bool rightChassisGrounded = Physics.Raycast(rightChassisGroundCheck.position, Vector3.down, out RaycastHit rightChassisHitInfo, chassisSideCheckMaxDistance, groundLayer);
 
                 Debug.DrawRay(leftChassisGroundCheck.position, Vector3.down * chassisSideCheckMaxDistance, leftChassisGrounded ? Color.cyan : Color.magenta);
                 Debug.DrawRay(rightChassisGroundCheck.position, Vector3.down * chassisSideCheckMaxDistance, rightChassisGrounded ? Color.cyan : Color.magenta);
@@ -612,15 +635,8 @@ public class EnemyAI : MonoBehaviour
         Vector3 moveVector = moveDirectionOnSlope * currentMoveSpeed; // Horizontal movement
         moveVector.y = velocity.y; // Vertical movement (gravity, jump)
 
-        if(enabled)enemy.Move(moveVector * Time.deltaTime); // Apply movement via CharacterController
-        /*
-        // Camera FOV adjustment based on speed
-        if (Cam != null)
-        {
-            float targetFOV = Mathf.Lerp(baseFOV, maxFOV, currentMoveSpeed / maxSpeed);
-            Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, targetFOV, Time.deltaTime * smoothSpeed);
-        }
-        */
+        if(!isDead && enabled)enemy.Move(moveVector * Time.deltaTime); // Apply movement via CharacterController
+        
     }
 
 
@@ -657,7 +673,7 @@ public class EnemyAI : MonoBehaviour
     void RecordTrailPosition()
     {
         Vector3 spawnPosition = transform.position - (transform.forward * positionOffset);
-        if (trailPoints.Count == 0 || Vector3.Distance(trailPoints[trailPoints.Count - 1].WorldPosition, spawnPosition) >= colliderSpacing)
+        if (trailPoints.Count == 0 || Vector3.Distance(trailPoints[^1].WorldPosition, spawnPosition) >= colliderSpacing)
         {
             trailPoints.Add(new TrailPoint { WorldPosition = spawnPosition, Timestamp = Time.time });
         }
@@ -706,10 +722,13 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     void CreateColliderObject()
     {
-        GameObject colliderObj = new GameObject($"TrailColliderSegment_{trailColliderObjects.Count}");
-        colliderObj.tag = trailColliderTag;
+        GameObject colliderObj = new GameObject($"TrailColliderSegment_{trailColliderObjects.Count}")
+        {
+            tag = trailColliderTag
+        };
 
         CapsuleCollider capsule = colliderObj.AddComponent<CapsuleCollider>();
         capsule.isTrigger = true;
@@ -778,24 +797,13 @@ public class EnemyAI : MonoBehaviour
         {
             playerToColliderLineRenderer.enabled = true;
             playerToColliderLineRenderer.SetPosition(0, transform.position); // Current player position
-            playerToColliderLineRenderer.SetPosition(1, trailPoints[trailPoints.Count - 1].WorldPosition); // Last trail point
+            playerToColliderLineRenderer.SetPosition(1, trailPoints[^1].WorldPosition); // Last trail point
         }
         else
         {
             playerToColliderLineRenderer.enabled = false;
         }
     }
-
-    /*
-    void UpdateSpeedometerNeedle()
-    {
-        if (speedometerNeedle == null) return;
-        float normalizedSpeed = Mathf.InverseLerp(minSpeedForNeedle, maxSpeedForNeedle, currentMoveSpeed);
-        normalizedSpeed = Mathf.Clamp01(normalizedSpeed);
-        float targetNeedleAngle = Mathf.Lerp(minNeedleAngle, maxNeedleAngle, normalizedSpeed);
-        speedometerNeedle.localEulerAngles = new Vector3(0f, 0f, targetNeedleAngle);
-    }
-    */
     
     void OnTriggerEnter(Collider other)
     {
@@ -818,8 +826,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (isDead) return; // Prevent multiple triggers
         isDead = true;
-        deathTime = Time.time; // Record time of death for respawn delay
-
+        
         if (orangeEffect != null) orangeEffect.Play();
         if (darkOrangeEffect != null) darkOrangeEffect.Play();
         if (blackEffect != null) blackEffect.Play();
@@ -832,6 +839,8 @@ public class EnemyAI : MonoBehaviour
         // this.enabled = false; // Reconsidering this line.
         // If this script is disabled, the Update loop won't run to check for respawn.
         // So, keep script enabled, and Update checks `isDead`.
+        spawnpoint.unitalive--;
+        ClearTrail();
         Invoke(nameof(Destroy), 0.5f);
     }
 
@@ -840,45 +849,9 @@ public class EnemyAI : MonoBehaviour
         Destroy(gameObject);
     }
     
-    // --- Respawn Logic ---
-    void RespawnPlayer()
-    {
-        isDead = false; // No longer dead
-        if (enemy != null)
-        {
-            enemy.enabled = true; // Re-enable CharacterController
-        }
-        // this.enabled = true; // Ensure script is enabled if it was disabled
-        /*
-        // Select next spawn point
-        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
-        // Teleport player: CharacterController needs to be temporarily disabled for direct transform.position change to work reliably
-        if (enemy != null) enemy.enabled = false;
-        transform.position = spawnPoints[currentSpawnPointIndex].position;
-        transform.rotation = spawnPoints[currentSpawnPointIndex].rotation; // Also reset rotation to spawn point's rotation
-        */
-        if (enemy != null) enemy.enabled = true;
-
-
-        // Reset state
-        velocity = Vector3.zero;
-        currentMoveSpeed = minSpeed;
-        currentDeceleration = brakingDeceleration; // Reset to base deceleration
-        // transform.rotation = Quaternion.identity; // Or spawn point's rotation
-        storedSlopeNormal = Vector3.up; // Reset slope normal memory
-        currentLeanAngleX = 0f; // Reset lean angles
-        currentLeanAngleZ = 0f;
-        if (leanTarget != null) leanTarget.localRotation = Quaternion.identity; // Reset lean target's local rotation
-
-        ClearTrail();
-        // hasSpawned = false; // This flag is for initial spawn, not respawn. Keep true.
-        /*
-        Debug.Log($"Player Respawned at {spawnPoints[currentSpawnPointIndex].name}!");
-        */
-    }
-
     void ClearTrail()
     {
+        if (playerToColliderLineObject != null) Destroy(playerToColliderLineObject);
         foreach (GameObject colliderObj in trailColliderObjects)
         {
             if (colliderObj != null) Destroy(colliderObj);
@@ -888,26 +861,16 @@ public class EnemyAI : MonoBehaviour
         if (playerToColliderLineRenderer != null)
             playerToColliderLineRenderer.enabled = false;
     }
-
-    void OnDestroy()
-    {
-        if (playerToColliderLineObject != null) Destroy(playerToColliderLineObject);
-        foreach (var colliderObj in trailColliderObjects)
-        {
-            if (colliderObj != null) Destroy(colliderObj);
-        }
-        trailColliderObjects.Clear();
-        trailPoints.Clear();
-    }
-
+    
     // Helper Script for Trail Collider Activation Delay
     public class TrailSegmentCollider : MonoBehaviour
     {
         private float creationTime;
         private float activationDelay;
         private CapsuleCollider capsuleCollider;
-        private bool isInitialized = false;
+        private bool isInitialized;
 
+        // ReSharper disable Unity.PerformanceAnalysis
         public void Initialize(float delay)
         {
             capsuleCollider = GetComponent<CapsuleCollider>();
@@ -925,7 +888,7 @@ public class EnemyAI : MonoBehaviour
 
         void Update()
         {
-            if (!isInitialized || capsuleCollider == null) return;
+            if (!isInitialized || capsuleCollider is null) return;
 
             // If collider is still disabled and activation time has passed
             if (!capsuleCollider.enabled)
