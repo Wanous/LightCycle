@@ -4963,6 +4963,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8447788792629850657}
   - component: {fileID: 5340295947848992031}
+  - component: {fileID: 6682431858206736557}
   m_Layer: 0
   m_Name: Explosion
   m_TagString: Untagged
@@ -5085,6 +5086,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6682431858206736557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1378947809853937087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2b7cf907150244078ccd43b7ea31ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 5340295947848992031}
+  DefaultVolume: 0.5
 --- !u!1 &2908749224153200739
 GameObject:
   m_ObjectHideFlags: 0
@@ -20412,6 +20427,7 @@ GameObject:
   m_Component:
   - component: {fileID: 83517978968710069}
   - component: {fileID: 6741590967451209289}
+  - component: {fileID: 8284713120834795386}
   m_Layer: 0
   m_Name: Son moto
   m_TagString: Untagged
@@ -20531,6 +20547,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8284713120834795386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9172181730260135743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2b7cf907150244078ccd43b7ea31ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 6741590967451209289}
+  DefaultVolume: 0.5
 --- !u!1001 &33394242697344781
 PrefabInstance:
   m_ObjectHideFlags: 0

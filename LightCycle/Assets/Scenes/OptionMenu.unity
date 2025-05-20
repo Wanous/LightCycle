@@ -516,6 +516,7 @@ GameObject:
   m_Component:
   - component: {fileID: 180235761}
   - component: {fileID: 180235760}
+  - component: {fileID: 180235762}
   m_Layer: 0
   m_Name: Son Button
   m_TagString: Untagged
@@ -635,6 +636,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 497713940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &180235762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180235759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2b7cf907150244078ccd43b7ea31ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 180235760}
+  DefaultVolume: 0.5
 --- !u!1 &378470912
 GameObject:
   m_ObjectHideFlags: 0
@@ -1211,6 +1226,7 @@ GameObject:
   m_Component:
   - component: {fileID: 589327862}
   - component: {fileID: 589327861}
+  - component: {fileID: 589327863}
   m_Layer: 0
   m_Name: Son Menu
   m_TagString: Untagged
@@ -1330,6 +1346,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 497713940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &589327863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 589327860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5bda79073f7353f81c26071ef9e69f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 589327861}
+  DefaultVolume: 0.2
 --- !u!1 &601069387
 GameObject:
   m_ObjectHideFlags: 0
@@ -3541,6 +3571,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1741428505}
   - component: {fileID: 1741428504}
+  - component: {fileID: 1741428506}
   m_Layer: 0
   m_Name: Son button bis
   m_TagString: Untagged
@@ -3660,6 +3691,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 497713940}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1741428506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741428503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2b7cf907150244078ccd43b7ea31ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: {fileID: 1741428504}
+  DefaultVolume: 0.5
 --- !u!1 &1856655835
 GameObject:
   m_ObjectHideFlags: 0
