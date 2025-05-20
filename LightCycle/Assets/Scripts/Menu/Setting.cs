@@ -93,31 +93,15 @@ public class Setting : MonoBehaviour
                 InvertButtonUI.onClick.RemoveAllListeners();
                 InvertButtonUI.onClick.AddListener(OnInvertButtonClicked);
             }
-            else
-            {
-                Debug.LogError("Component Button not found on GameObject 'Bouton Inversé'.");
-            }
-        }
-        else
-        {
-            Debug.LogError("GameObject 'Bouton Inversé' not found in the scene.");
         }
 
         if (imageButtonObj != null)
         {
             InvertButtonRawImage = imageButtonObj.GetComponent<RawImage>();
-            if (InvertButtonRawImage == null)
-            {
-                Debug.LogError("Component RawImage not found on GameObject 'Image Bouton'.");
-            }
-            else
+            if (InvertButtonRawImage != null)
             {
                 UpdateInvertButtonVisual();
             }
-        }
-        else
-        {
-            Debug.LogError("GameObject 'Image Bouton' not found in the scene.");
         }
     }
 
