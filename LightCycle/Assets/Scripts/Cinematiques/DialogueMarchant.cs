@@ -1,8 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
-public class DialogueManager1 : MonoBehaviour
+
+public class DialogueMarchant : MonoBehaviour
 {
     public GameObject dialoguePanel;
     public TextMeshProUGUI dialogueText;
