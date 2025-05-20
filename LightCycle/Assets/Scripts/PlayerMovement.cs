@@ -586,32 +586,38 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void RespawnPlayer()
-	{
-    	isDead = false;
-    	if (player != null)
-    	{
-        	player.enabled = true;
-    	}
-    	this.enabled = true;
-	
-    	currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
+    {
+        isDead = false;
     
-   	 	if (player != null) player.enabled = false;
-    	transform.position = spawnPoints[currentSpawnPointIndex].position;
-    	transform.rotation = Quaternion.identity; // reset rotation
-    	if (player != null) player.enabled = true;
+        if (player != null)
+            player.enabled = true;
+    
+        this.enabled = true;
+    
+        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
+    
+        if (player != null)
+            player.enabled = false;
+    
+        transform.position = spawnPoints[currentSpawnPointIndex].position;
+		transform.rotation = spawnPoints[currentSpawnPointIndex].rotation * Quaternion.Euler(0, 90f, 0);
 
-	    velocity = Vector3.zero;
-    	currentMoveSpeed = minSpeed;
-    	currentDeceleration = brakingDeceleration;
-    	storedSlopeNormal = Vector3.up;
-    	currentLeanAngleX = 0f;
-    	currentLeanAngleZ = 0f;
-    	if (leanTarget != null) leanTarget.localRotation = Quaternion.identity;
-	
-    	ClearTrail();
-	}
-
+    
+        if (player != null)
+            player.enabled = true;
+    
+        velocity = Vector3.zero;
+        currentMoveSpeed = minSpeed;
+        currentDeceleration = brakingDeceleration;
+        storedSlopeNormal = Vector3.up;
+        currentLeanAngleX = 0f;
+        currentLeanAngleZ = 0f;
+    
+        if (leanTarget != null)
+            leanTarget.localRotation = Quaternion.identity;
+    
+        ClearTrail();
+    }
 
     void ClearTrail()
     {
