@@ -1,5 +1,60 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &122496513718007656
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8859913903462713628}
+  - component: {fileID: 886694995405986525}
+  m_Layer: 0
+  m_Name: collision
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8859913903462713628
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122496513718007656}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -0.25, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3305550522075108819}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!136 &886694995405986525
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 122496513718007656}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.2985639
+  m_Height: 1.5222076
+  m_Direction: 1
+  m_Center: {x: 0.2605968, y: -0.05452337, z: 0.05916235}
 --- !u!1 &208245031922605257
 GameObject:
   m_ObjectHideFlags: 0
@@ -10327,6 +10382,7 @@ Transform:
   - {fileID: 7212579524404798573}
   - {fileID: 2293927502695053130}
   - {fileID: 6238735013006141328}
+  - {fileID: 8859913903462713628}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &4185818369374919690
@@ -10369,6 +10425,7 @@ MonoBehaviour:
   player: {fileID: 4185818369374919690}
   groundCheckPoint: {fileID: 8324952273568087962}
   segmentLineMaterial: {fileID: 2100000, guid: 72e550974658d94489e4295fd8791387, type: 2}
+  collisions: {fileID: 122496513718007656}
   minSpeed: 5
   maxSpeed: 50
   acceleration: 5

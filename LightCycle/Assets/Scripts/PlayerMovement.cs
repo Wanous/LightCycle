@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController player;
     public Transform groundCheckPoint;
     public Material segmentLineMaterial;
+	public GameObject collisions;
 
     [Header("Movement")]
     public float minSpeed = 2f;
@@ -57,7 +58,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Ground Check")]
     public LayerMask groundLayer;
-    public float groundCheckRadius = 0.2f;
+    public float groundCheckRadius = 0.1f;
     public Transform frontWheelCheck;
     public Transform rearWheelCheck;
 
@@ -553,16 +554,23 @@ public class PlayerMovement : MonoBehaviour
         speedometerNeedle.localEulerAngles = new Vector3(0f, 0f, targetNeedleAngle);
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (isDead) return;
+   void OnTriggerEnter(Collider other)
+	{
+    	if (isDead) return;
 
-        bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15f;
-        if (other.gameObject.CompareTag(trailColliderTag) || isHazardCollision || other.gameObject.CompareTag("plane") || transform.position.y < -10)
-        {
-            TriggerDeathSequence();
-        }
-    }
+	    // Ignore self-collision
+    	if (other.gameObject == gameObject) return;
+
+    	bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15f;
+
+	    if (other.gameObject.CompareTag(trailColliderTag) || isHazardCollision ||
+    	    other.gameObject.CompareTag("plane") || transform.position.y < -10 ||
+        	(other.gameObject.CompareTag("Player") && other.gameObject != collisions) ||
+        	other.gameObject.CompareTag("Enemy"))
+    	{
+        	TriggerDeathSequence();
+    	}
+	}
 
     void TriggerDeathSequence()
     {
@@ -578,31 +586,32 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void RespawnPlayer()
-    {
-        isDead = false;
-        if (player != null)
-        {
-            player.enabled = true;
-        }
-        this.enabled = true;
+	{
+    	isDead = false;
+    	if (player != null)
+    	{
+        	player.enabled = true;
+    	}
+    	this.enabled = true;
+	
+    	currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
+    
+   	 	if (player != null) player.enabled = false;
+    	transform.position = spawnPoints[currentSpawnPointIndex].position;
+    	transform.rotation = Quaternion.identity; // reset rotation
+    	if (player != null) player.enabled = true;
 
-        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
-        if (player != null) player.enabled = false;
-        transform.position = spawnPoints[currentSpawnPointIndex].position;
-        transform.rotation = spawnPoints[currentSpawnPointIndex].rotation;
-        if (player != null) player.enabled = true;
+	    velocity = Vector3.zero;
+    	currentMoveSpeed = minSpeed;
+    	currentDeceleration = brakingDeceleration;
+    	storedSlopeNormal = Vector3.up;
+    	currentLeanAngleX = 0f;
+    	currentLeanAngleZ = 0f;
+    	if (leanTarget != null) leanTarget.localRotation = Quaternion.identity;
+	
+    	ClearTrail();
+	}
 
-        velocity = Vector3.zero;
-        currentMoveSpeed = minSpeed;
-        currentDeceleration = brakingDeceleration;
-        transform.rotation = Quaternion.identity;
-        storedSlopeNormal = Vector3.up;
-        currentLeanAngleX = 0f;
-        currentLeanAngleZ = 0f;
-        if (leanTarget != null) leanTarget.localRotation = Quaternion.identity;
-
-        ClearTrail();
-    }
 
     void ClearTrail()
     {
@@ -660,7 +669,5 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
         }
-    }
-    
-    
+    }	   
 }
