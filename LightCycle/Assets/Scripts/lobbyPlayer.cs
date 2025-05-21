@@ -22,20 +22,19 @@ public class PlayerMovementCC : MonoBehaviour
     public bool completelyDeactivateObject = true;
     public float sceneCheckInterval = 1f;
 
-    // Component references
+    [Header("Camera Control")]
+    public Camera playerCamera; 
+
     private CharacterController controller;
     private Animator animator;
 
-    // Movement variables
     private Vector3 velocity;
     private bool isGrounded;
     private bool isJumping;
 
-    // State management
     private bool shouldBeActive = true;
     private float timeSinceLastSceneCheck = 0f;
 
-    // Cone detection
     private bool isInsideCone = false;
 
     void Awake()
@@ -47,6 +46,15 @@ public class PlayerMovementCC : MonoBehaviour
             Debug.LogError("Missing CharacterController component!", this);
         if (animator == null)
             Debug.LogWarning("Missing Animator component!", this);
+        
+        if (playerCamera == null)
+        {
+            playerCamera = GetComponentInChildren<Camera>();
+            if (playerCamera == null)
+            {
+                DebugLogWarning("Player Camera not assigned and not found as child!");
+            }
+        }
     }
 
     void Start()
@@ -137,6 +145,12 @@ public class PlayerMovementCC : MonoBehaviour
 
         this.enabled = shouldBeActive;
         DebugLog($"Main script enabled: {this.enabled}");
+
+        if (playerCamera != null)
+        {
+            playerCamera.enabled = shouldBeActive;
+            DebugLog($"Player Camera enabled: {playerCamera.enabled}");
+        }
 
         if (!shouldBeActive && completelyDeactivateObject)
         {
