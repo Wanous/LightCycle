@@ -1,11 +1,14 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class DialogueMarchant : MonoBehaviour
 {
-    public GameObject dialoguePanel;
-    public TextMeshProUGUI dialogueText;
+    public GameObject dialoguePanel1;
+    public GameObject dialoguePanel2;
+    public TextMeshProUGUI dialogueText1;
+    public TextMeshProUGUI dialogueText2;
     public string[] dialogueLines;
     public float typingSpeed = 0.05f;
     public float delayBeforeNextLine = 2f;
@@ -20,11 +23,11 @@ public class DialogueMarchant : MonoBehaviour
 
     void Start()
     {
-        // Trouver le joueur (tag "Player") et le marchant (tag "Marchant")
         player = GameObject.FindGameObjectWithTag("Player");
         marchant = GameObject.FindGameObjectWithTag("Marchant");
 
-        dialoguePanel.SetActive(false); // on cache au début
+        dialoguePanel1.SetActive(false);
+        dialoguePanel2.SetActive(false);
     }
 
     void Update()
@@ -35,7 +38,7 @@ public class DialogueMarchant : MonoBehaviour
             if (distance <= triggerDistance)
             {
                 dialogueStarted = true;
-                dialoguePanel.SetActive(true);
+                dialoguePanel1.SetActive(true);
                 StartCoroutine(TypeLine());
             }
         }
@@ -44,11 +47,24 @@ public class DialogueMarchant : MonoBehaviour
     IEnumerator TypeLine()
     {
         isTyping = true;
-        dialogueText.text = "";
+
+        // Choisir le bon panel et texte
+        if (index == dialogueLines.Length - 1)
+        {
+            dialoguePanel1.SetActive(false);
+            dialoguePanel2.SetActive(true);
+            dialogueText2.text = "";
+        }
+        else
+        {
+            dialogueText1.text = "";
+        }
+
+        TextMeshProUGUI currentText = index == dialogueLines.Length - 1 ? dialogueText2 : dialogueText1;
 
         foreach (char c in dialogueLines[index].ToCharArray())
         {
-            dialogueText.text += c;
+            currentText.text += c;
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -60,14 +76,17 @@ public class DialogueMarchant : MonoBehaviour
 
     void NextLine()
     {
-        if (index < dialogueLines.Length - 1)
+        index++;
+
+        if (index < dialogueLines.Length)
         {
-            index++;
             StartCoroutine(TypeLine());
         }
         else
         {
-            dialoguePanel.SetActive(false); // cache le panel à la fin
+            dialoguePanel1.SetActive(false);
+            dialoguePanel2.SetActive(false);
+            SceneManager.LoadScene("MainMenu");
         }
     }
 }
