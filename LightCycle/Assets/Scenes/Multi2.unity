@@ -6998,7 +6998,6 @@ GameObject:
   - component: {fileID: 1093688989}
   - component: {fileID: 1093688985}
   - component: {fileID: 1093688991}
-  - component: {fileID: 1093688990}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -7041,9 +7040,9 @@ MonoBehaviour:
   offlineScene: Assets/Scenes/Multi2.unity
   onlineScene: Assets/Scenes/Lobby.unity
   offlineSceneLoadDelay: 12.9
-  transport: {fileID: 0}
-  networkAddress: localhost
-  maxConnections: 100
+  transport: {fileID: 1093688986}
+  networkAddress: 
+  maxConnections: 3
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
@@ -7110,7 +7109,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1093688982}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7865b6430eca89c40b760ae2f862bbe4, type: 3}
   m_Name: 
@@ -7121,19 +7120,6 @@ MonoBehaviour:
   findButton: {fileID: 1737470030}
   serverListParent: {fileID: 1087238214}
   serverButtonPrefab: {fileID: 481565935710125118, guid: f222dda9b9c3f954280311d3b3ecbc1e, type: 3}
---- !u!114 &1093688990
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1093688982}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88c37d3deca7a834d80cfd8d3cfcc510, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkDiscovery: {fileID: 1093688991}
 --- !u!114 &1093688991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7148,19 +7134,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableActiveDiscovery: 1
   BroadcastAddress: 
-  serverBroadcastListenPort: 77777
+  serverBroadcastListenPort: 7777
   ActiveDiscoveryInterval: 3
   transport: {fileID: 1093688986}
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1093688990}
-        m_TargetAssemblyTypeName: Mirror.Discovery.NetworkDiscoveryHUD, Mirror.Components
+      - m_Target: {fileID: 1093688989}
+        m_TargetAssemblyTypeName: DiscoveryUIManager, Assembly-CSharp
         m_MethodName: OnDiscoveredServer
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

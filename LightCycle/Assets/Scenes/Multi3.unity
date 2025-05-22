@@ -244,9 +244,9 @@ MonoBehaviour:
   offlineScene: Assets/Scenes/Multi3.unity
   onlineScene: Assets/Scenes/Lobby.unity
   offlineSceneLoadDelay: 12.9
-  transport: {fileID: 0}
-  networkAddress: localhost
-  maxConnections: 100
+  transport: {fileID: 45989251}
+  networkAddress: 
+  maxConnections: 8
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
@@ -320,24 +320,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableActiveDiscovery: 1
   BroadcastAddress: 
-  serverBroadcastListenPort: 77777
+  serverBroadcastListenPort: 7777
   ActiveDiscoveryInterval: 1
   transport: {fileID: 45989251}
   OnServerFound:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 45989254}
-        m_TargetAssemblyTypeName: DiscoveryUIManager, Assembly-CSharp
-        m_MethodName: FindServers
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   secretHandshake: -5638125422602638119
 --- !u!114 &45989254
 MonoBehaviour:
@@ -2060,9 +2048,6 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5578144299337734956, guid: 0b891e23ca8ea0f4c94a8598ec98934b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 817244163}
-    - targetCorrespondingSourceObject: {fileID: 5578144299337734956, guid: 0b891e23ca8ea0f4c94a8598ec98934b, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 569383679}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b891e23ca8ea0f4c94a8598ec98934b, type: 3}
@@ -3650,6 +3635,7 @@ RectTransform:
   m_Children:
   - {fileID: 493568190}
   - {fileID: 1982917271}
+  - {fileID: 817244163}
   m_Father: {fileID: 2067363240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4670,12 +4656,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 817244162}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2067363240}
+  m_Father: {fileID: 569383679}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &833121107
 PrefabInstance:
@@ -10571,7 +10557,7 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1

@@ -72,6 +72,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] ParticleSystem OrangeEffect;
     [SerializeField] ParticleSystem darkOrangeEffect;
     [SerializeField] ParticleSystem BlackEffect;
+    public AudioSource ExplosionSound;
 
     [Header("Wheel Rotation")]
     public Transform frontWheel;
@@ -581,6 +582,7 @@ public class PlayerMovement : MonoBehaviour
         if (OrangeEffect != null) OrangeEffect.Play();
         if (darkOrangeEffect != null) darkOrangeEffect.Play();
         if (BlackEffect != null) BlackEffect.Play();
+        if (ExplosionSound != null) ExplosionSound.Play();
 
         if (player != null) player.enabled = false; 
     }

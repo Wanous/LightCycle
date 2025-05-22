@@ -22,7 +22,6 @@ public class DiscoveryUIManager : MonoBehaviour
     {
         hostButton.onClick.AddListener(HostGame);
         findButton.onClick.AddListener(FindServers);
-
         networkDiscovery.OnServerFound.AddListener(OnDiscoveredServer);
     }
 
@@ -41,7 +40,7 @@ public class DiscoveryUIManager : MonoBehaviour
         networkDiscovery.StartDiscovery();
     }
 
-    void OnDiscoveredServer(ServerResponse info)
+    public void OnDiscoveredServer(ServerResponse info)
     {
         if (discoveredServers.ContainsKey(info.serverId))
             return;
@@ -49,12 +48,24 @@ public class DiscoveryUIManager : MonoBehaviour
         discoveredServers[info.serverId] = info;
 
         GameObject buttonObj = Instantiate(serverButtonPrefab, serverListParent);
-        buttonObj.GetComponentInChildren<TMP_Text>().text = info.EndPoint.Address.ToString();
-
-        buttonObj.GetComponent<Button>().onClick.AddListener(() =>
+        TMP_Text buttonTMPText = buttonObj.GetComponentInChildren<TMP_Text>(true);
+        if (buttonTMPText != null)
         {
-            networkDiscovery.StopDiscovery();
-            networkManager.StartClient(info.uri);
-        });
+            buttonTMPText.text = $"Join: {info.EndPoint.Address}";
+            buttonTMPText.color = Color.black;
+            buttonTMPText.fontSize = 24;
+            buttonTMPText.enableAutoSizing = true;
+            buttonTMPText.overflowMode = TextOverflowModes.Overflow;
+        }
+
+        Button button = buttonObj.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(() =>
+            {
+                networkDiscovery.StopDiscovery();
+                networkManager.StartClient(info.uri);
+            });
+        }
     }
 }
