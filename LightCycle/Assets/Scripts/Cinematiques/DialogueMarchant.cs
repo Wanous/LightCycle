@@ -1,183 +1,60 @@
-using System.Collections;
-
+using Mirror;
 using UnityEngine;
-
-using UnityEngine.SceneManagement;
-
+using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
+using Mirror.Discovery;
 
-
-
-public class DialogueMarchant : MonoBehaviour
-
+public class DiscoveryUIManager : MonoBehaviour
 {
-
-    public GameObject dialoguePanel1;
-
-    public GameObject dialoguePanel2;
-
-    public TextMeshProUGUI dialogueText1;
-
-    public TextMeshProUGUI dialogueText2;
-
-    public string[] dialogueLines;
-
-    public float typingSpeed = 0.05f;
-
-    public float delayBeforeNextLine = 2f;
-
-    public float triggerDistance = 3f;
-
-
-
-    private int index = 0;
-
-    private bool isTyping = false;
-
-    private bool dialogueStarted = false;
-
-
-
-    private GameObject player;
-
-    private GameObject marchant;
-
-
-
-    void Start()
-
-    {
-
-        player = GameObject.FindGameObjectWithTag("Player");
-
-        marchant = GameObject.FindGameObjectWithTag("Marchant");
-
-
-
-        dialoguePanel1.SetActive(false);
-
-        dialoguePanel2.SetActive(false);
-
-    }
-
-
-
-    void Update()
-
-    {
-
-        if (!dialogueStarted && player != null && marchant != null)
-
-        {
-
-            float distance = Vector3.Distance(player.transform.position, marchant.transform.position);
-
-            if (distance <= triggerDistance)
-
-            {
-
-                dialogueStarted = true;
-
-                dialoguePanel1.SetActive(true);
-
-                StartCoroutine(TypeLine());
-
-            }
-
-        }
-
-    }
-
-
-
-    IEnumerator TypeLine()
-
-    {
-
-        isTyping = true;
-
-
-
-        // Choisir le bon panel et texte
-
-        if (index == dialogueLines.Length - 1)
-
-        {
-
-            dialoguePanel1.SetActive(false);
-
-            dialoguePanel2.SetActive(true);
-
-            dialogueText2.text = "";
-
-        }
-
-        else
-
-        {
-
-            dialogueText1.text = "";
-
-        }
-
-
-
-        TextMeshProUGUI currentText = index == dialogueLines.Length - 1 ? dialogueText2 : dialogueText1;
-
-
-
-        foreach (char c in dialogueLines[index].ToCharArray())
-
-        {
-
-            currentText.text += c;
-
-            yield return new WaitForSeconds(typingSpeed);
-
-        }
-
-
-
-        isTyping = false;
-
-
-
-        yield return new WaitForSeconds(delayBeforeNextLine);
-
-        NextLine();
-
-    }
-
-
-
-    void NextLine()
-
-    {
-
-        index++;
-
-
-
-        if (index < dialogueLines.Length)
-
-        {
-
-            StartCoroutine(TypeLine());
-
-        }
-
-        else
-
-        {
-
-            dialoguePanel1.SetActive(false);
-
-            dialoguePanel2.SetActive(false);
-
-            SceneManager.LoadScene("MainMenu");
-
-        }
-
-    }
-
+    public NetworkManager networkManager;
+    public NetworkDiscovery networkDiscovery;
+
+    [Header("UI References")]
+    public Button hostButton;
+    public Button findButton;
+    public Transform serverListParent;
+    public GameObject serverButtonPrefab;
+
+    private Dictionary<long, ServerResponse> discoveredServers = new();
+
+    void Start()
+    {
+        hostButton.onClick.AddListener(HostGame);
+        findButton.onClick.AddListener(FindServers);
+
+        networkDiscovery.OnServerFound.AddListener(OnDiscoveredServer);
+    }
+
+    public void HostGame()
+    {
+        networkManager.StartHost();
+        networkDiscovery.AdvertiseServer();
+    }
+
+    public void FindServers()
+    {
+        discoveredServers.Clear();
+        foreach (Transform child in serverListParent)
+            Destroy(child.gameObject);
+
+        networkDiscovery.StartDiscovery();
+    }
+
+    void OnDiscoveredServer(ServerResponse info)
+    {
+        if (discoveredServers.ContainsKey(info.serverId))
+            return;
+
+        discoveredServers[info.serverId] = info;
+
+        GameObject buttonObj = Instantiate(serverButtonPrefab, serverListParent);
+        buttonObj.GetComponentInChildren<TMP_Text>().text = info.EndPoint.Address.ToString();
+
+        buttonObj.GetComponent<Button>().onClick.AddListener(() =>
+        {
+            networkDiscovery.StopDiscovery();
+            networkManager.StartClient(info.uri);
+        });
+    }
 }
