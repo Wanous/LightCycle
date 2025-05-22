@@ -35,8 +35,6 @@ public class PlayerMovementCC : MonoBehaviour
     private bool shouldBeActive = true;
     private float timeSinceLastSceneCheck = 0f;
 
-    private bool isInsideCone = false;
-
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -79,7 +77,7 @@ public class PlayerMovementCC : MonoBehaviour
             UpdateActivationState();
         }
 
-        if (shouldBeActive && !isInsideCone)
+        if (shouldBeActive)
         {
             HandleGroundCheck();
             HandleMovement();
@@ -232,26 +230,6 @@ public class PlayerMovementCC : MonoBehaviour
         animator.SetBool("RunForward", moving && vertical > 0);
         animator.SetBool("RunBackward", moving && vertical < 0);
         animator.SetBool("IsJumping", isJumping);
-    }
-    #endregion
-
-    #region Cone Detection
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Cone"))
-        {
-            isInsideCone = true;
-            DebugLog("Entered a cone!");
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Cone"))
-        {
-            isInsideCone = false;
-            DebugLog("Exited a cone!");
-        }
     }
     #endregion
 

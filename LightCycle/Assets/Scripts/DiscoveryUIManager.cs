@@ -20,41 +20,81 @@ public class DiscoveryUIManager : MonoBehaviour
 
     void Start()
     {
-        hostButton.onClick.AddListener(HostGame);
-        findButton.onClick.AddListener(FindServers);
+        if (hostButton != null)
+            hostButton.onClick.AddListener(HostGame);
 
-        networkDiscovery.OnServerFound.AddListener(OnDiscoveredServer);
+        if (findButton != null)
+            findButton.onClick.AddListener(FindServers);
+
+        if (networkDiscovery != null)
+            networkDiscovery.OnServerFound.AddListener(OnDiscoveredServer);
     }
 
     public void HostGame()
     {
-        networkManager.StartHost();
-        networkDiscovery.AdvertiseServer();
+        if (networkManager != null)
+        {
+            networkManager.StartHost();
+        }
+
+        if (networkDiscovery != null)
+        {
+            networkDiscovery.AdvertiseServer();
+        }
     }
 
     public void FindServers()
     {
         discoveredServers.Clear();
-        foreach (Transform child in serverListParent)
-            Destroy(child.gameObject);
+        if (serverListParent != null)
+        {
+            foreach (Transform child in serverListParent)
+                Destroy(child.gameObject);
+        }
 
-        networkDiscovery.StartDiscovery();
+        if (networkDiscovery != null)
+        {
+            networkDiscovery.StartDiscovery();
+        }
     }
 
-    void OnDiscoveredServer(ServerResponse info)
+    public void OnDiscoveredServer(ServerResponse info)
     {
         if (discoveredServers.ContainsKey(info.serverId))
             return;
 
         discoveredServers[info.serverId] = info;
 
-        GameObject buttonObj = Instantiate(serverButtonPrefab, serverListParent);
-        buttonObj.GetComponentInChildren<TMP_Text>().text = info.EndPoint.Address.ToString();
+        if (serverButtonPrefab == null || serverListParent == null)
+            return;
 
-        buttonObj.GetComponent<Button>().onClick.AddListener(() =>
+        GameObject buttonObj = Instantiate(serverButtonPrefab, serverListParent);
+
+        TMP_Text buttonTMPText = buttonObj.GetComponentInChildren<TMP_Text>(true);
+        if (buttonTMPText != null)
         {
-            networkDiscovery.StopDiscovery();
-            networkManager.StartClient(info.uri);
-        });
+            // Use info.uri.Host for a more reliable address display
+            buttonTMPText.text = $"Join: {info.uri.Host}";
+            buttonTMPText.color = Color.black;
+            buttonTMPText.fontSize = 24;
+            buttonTMPText.enableAutoSizing = true;
+            buttonTMPText.overflowMode = TextOverflowModes.Overflow;
+        }
+
+        Button button = buttonObj.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(() =>
+            {
+                if (networkDiscovery != null)
+                {
+                    networkDiscovery.StopDiscovery();
+                }
+                if (networkManager != null)
+                {
+                    networkManager.StartClient(info.uri);
+                }
+            });
+        }
     }
 }

@@ -12381,9 +12381,9 @@ MonoBehaviour:
   offlineScene: Assets/Scenes/Multi4.unity
   onlineScene: Assets/Scenes/Lobby.unity
   offlineSceneLoadDelay: 12.9
-  transport: {fileID: 0}
-  networkAddress: localhost
-  maxConnections: 100
+  transport: {fileID: 1349584845}
+  networkAddress: 
+  maxConnections: 8
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
@@ -12457,19 +12457,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableActiveDiscovery: 1
   BroadcastAddress: 
-  serverBroadcastListenPort: 47777
+  serverBroadcastListenPort: 7777
   ActiveDiscoveryInterval: 3
   transport: {fileID: 1349584845}
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Mirror.Discovery.NetworkDiscoveryHUD, Mirror.Components
+      - m_Target: {fileID: 1349584841}
+        m_TargetAssemblyTypeName: DiscoveryUIManager, Assembly-CSharp
         m_MethodName: OnDiscoveredServer
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
