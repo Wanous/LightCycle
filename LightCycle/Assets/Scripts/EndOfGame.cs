@@ -11,13 +11,13 @@ public class EndOfGame : MonoBehaviour
 
     void Start()
     {
-        panel.SetActive(false); // tu avais écrit dialoguePanel1, corrigé
+        panel.SetActive(false);
         sceneName = SceneManager.GetActiveScene().name;
     }
 
     void Update()
     {
-        if (FctArthur()) // appel correct de la fonction
+        if (FctArthur()) 
         {
             panel.SetActive(true);
         }
@@ -40,7 +40,7 @@ public class EndOfGame : MonoBehaviour
 
     public bool FctArthur()
     {
-        // Ici tu peux mettre ta vraie logique plus tard
+        // fonction qui dit si oui ou non les enemies existent tjr. => renvoi un boolean true = plus d'enemis
         return false;
     }
 }
