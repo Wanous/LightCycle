@@ -49,6 +49,11 @@ public class SpawnPointEnemy : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     public int spawn_ennemy()
     {
+        if (nbMaxofEnemiesthatcanspawnbeforedestroying == -1)
+        {
+            Destroy(gameObject);
+            return -1;
+        }
         if (isnotblock)
         {
             unitalive++;
@@ -61,11 +66,6 @@ public class SpawnPointEnemy : MonoBehaviour
             {
                 i = 0;
                 isnotblock = false;
-            }
-            if (nbMaxofEnemiesthatcanspawnbeforedestroying == 0)
-            {
-                Destroy(gameObject);
-                return -1;
             }
         }
         else
