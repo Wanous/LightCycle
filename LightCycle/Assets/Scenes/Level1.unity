@@ -891,7 +891,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 150025416}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -3541,6 +3541,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1674023615}
     m_Modifications:
+    - target: {fileID: 702966855653035544, guid: 809116333bd67ab49a63730ff2bc8c07, type: 3}
+      propertyPath: nbMaxofEnemiesthatcanspawnbeforedestroying
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3413795378255602139, guid: 809116333bd67ab49a63730ff2bc8c07, type: 3}
       propertyPath: m_LocalPosition.x
       value: -70.64112
@@ -4313,6 +4317,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5023827496289240853, guid: a79279818571b6848a9ccb8dcb36dd2c, type: 3}
   m_PrefabInstance: {fileID: 759335814}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &768305605 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6970250748619208709, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
+  m_PrefabInstance: {fileID: 1718846238}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e58c716575e942e896609b2b04591e62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &800756485
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5811,6 +5826,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1929118616}
+  manager: {fileID: 768305605}
 --- !u!4 &1167667697
 Transform:
   m_ObjectHideFlags: 0
@@ -7440,7 +7456,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 1436427591}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -8714,6 +8730,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1674023615}
     m_Modifications:
+    - target: {fileID: 702966855653035544, guid: 809116333bd67ab49a63730ff2bc8c07, type: 3}
+      propertyPath: nbMaxofEnemiesthatcanspawnbeforedestroying
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3413795378255602139, guid: 809116333bd67ab49a63730ff2bc8c07, type: 3}
       propertyPath: m_LocalPosition.x
       value: 121.1
@@ -9388,9 +9408,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1674023615}
     m_Modifications:
+    - target: {fileID: 6970250748619208709, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
+      propertyPath: canTheUnitJump
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7590825645973422704, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
       propertyPath: m_Name
       value: Manager SpawnPoint Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 7590825645973422704, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
+      propertyPath: m_TagString
+      value: Manager
       objectReference: {fileID: 0}
     - target: {fileID: 9080966794603633940, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9672,7 +9700,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 1759983725}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:

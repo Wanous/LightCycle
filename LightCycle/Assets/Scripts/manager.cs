@@ -8,6 +8,8 @@ public class Manager : MonoBehaviour
 
     public bool canTheUnitJump = true;
     
+    public bool IsActive => EnemySpawnPoint.Count != 0;
+    
     void Start()
     {
         GameObject[] spawnObjects = GameObject.FindGameObjectsWithTag("ESP");

@@ -6,6 +6,7 @@ using TMPro;
 public class EndOfGame : MonoBehaviour
 {
     public GameObject panel;
+    public Manager manager;
 
     private string sceneName;
 
@@ -13,14 +14,12 @@ public class EndOfGame : MonoBehaviour
     {
         panel.SetActive(false);
         sceneName = SceneManager.GetActiveScene().name;
+        manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<Manager>();
     }
 
     void Update()
     {
-        if (FctArthur()) 
-        {
-            panel.SetActive(true);
-        }
+        panel.SetActive(!ManagerIsActive());
     }
 
     public void Menu()
@@ -38,9 +37,8 @@ public class EndOfGame : MonoBehaviour
         SceneManager.LoadScene("Level2");
     }
 
-    public bool FctArthur()
+    public bool ManagerIsActive()
     {
-        // fonction qui dit si oui ou non les enemies existent tjr. => renvoi un boolean true = plus d'enemis
-        return false;
+        return manager.IsActive;
     }
 }
