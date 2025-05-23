@@ -6995,9 +6995,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1093688983}
   - component: {fileID: 1093688986}
-  - component: {fileID: 1093688989}
   - component: {fileID: 1093688985}
-  - component: {fileID: 1093688991}
+  - component: {fileID: 1093688988}
+  - component: {fileID: 1093688987}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -7102,7 +7102,7 @@ MonoBehaviour:
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
---- !u!114 &1093688989
+--- !u!114 &1093688987
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -7111,16 +7111,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1093688982}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7865b6430eca89c40b760ae2f862bbe4, type: 3}
+  m_Script: {fileID: 11500000, guid: 88c37d3deca7a834d80cfd8d3cfcc510, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkManager: {fileID: 1093688985}
-  networkDiscovery: {fileID: 1093688991}
-  hostButton: {fileID: 1515853480}
-  findButton: {fileID: 1737470030}
-  serverListParent: {fileID: 1087238214}
-  serverButtonPrefab: {fileID: 481565935710125118, guid: f222dda9b9c3f954280311d3b3ecbc1e, type: 3}
---- !u!114 &1093688991
+  networkDiscovery: {fileID: 1093688988}
+--- !u!114 &1093688988
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -7140,19 +7135,19 @@ MonoBehaviour:
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1093688989}
-        m_TargetAssemblyTypeName: DiscoveryUIManager, Assembly-CSharp
+      - m_Target: {fileID: 1093688987}
+        m_TargetAssemblyTypeName: Mirror.Discovery.NetworkDiscoveryHUD, Mirror.Components
         m_MethodName: OnDiscoveredServer
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  secretHandshake: 5161924979788233979
+  secretHandshake: 1407820651730568999
 --- !u!1001 &1102916459
 PrefabInstance:
   m_ObjectHideFlags: 0

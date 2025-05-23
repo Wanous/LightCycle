@@ -12338,7 +12338,7 @@ GameObject:
   - component: {fileID: 1349584845}
   - component: {fileID: 1349584844}
   - component: {fileID: 1349584847}
-  - component: {fileID: 1349584848}
+  - component: {fileID: 1349584846}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -12443,6 +12443,19 @@ MonoBehaviour:
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
+--- !u!114 &1349584846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349584841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c37d3deca7a834d80cfd8d3cfcc510, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  networkDiscovery: {fileID: 1349584847}
 --- !u!114 &1349584847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12463,37 +12476,19 @@ MonoBehaviour:
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1349584841}
-        m_TargetAssemblyTypeName: DiscoveryUIManager, Assembly-CSharp
+      - m_Target: {fileID: 1349584846}
+        m_TargetAssemblyTypeName: Mirror.Discovery.NetworkDiscoveryHUD, Mirror.Components
         m_MethodName: OnDiscoveredServer
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  secretHandshake: 8653041542383248110
---- !u!114 &1349584848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1349584841}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7865b6430eca89c40b760ae2f862bbe4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkManager: {fileID: 1349584844}
-  networkDiscovery: {fileID: 1349584847}
-  hostButton: {fileID: 612289155}
-  findButton: {fileID: 246554345}
-  serverListParent: {fileID: 983936292}
-  serverButtonPrefab: {fileID: 481565935710125118, guid: f222dda9b9c3f954280311d3b3ecbc1e, type: 3}
+  secretHandshake: 2128175300247126654
 --- !u!1 &1353422947
 GameObject:
   m_ObjectHideFlags: 0

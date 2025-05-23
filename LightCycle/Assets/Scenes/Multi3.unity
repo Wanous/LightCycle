@@ -201,7 +201,7 @@ GameObject:
   - component: {fileID: 45989251}
   - component: {fileID: 45989250}
   - component: {fileID: 45989253}
-  - component: {fileID: 45989254}
+  - component: {fileID: 45989252}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -306,6 +306,19 @@ MonoBehaviour:
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
+--- !u!114 &45989252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45989247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c37d3deca7a834d80cfd8d3cfcc510, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  networkDiscovery: {fileID: 45989253}
 --- !u!114 &45989253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,30 +334,24 @@ MonoBehaviour:
   enableActiveDiscovery: 1
   BroadcastAddress: 
   serverBroadcastListenPort: 7777
-  ActiveDiscoveryInterval: 1
+  ActiveDiscoveryInterval: 3
   transport: {fileID: 45989251}
   OnServerFound:
     m_PersistentCalls:
-      m_Calls: []
-  secretHandshake: -5638125422602638119
---- !u!114 &45989254
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45989247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7865b6430eca89c40b760ae2f862bbe4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkManager: {fileID: 45989250}
-  networkDiscovery: {fileID: 45989253}
-  hostButton: {fileID: 493568191}
-  findButton: {fileID: 1982917274}
-  serverListParent: {fileID: 817244163}
-  serverButtonPrefab: {fileID: 481565935710125118, guid: f222dda9b9c3f954280311d3b3ecbc1e, type: 3}
+      m_Calls:
+      - m_Target: {fileID: 45989252}
+        m_TargetAssemblyTypeName: Mirror.Discovery.NetworkDiscoveryHUD, Mirror.Components
+        m_MethodName: OnDiscoveredServer
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  secretHandshake: 643010161731316983
 --- !u!4 &63496382 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 494338, guid: ea8ec36c7f9b40f4faa40bf80afec5a3, type: 3}
@@ -3620,7 +3627,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &569383679
 RectTransform:
   m_ObjectHideFlags: 0
