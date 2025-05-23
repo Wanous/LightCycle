@@ -22,7 +22,6 @@ public class DiscoveryUIManager : MonoBehaviour
     {
         hostButton.onClick.AddListener(HostGame);
         findButton.onClick.AddListener(FindServers);
-
         networkDiscovery.OnServerFound.AddListener(OnDiscoveredServer);
     }
 
@@ -37,7 +36,6 @@ public class DiscoveryUIManager : MonoBehaviour
         discoveredServers.Clear();
         foreach (Transform child in serverListParent)
             Destroy(child.gameObject);
-
         networkDiscovery.StartDiscovery();
     }
 
@@ -49,12 +47,24 @@ public class DiscoveryUIManager : MonoBehaviour
         discoveredServers[info.serverId] = info;
 
         GameObject buttonObj = Instantiate(serverButtonPrefab, serverListParent);
-        buttonObj.GetComponentInChildren<TMP_Text>().text = info.EndPoint.Address.ToString();
 
-        buttonObj.GetComponent<Button>().onClick.AddListener(() =>
+        // Set button text to show IP address
+        TMP_Text buttonText = buttonObj.GetComponentInChildren<TMP_Text>();
+        if (buttonText != null)
         {
-            networkDiscovery.StopDiscovery();
-            networkManager.StartClient(info.uri);
-        });
+            buttonText.text = info.EndPoint.Address.ToString();
+            buttonText.color = Color.white;
+        }
+
+        // Add click listener to join server
+        Button button = buttonObj.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(() =>
+            {
+                networkDiscovery.StopDiscovery();
+                networkManager.StartClient(info.uri);
+            });
+        }
     }
 }
