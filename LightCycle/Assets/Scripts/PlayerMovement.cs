@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
@@ -91,6 +92,7 @@ public class PlayerMovement : MonoBehaviour
     public float respawnDelay = 2.0f;
     private int currentSpawnPointIndex = 0;
     private bool hasSpawned = false;
+    public string[] sceneNamePrefixesToDeactivate = { "Level" };
 
     private float currentMoveSpeed;
     private Vector3 velocity;
@@ -589,37 +591,66 @@ public class PlayerMovement : MonoBehaviour
 
     void RespawnPlayer()
     {
-        isDead = false;
-    
-        if (player != null)
-            player.enabled = true;
-    
-        this.enabled = true;
-    
-        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
-    
-        if (player != null)
-            player.enabled = false;
-    
-        transform.position = spawnPoints[currentSpawnPointIndex].position;
-		transform.rotation = spawnPoints[currentSpawnPointIndex].rotation * Quaternion.Euler(0, 90f, 0);
+        if (ShouldLoadMenuScene())
+        {
+            string currentScene = SceneManager.GetActiveScene().name;
+            SceneManager.LoadScene(currentScene);
+            return;
+        }
 
-    
+        isDead = false;
+
+        TogglePlayer(false);
+        MoveToNextSpawnPoint();
+        TogglePlayer(true);
+
+        ResetMovementState();
+        ClearTrail();
+    }
+
+    bool ShouldLoadMenuScene()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (sceneNamePrefixesToDeactivate == null) return false;
+
+        foreach (string prefix in sceneNamePrefixesToDeactivate)
+        {
+            if (!string.IsNullOrEmpty(prefix) &&
+                currentScene.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void TogglePlayer(bool isEnabled)
+    {
         if (player != null)
-            player.enabled = true;
-    
+            player.enabled = isEnabled;
+    }
+
+    void MoveToNextSpawnPoint()
+    {
+        currentSpawnPointIndex = (currentSpawnPointIndex + 1) % spawnPoints.Count;
+        transform.position = spawnPoints[currentSpawnPointIndex].position;
+        transform.rotation = spawnPoints[currentSpawnPointIndex].rotation * Quaternion.Euler(0, 90f, 0);
+    }
+
+    void ResetMovementState()
+    {
         velocity = Vector3.zero;
         currentMoveSpeed = minSpeed;
         currentDeceleration = brakingDeceleration;
         storedSlopeNormal = Vector3.up;
         currentLeanAngleX = 0f;
         currentLeanAngleZ = 0f;
-    
+
         if (leanTarget != null)
             leanTarget.localRotation = Quaternion.identity;
-    
-        ClearTrail();
     }
+
 
     void ClearTrail()
     {
