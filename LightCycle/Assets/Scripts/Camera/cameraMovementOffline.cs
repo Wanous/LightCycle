@@ -33,8 +33,8 @@ public class CameraMovementOffline : MonoBehaviour
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         // Read initial invert setting
         invert = Setting.Instance.Invert;
         inverted = invert ? -1 : 1;
@@ -87,7 +87,7 @@ public class CameraMovementOffline : MonoBehaviour
             Cursor.visible = true;
         }
 
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState == CursorLockMode.None)
+        if (Input.GetMouseButtonDown(0) && Cursor.lockState == CursorLockMode.None && Setting.Instance.ClampCam)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
