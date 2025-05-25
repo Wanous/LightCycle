@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class OptionMenu : MonoBehaviour
 {
     public Transform playerBody;
     private bool isMenuOpen = false;
+    
 
     void Start()
-    {   
+    {
     }
 
     void Update()
@@ -20,6 +24,8 @@ public class OptionMenu : MonoBehaviour
                 OpenMenu();
         }
     }
+
+    
 
     public void OpenMenu()
     {
