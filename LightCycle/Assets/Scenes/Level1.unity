@@ -5826,6 +5826,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1929118616}
+  menuButton: {fileID: 1436427592}
+  retryButton: {fileID: 1759983726}
+  nextLevelButton: {fileID: 150025417}
   manager: {fileID: 768305605}
 --- !u!4 &1167667697
 Transform:
@@ -9410,7 +9413,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6970250748619208709, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
       propertyPath: canTheUnitJump
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7590825645973422704, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
       propertyPath: m_Name
