@@ -5250,6 +5250,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9080966794603633940, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
   m_PrefabInstance: {fileID: 916086643}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &916086645 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6970250748619208709, guid: 7614753209fa5de48a5e517f5cc3202a, type: 3}
+  m_PrefabInstance: {fileID: 916086643}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e58c716575e942e896609b2b04591e62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &933384212 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4283760004327935297, guid: fddda2a39f85ef043ad3625db468391f, type: 3}
@@ -5352,7 +5363,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1008811629}
-  manager: {fileID: 0}
+  menuButton: {fileID: 830596088}
+  retryButton: {fileID: 1573414715}
+  nextLevelButton: {fileID: 557804169}
+  manager: {fileID: 916086645}
 --- !u!4 &977703732
 Transform:
   m_ObjectHideFlags: 0
