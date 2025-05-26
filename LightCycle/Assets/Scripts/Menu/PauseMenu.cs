@@ -12,25 +12,25 @@ public class PauseMenu : MonoBehaviour
 
     void Start()
     {
-        dialoguePanel1.SetActive(false);
+        if (dialoguePanel1 != null) dialoguePanel1.SetActive(false);
     }
     public void PauseGame()
     {
-        dialoguePanel1.SetActive(true);
-        pauseMenu.SetActive(true);
+        if (dialoguePanel1 != null) dialoguePanel1.SetActive(true);
+        if (pauseMenu != null) pauseMenu.SetActive(true);
         Time.timeScale = 0f; //Stop le jeu (les updates/animations)
         IsPaused = true;
     }
     public void ResumeGame(){
-        pauseMenu.SetActive(false);
+        if (pauseMenu != null) pauseMenu.SetActive(false);
         Time.timeScale = 1f; //Relance le jeu (les updates/animations)
         IsPaused = false;
-        dialoguePanel1.SetActive(false);
+        if (dialoguePanel1 != null) dialoguePanel1.SetActive(false);
     }
 
     public void GoToMenu(){
         Time.timeScale = 1f; //Relance le jeu (les updates/animations)
-        pauseMenu.SetActive(false);
+        if (pauseMenu != null) pauseMenu.SetActive(false);
         SceneManager.LoadScene("MainMenu");
     }
 

@@ -852,7 +852,7 @@ public class EnemyAI : MonoBehaviour
         // So, keep script enabled, and Update checks `isDead`.
         spawnpoint.unitalive--;
         ClearTrail();
-        Invoke(nameof(Destroy), 0.5f);
+        Invoke(nameof(Destroy), 1f);
     }
 
     void Destroy()

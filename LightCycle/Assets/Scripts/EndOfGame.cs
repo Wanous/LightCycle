@@ -1,44 +1,82 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
+using UnityEngine.UI;
 
 public class EndOfGame : MonoBehaviour
 {
     public GameObject panel;
+    public Button menuButton;
+    public Button retryButton;
+    public Button nextLevelButton;
     public Manager manager;
 
     private string sceneName;
+    private bool isGameOver = false;
 
     void Start()
     {
-        panel.SetActive(false);
         sceneName = SceneManager.GetActiveScene().name;
         manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<Manager>();
+
+        // Hide UI panel initially
+        panel.SetActive(false);
+
+        // Hook up button actions
+        menuButton.onClick.AddListener(Menu);
+        retryButton.onClick.AddListener(Retry);
+        nextLevelButton.onClick.AddListener(NextLevel);
+
+        ResumeGame();
     }
 
     void Update()
     {
-        panel.SetActive(!ManagerIsActive());
+        if (!manager.IsActive && !isGameOver)
+        {
+            GameOver();
+        }
+    }
+
+    void GameOver()
+    {
+        isGameOver = true;
+
+        Time.timeScale = 0f;
+        panel.SetActive(true);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        if (Setting.Instance != null)
+        {
+            Setting.Instance.ClampCam = false;
+        }
+    }
+
+    void ResumeGame()
+    {
+        Time.timeScale = 1f;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void Menu()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
 
     public void Retry()
     {
+        ResumeGame();
         SceneManager.LoadScene(sceneName);
     }
 
     public void NextLevel()
     {
-        SceneManager.LoadScene("Level2");
-    }
+        ResumeGame();
 
-    public bool ManagerIsActive()
-    {
-        return manager.IsActive;
+        if (sceneName == "Level1") SceneManager.LoadScene("Level2");
+        if (sceneName == "Level2") SceneManager.LoadScene("Level3");
+        if (sceneName == "Level3") SceneManager.LoadScene("Level4");
     }
 }
