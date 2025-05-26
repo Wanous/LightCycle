@@ -37,7 +37,7 @@ public class EndOfGame : MonoBehaviour
         }
     }
 
-    void GameOver()
+    public void GameOver()
     {
         isGameOver = true;
 
@@ -45,6 +45,7 @@ public class EndOfGame : MonoBehaviour
         panel.SetActive(true);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        nextLevelButton.gameObject.SetActive(true);
 
         if (Setting.Instance != null)
         {

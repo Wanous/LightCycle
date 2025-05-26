@@ -15554,7 +15554,7 @@ Transform:
   m_GameObject: {fileID: 2016136255}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.853514, y: 5.35, z: 115.04371}
+  m_LocalPosition: {x: -16.853514, y: 0.5, z: 115.04371}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15662,6 +15662,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 962754696}
+  menuButton: {fileID: 0}
+  retryButton: {fileID: 0}
+  nextLevelButton: {fileID: 0}
   manager: {fileID: 0}
 --- !u!4 &2038192505
 Transform:

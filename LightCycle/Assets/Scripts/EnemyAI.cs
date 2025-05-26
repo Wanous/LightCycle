@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
@@ -25,7 +26,7 @@ public class EnemyAI : MonoBehaviour
     public float acceleration = 10f;
     public float brakingDeceleration = 30f;
     public float progressiveDecelerationRate = 2.5f;
-    public float mindistanceofdash = 10f;
+    public float mindistanceofdash = 5f;
     public float maxdistanceofdash = 20f;
     public float angleToSlowDown = 60f;
     private float currentDeceleration;
@@ -37,6 +38,12 @@ public class EnemyAI : MonoBehaviour
     public float jumpHeight = 2f;
     private readonly bool showdetection = false;
     public bool canJump = true;
+    private float _difficulty;
+    public float Difficulty
+    {
+        get => _difficulty;
+        set => _difficulty = Math.Clamp(value, 0f, 1f);
+    }
     private readonly bool canaccelerate = true;
     private readonly bool canslowdown = true;
     private readonly bool canfollowthetarget = true;
@@ -89,7 +96,7 @@ public class EnemyAI : MonoBehaviour
     public float colliderSpacing = 0.1f;
     public float positionOffset = 1.0f;
     [Tooltip("Delay in seconds before a trail collider becomes active to prevent self-collision.")]
-    public float collisionActivationDelay = 0.2f;
+    public float collisionActivationDelay = 0.1f;
     public float segmentLineWidth = 0.3f;
     public float playerToColliderLineWidth = 0.3f;
     [Tooltip("The tag to apply to the trail collider objects")]
@@ -320,6 +327,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         bool jump = false;
+        bool obstacleF = false;
         
         // Handle Detection of Obstacle and Void
         if (candetecteobjectandvoid)
@@ -332,17 +340,19 @@ public class EnemyAI : MonoBehaviour
             bool voidL = true;
             bool voidR = true;
 
-            float i = 75;
+            float i = -75;
 
-            while (i > 10 && !obstacleL && !obstacleR && voidL && voidR)
+            while (i < -25 && !obstacleL && !obstacleR && voidL && voidR)
             {
                 // Rotate enemy's forward vector to left and right
-                Vector3 dirLeft = Quaternion.AngleAxis(-i, Vector3.up) * enemy.transform.forward;
-                Vector3 dirRight = Quaternion.AngleAxis(i, Vector3.up) * enemy.transform.forward;
+                Vector3 dirLeft = Quaternion.AngleAxis(i, Vector3.up) * enemy.transform.forward;
+                Vector3 dirRight = Quaternion.AngleAxis(-i, Vector3.up) * enemy.transform.forward;
+                Vector3 dirForward = Quaternion.AngleAxis(i+50, Vector3.up) * enemy.transform.forward;
 
                 // Obstacle raycasts (horizontal)
-                obstacleL |= Physics.Raycast(enemy.transform.position, dirLeft, out obstacleHitL, 1.5f);
-                obstacleR |= Physics.Raycast(enemy.transform.position, dirRight, out obstacleHitR, 1.5f);
+                obstacleL |= Physics.Raycast(enemy.transform.position, dirLeft, out obstacleHitL, 2f);
+                obstacleR |= Physics.Raycast(enemy.transform.position, dirRight, out obstacleHitR, 2f);
+                obstacleF |= Physics.Raycast(enemy.transform.position, dirForward, out _, 10f);
 
                 // Calculate ground check origins 2.5 units ahead
                 Vector3 leftCheckPos = enemy.transform.position + dirLeft * 2.5f;
@@ -358,17 +368,18 @@ public class EnemyAI : MonoBehaviour
                 // Debug rays
                 if (showdetection)
                 {
-                    Debug.DrawRay(enemy.transform.position, dirLeft * 2.5f, Color.red);
-                    Debug.DrawRay(enemy.transform.position, dirRight * 2.5f, Color.green);
-                    Debug.DrawRay(leftCheckPos, Vector3.down * 2f, Color.black);
-                    Debug.DrawRay(rightCheckPos, Vector3.down * 2f, Color.black);
+                    Debug.DrawRay(enemy.transform.position, dirLeft * 2f, Color.red);
+                    Debug.DrawRay(enemy.transform.position, dirRight * 2f, Color.green);
+                    Debug.DrawRay(leftCheckPos, Vector3.down * 2.5f, Color.black);
+                    Debug.DrawRay(rightCheckPos, Vector3.down * 2.2f, Color.black);
+                    Debug.DrawRay(enemy.transform.position, dirForward * 10f, Color.blue);
                 }
-
-                i--;
+                obstacleF |= obstacleL || obstacleR || !voidL || !voidR;
+                i++;
             }
-
+            
             // Decision logic
-            if (!voidR || (obstacleHitL.distance < obstacleHitR.distance))
+            if (!voidR || obstacleHitL.distance < obstacleHitR.distance)
             {
                 if (canJump && obstacleHitL.distance < 1f)
                 {
@@ -380,7 +391,7 @@ public class EnemyAI : MonoBehaviour
                     currentSteerInput = -1; // steer left
                 }
             }
-            else if (!voidL || (obstacleHitR.distance < obstacleHitL.distance))
+            else if (!voidL || obstacleHitR.distance < obstacleHitL.distance)
             {
                 if (canJump && obstacleHitR.distance < 1f)
                 {
@@ -412,9 +423,9 @@ public class EnemyAI : MonoBehaviour
         // Handle Acceleration
         if (canaccelerate)
         {
-            accelerationInput += 1;
+            accelerationInput += Difficulty;
             
-            if ( distance < maxdistanceofdash && distance > mindistanceofdash) accelerationInput -= 1;
+            if (obstacleF && distance > mindistanceofdash) accelerationInput -= Difficulty;
 
         }
 
@@ -841,7 +852,7 @@ public class EnemyAI : MonoBehaviour
         // So, keep script enabled, and Update checks `isDead`.
         spawnpoint.unitalive--;
         ClearTrail();
-        Invoke(nameof(Destroy), 1f);
+        Invoke(nameof(Destroy), 2f);
     }
 
     void Destroy()
