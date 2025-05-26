@@ -32,14 +32,14 @@ public class SpawnPointEnemy : MonoBehaviour
         }
 
         i = 0;
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit _, 1f,
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit _, 6f,
                 groundLayer)) spawnPoints.Add(transform.position);
         if (Physics.Raycast(GetPositionOnCircle(transform.position, transform.eulerAngles.y - 90, 2), Vector3.down,
-                out RaycastHit _, 1f,
+                out RaycastHit _, 6f,
                 groundLayer))
             spawnPoints.Add(GetPositionOnCircle(transform.position, transform.eulerAngles.y - 90, 2)); // Left
         if (Physics.Raycast(GetPositionOnCircle(transform.position, transform.eulerAngles.y + 90, 2), Vector3.down,
-                out RaycastHit _, 1f,
+                out RaycastHit _, 6f,
                 groundLayer))
             spawnPoints.Add(GetPositionOnCircle(transform.position, transform.eulerAngles.y + 90, 2)); // Right
         
@@ -55,7 +55,7 @@ public class SpawnPointEnemy : MonoBehaviour
             Destroy(gameObject);
             return -1;
         }
-        if (isnotblock)
+        if (isnotblock && spawnPoints.Count > 0)
         {
             unitalive++;
             EnemyAI ai = Instantiate(unitPrefab, spawnPoints[i] + Vector3.up * (float)0.5, transform.rotation).gameObject.GetComponent<EnemyAI>();
