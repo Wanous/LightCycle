@@ -1,6 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
+
+public enum Difficulty
+{
+    Easy,
+    Medium,
+    Hard,
+    Impossible
+}
 
 public class Manager : MonoBehaviour
 {
@@ -8,23 +15,26 @@ public class Manager : MonoBehaviour
 
     public bool canTheUnitJump = true;
     
-    public bool IsActive => EnemySpawnPoint.Count != 0;
+    public Difficulty difficulty = Difficulty.Medium;
     
+    public bool IsActive => EnemySpawnPoint.Count != 0;
+
     void Start()
     {
         GameObject[] spawnObjects = GameObject.FindGameObjectsWithTag("ESP");
         EnemySpawnPoint = new List<SpawnPointEnemy>();
-
         for (int i = 0; i < spawnObjects.Length; i++)
         {
             SpawnPointEnemy spe = spawnObjects[i].GetComponent<SpawnPointEnemy>();
             spe.cantheunitjump = canTheUnitJump;
+            spe.difficulty = difficulty;
             EnemySpawnPoint.Add(spe);
             if (EnemySpawnPoint[i] == null)
             {
                 Debug.LogWarning("SpawnPointEnemy component not found on object: " + spawnObjects[i].name);
             }
         }
+        
     }
 
     void Update()

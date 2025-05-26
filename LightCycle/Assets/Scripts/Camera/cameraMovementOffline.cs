@@ -36,7 +36,7 @@ public class CameraMovementOffline : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         // Read initial invert setting
-        invert = Setting.Instance.Invert;
+        if(Setting.Instance != null)invert = Setting.Instance.Invert;
         inverted = invert ? -1 : 1;
     }
 

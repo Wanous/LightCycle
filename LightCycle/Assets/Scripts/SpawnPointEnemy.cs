@@ -14,6 +14,7 @@ public class SpawnPointEnemy : MonoBehaviour
     public int maxunitalive = 1;
     public bool isnotblock = true;
     public bool cantheunitjump = true;
+    public Difficulty difficulty;
     
     public int nbMaxofEnemiesthatcanspawnbeforedestroying = 5;
 
@@ -60,6 +61,17 @@ public class SpawnPointEnemy : MonoBehaviour
             EnemyAI ai = Instantiate(unitPrefab, spawnPoints[i] + Vector3.up * (float)0.5, transform.rotation).gameObject.GetComponent<EnemyAI>();
             ai.Spawnpointset(this);
             ai.canJump = cantheunitjump;
+            switch (difficulty)
+            {
+                case Difficulty.Easy: ai.Difficulty = 0.25f;
+                    break;
+                case Difficulty.Medium: ai.Difficulty = 0.5f;
+                    break;
+                case Difficulty.Hard: ai.Difficulty = 0.75f;
+                    break;
+                default: ai.Difficulty = 1f;
+                    break;
+            }
             i++;
             nbMaxofEnemiesthatcanspawnbeforedestroying--;
             if (i >= spawnPoints.Count)
