@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheckPoint;
     public Material segmentLineMaterial;
 	public GameObject collisions;
+    public EndOfGame endOfGame;
 
     [Header("Movement")]
     public float minSpeed = 2f;
@@ -158,6 +159,7 @@ public class PlayerMovement : MonoBehaviour
         if (segmentLineMaterial != null) playerToColliderLineRenderer.material = segmentLineMaterial;
 
         previousFramePosition = transform.position;
+        endOfGame = GameObject.FindObjectOfType<EndOfGame>();
     }
 
     void Update()
@@ -593,8 +595,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (ShouldLoadMenuScene())
         {
-            string currentScene = SceneManager.GetActiveScene().name;
-            SceneManager.LoadScene(currentScene);
+            endOfGame.GameOver();
+            endOfGame.nextLevelButton.gameObject.SetActive(false);
             return;
         }
 
