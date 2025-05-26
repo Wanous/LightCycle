@@ -96,7 +96,7 @@ public class EnemyAI : MonoBehaviour
     public float colliderSpacing = 0.1f;
     public float positionOffset = 1.0f;
     [Tooltip("Delay in seconds before a trail collider becomes active to prevent self-collision.")]
-    public float collisionActivationDelay = 0.2f;
+    public float collisionActivationDelay = 0.1f;
     public float segmentLineWidth = 0.3f;
     public float playerToColliderLineWidth = 0.3f;
     [Tooltip("The tag to apply to the trail collider objects")]
@@ -852,7 +852,7 @@ public class EnemyAI : MonoBehaviour
         // So, keep script enabled, and Update checks `isDead`.
         spawnpoint.unitalive--;
         ClearTrail();
-        Invoke(nameof(Destroy), 1f);
+        Invoke(nameof(Destroy), 2f);
     }
 
     void Destroy()
