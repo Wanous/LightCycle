@@ -16,10 +16,9 @@ public class Setting : MonoBehaviour
     private Button InvertButtonUI;
     private RawImage InvertButtonRawImage;
     [Header("Invert Button Textures")]
-    public Texture InvertOffTexture;
-    public Texture InvertOnTexture;
+    public Color InvertOffTexture;
+    public Color InvertOnTexture;
     public int unlocked = 1;
-    public bool ClampCam = true;
 
     private void Awake()
     {
@@ -133,11 +132,11 @@ public class Setting : MonoBehaviour
         {
             if (Invert)
             {
-                InvertButtonRawImage.texture = InvertOnTexture;
+                InvertButtonRawImage.color = InvertOnTexture;
             }
             else
             {
-                InvertButtonRawImage.texture = InvertOffTexture;
+                InvertButtonRawImage.color = InvertOffTexture;
             }
         }
     }

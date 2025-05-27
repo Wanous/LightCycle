@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
     [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 1.5f;
-    public bool canJump = false;
+    private bool canJump = false;
     public float jumpCooldown = 3f;
     private float lastJumpTime;
 
@@ -300,7 +300,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleBoost()
     {
-        if (Input.GetButtonDown("Fire1") && Time.time >= lastBoostTime + boostCooldown && canDash)
+        if (Input.GetKeyDown("e") && Time.time >= lastBoostTime + boostCooldown && canDash)
         {
             isBoosting = true;
             boostStartTime = Time.time;
@@ -687,9 +687,9 @@ public class PlayerMovement : MonoBehaviour
         storedSlopeNormal = Vector3.up;
         currentLeanAngleX = 0f;
         currentLeanAngleZ = 0f;
-        lastJumpTime = Time.time; // Reset jump cooldown on respawn
-        isBoosting = false; // Ensure boost is off on respawn
-        lastBoostTime = Time.time; // Reset boost cooldown on respawn
+        lastJumpTime = Time.time; 
+        isBoosting = false; 
+        lastBoostTime = Time.time;
 
         if (leanTarget != null)
             leanTarget.localRotation = Quaternion.identity;

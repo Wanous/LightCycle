@@ -49,7 +49,6 @@ public class EndOfGame : MonoBehaviour
 
         if (Setting.Instance != null)
         {
-            Setting.Instance.ClampCam = false;
             if (sceneName == "Level1") Setting.Instance.UpdateUnlocked(2);
             if (sceneName == "Level2") Setting.Instance.UpdateUnlocked(3);
             if (sceneName == "Level3") Setting.Instance.UpdateUnlocked(4);
