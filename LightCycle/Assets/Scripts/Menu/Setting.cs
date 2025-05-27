@@ -149,6 +149,6 @@ public class Setting : MonoBehaviour
 
     public void UpdateUnlocked(int value)
     {
-        unlocked += value;
+        unlocked = value > unlocked ? value : unlocked;
     }
 }

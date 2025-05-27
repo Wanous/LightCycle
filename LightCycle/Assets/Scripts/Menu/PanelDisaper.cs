@@ -20,7 +20,7 @@ public class PanelDisaper : MonoBehaviour
         panelLevel.SetActive(false);  
         panelMulti.SetActive(false); 
 
-        int levelUnlocked = PlayerPrefs.GetInt("LevelUnlocked", 1); // Par défaut, seule la map 1 est débloquée
+        int levelUnlocked = Setting.Instance.unlocked; // Par défaut, seule la map 1 est débloquée
 
         for (int i = 0; i < mapButtons.Length; i++)
         {

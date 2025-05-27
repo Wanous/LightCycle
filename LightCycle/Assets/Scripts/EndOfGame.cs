@@ -50,6 +50,9 @@ public class EndOfGame : MonoBehaviour
         if (Setting.Instance != null)
         {
             Setting.Instance.ClampCam = false;
+            if (sceneName == "Level1") Setting.Instance.UpdateUnlocked(2);
+            if (sceneName == "Level2") Setting.Instance.UpdateUnlocked(3);
+            if (sceneName == "Level3") Setting.Instance.UpdateUnlocked(4);
         }
     }
 
@@ -78,6 +81,6 @@ public class EndOfGame : MonoBehaviour
 
         if (sceneName == "Level1") SceneManager.LoadScene("Level2");
         if (sceneName == "Level2") SceneManager.LoadScene("Level3");
-        if (sceneName == "Level3") SceneManager.LoadScene("Level4");
+        if (sceneName == "Level3") SceneManager.LoadScene("Level4"); 
     }
 }
