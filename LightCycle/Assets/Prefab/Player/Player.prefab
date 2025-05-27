@@ -5025,7 +5025,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 74b7799d37eb3e247858886f7e73c8ce, type: 3}
   m_Resource: {fileID: 8300000, guid: 74b7799d37eb3e247858886f7e73c8ce, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -10456,6 +10456,7 @@ MonoBehaviour:
   groundCheckPoint: {fileID: 8324952273568087962}
   segmentLineMaterial: {fileID: 2100000, guid: 72e550974658d94489e4295fd8791387, type: 2}
   collisions: {fileID: 122496513718007656}
+  endOfGame: {fileID: 0}
   minSpeed: 5
   maxSpeed: 50
   acceleration: 5
@@ -10465,7 +10466,9 @@ MonoBehaviour:
   steerSpeedReductionFactor: 0.5
   gravity: -19.62
   jumpHeight: 2
-  canJump: 1
+  jumpCooldown: 3
+  boostDuration: 0.1
+  boostCooldown: 5
   slopeForceMultiplier: 5
   maxSlopeAngle: 45
   uphillSpeedMultiplier: 0.5
@@ -10497,6 +10500,7 @@ MonoBehaviour:
   OrangeEffect: {fileID: 5962045158563180131}
   darkOrangeEffect: {fileID: 4518089884585412186}
   BlackEffect: {fileID: 885784325841563570}
+  ExplosionSound: {fileID: 0}
   frontWheel: {fileID: 781787364181798209}
   rearWheel: {fileID: 47171075438739917}
   wheelRotationMultiplier: -75
@@ -10507,6 +10511,8 @@ MonoBehaviour:
   maxNeedleAngle: -265
   spawnPoints: []
   respawnDelay: 2
+  sceneNamePrefixesToDeactivate:
+  - Level
 --- !u!114 &6986859397083430246
 MonoBehaviour:
   m_ObjectHideFlags: 0
