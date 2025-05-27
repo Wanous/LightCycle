@@ -5,8 +5,7 @@ public enum Difficulty
 {
     Easy,
     Medium,
-    Hard,
-    Impossible
+    Hard
 }
 
 public class Manager : MonoBehaviour
@@ -53,6 +52,15 @@ public class Manager : MonoBehaviour
                 else if (b == -3) Destroy(gameObject);
             }
         } 
+    }
+
+    public void ChangeDifficulty(Difficulty newDifficulty)
+    {
+        difficulty = newDifficulty;
+        for (int i = 0; i < EnemySpawnPoint.Count; i++)
+        {
+            EnemySpawnPoint[i].ChangeDifficulty(difficulty);
+        }
     }
 
     int SpawnoneUnitAt(int i)

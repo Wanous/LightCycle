@@ -19,9 +19,13 @@ public class Setting : MonoBehaviour
     public Color InvertOffTexture;
     public Color InvertOnTexture;
     public int unlocked = 1;
+    public Manager manager;
 
     private void Awake()
     {
+        manager = GameObject.Find("Manager").GetComponent<Manager>();
+        if (manager == null) Debug.LogError("Manager not found",this);
+        
         if (Instance == null)
         {
             Instance = this;
@@ -34,6 +38,11 @@ public class Setting : MonoBehaviour
         }
     }
 
+    private void ChangeDifficulty(Difficulty difficulty)// To Change difficulty
+    {
+        manager.ChangeDifficulty(difficulty);
+    }
+    
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;

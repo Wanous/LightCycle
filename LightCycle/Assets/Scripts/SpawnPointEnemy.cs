@@ -7,7 +7,8 @@ public class SpawnPointEnemy : MonoBehaviour
     // --- To Spawn Enemy ---
     public GameObject unitPrefab;
     public LayerMask groundLayer;
-    private List<Vector3> spawnPoints;
+    private List<Vector3> _spawnPoints;
+    private EnemyAI enemyAI;
     
     // --- To know when we can spawn a unit ---
     public int unitalive;
@@ -24,28 +25,28 @@ public class SpawnPointEnemy : MonoBehaviour
     void Start()
     {
         unitalive = 0;
-        spawnPoints = new List<Vector3>();
+        _spawnPoints = new List<Vector3>();
         if (groundLayer.value == 0)
         {
             Debug.LogError("Ground Layer not set!", this);
             return;
         }
 
-        i = 0;
+        _i = 0;
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit _, 6f,
-                groundLayer)) spawnPoints.Add(transform.position);
+                groundLayer)) _spawnPoints.Add(transform.position);
         if (Physics.Raycast(GetPositionOnCircle(transform.position, transform.eulerAngles.y - 90, 2), Vector3.down,
                 out RaycastHit _, 6f,
                 groundLayer))
-            spawnPoints.Add(GetPositionOnCircle(transform.position, transform.eulerAngles.y - 90, 2)); // Left
+            _spawnPoints.Add(GetPositionOnCircle(transform.position, transform.eulerAngles.y - 90, 2)); // Left
         if (Physics.Raycast(GetPositionOnCircle(transform.position, transform.eulerAngles.y + 90, 2), Vector3.down,
                 out RaycastHit _, 6f,
                 groundLayer))
-            spawnPoints.Add(GetPositionOnCircle(transform.position, transform.eulerAngles.y + 90, 2)); // Right
+            _spawnPoints.Add(GetPositionOnCircle(transform.position, transform.eulerAngles.y + 90, 2)); // Right
         
     }
 
-    private int i;
+    private int _i;
 
     // ReSharper disable Unity.PerformanceAnalysis
     public int spawn_ennemy()
@@ -55,28 +56,18 @@ public class SpawnPointEnemy : MonoBehaviour
             Destroy(gameObject);
             return -1;
         }
-        if (isnotblock && spawnPoints.Count > 0)
+        if (isnotblock && _spawnPoints.Count > 0)
         {
             unitalive++;
-            EnemyAI ai = Instantiate(unitPrefab, spawnPoints[i] + Vector3.up * (float)0.5, transform.rotation).gameObject.GetComponent<EnemyAI>();
-            ai.Spawnpointset(this);
-            ai.canJump = cantheunitjump;
-            switch (difficulty)
-            {
-                case Difficulty.Easy: ai.Difficulty = 0.25f;
-                    break;
-                case Difficulty.Medium: ai.Difficulty = 0.5f;
-                    break;
-                case Difficulty.Hard: ai.Difficulty = 0.75f;
-                    break;
-                default: ai.Difficulty = 1f;
-                    break;
-            }
-            i++;
+            enemyAI = Instantiate(unitPrefab, _spawnPoints[_i] + Vector3.up * (float)0.5, transform.rotation).gameObject.GetComponent<EnemyAI>();
+            enemyAI.Spawnpointset(this);
+            enemyAI.canJump = cantheunitjump;
+            ChangeDifficulty(difficulty);
+            _i++;
             nbMaxofEnemiesthatcanspawnbeforedestroying--;
-            if (i >= spawnPoints.Count)
+            if (_i >= _spawnPoints.Count)
             {
-                i = 0;
+                _i = 0;
                 isnotblock = false;
             }
         }
@@ -86,6 +77,20 @@ public class SpawnPointEnemy : MonoBehaviour
             Invoke(nameof(Canspawn),3f);
         }
         return 1;
+    }
+
+    public void ChangeDifficulty(Difficulty difficult)
+    {
+        difficulty = difficult;
+        switch (difficult)
+        {
+            case Difficulty.Easy: enemyAI.Difficulty = 0.25f;
+                break;
+            case Difficulty.Medium: enemyAI.Difficulty = 0.5f;
+                break;
+            case Difficulty.Hard: enemyAI.Difficulty = 0.75f;
+                break;
+        }
     }
 
     Vector3 GetPositionOnCircle(Vector3 origin, float angleDeg, float radius = 3)
