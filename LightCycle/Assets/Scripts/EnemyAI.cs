@@ -36,18 +36,20 @@ public class EnemyAI : MonoBehaviour
     [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 2f;
-    private readonly bool showdetection = false;
+    private readonly bool showdetection = true;
     public bool canJump = true;
+    private readonly bool canaccelerate = true;
+    private readonly bool canslowdown = true;
+    private readonly bool canfollowthetarget = true;
+    private readonly bool candetecteobjectandvoid = true;
+    
+    // --- Difficulties Parameters ---
     private float _difficulty;
     public float Difficulty
     {
         get => _difficulty;
         set => _difficulty = Math.Clamp(value, 0f, 1f);
     }
-    private readonly bool canaccelerate = true;
-    private readonly bool canslowdown = true;
-    private readonly bool canfollowthetarget = true;
-    private readonly bool candetecteobjectandvoid = true;
     
     // --- SpawnPoint Parameters ---
     private SpawnPointEnemy spawnpoint;
@@ -412,6 +414,8 @@ public class EnemyAI : MonoBehaviour
             if (jump && isGroundedStatus)
             {
                 velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                canJump = false;
+                Invoke(nameof(CanJump), 10 - Difficulty*10);
             }
         }
         
@@ -488,6 +492,11 @@ public class EnemyAI : MonoBehaviour
             currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, minSpeed, maxSpeed); // Assuming minSpeed is the lowest forward speed
             currentDeceleration = progressiveDecelerationRate; // Reset progressive deceleration
         }
+    }
+
+    private void CanJump()
+    {
+        canJump = true;
     }
     
     private float CalculAngletoCible(Transform ai, Vector3 playerdirection)
