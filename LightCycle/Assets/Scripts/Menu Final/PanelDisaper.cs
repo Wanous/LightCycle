@@ -8,6 +8,9 @@ public class PanelDisaper : MonoBehaviour
     public GameObject panelBasique; 
     public GameObject panelLevel; 
     public GameObject panelMulti; 
+    public GameObject panelCredits; 
+    public GameObject panelHowToPlay; 
+    public GameObject panelOptions; 
 
     [Header("Boutons correspondant aux maps")]
     public Button[] mapButtons;
@@ -19,6 +22,9 @@ public class PanelDisaper : MonoBehaviour
         panelBasique.SetActive(true);  
         panelLevel.SetActive(false);  
         panelMulti.SetActive(false); 
+        panelCredits.SetActive(false);
+        panelHowToPlay.SetActive(false);
+        panelOptions.SetActive(false);
 
         int levelUnlocked = PlayerPrefs.GetInt("LevelUnlocked", 1); // Par défaut, seule la map 1 est débloquée
 
@@ -36,20 +42,59 @@ public class PanelDisaper : MonoBehaviour
         panelBasique.SetActive(true);  
         panelLevel.SetActive(false);  
         panelMulti.SetActive(false);  
+        panelCredits.SetActive(false);
+        panelHowToPlay.SetActive(false);
+        panelOptions.SetActive(false);
     }
 
     public void Level()
     {
         panelBasique.SetActive(false);  
         panelLevel.SetActive(true);  
-        panelMulti.SetActive(false);  
+        panelMulti.SetActive(false); 
+        panelCredits.SetActive(false);
+        panelHowToPlay.SetActive(false); 
+        panelOptions.SetActive(false);
     }
 
     public void Multi()
     {
         panelBasique.SetActive(false);  
         panelLevel.SetActive(false);  
-        panelMulti.SetActive(true);  
+        panelMulti.SetActive(true); 
+        panelCredits.SetActive(false);
+        panelHowToPlay.SetActive(false); 
+        panelOptions.SetActive(false);
+    }
+
+    public void Credits()
+    {
+        panelBasique.SetActive(false);  
+        panelLevel.SetActive(false);  
+        panelMulti.SetActive(false); 
+        panelCredits.SetActive(true);
+        panelHowToPlay.SetActive(false);
+        panelOptions.SetActive(false);    
+    }
+
+    public void HowToPlay()
+    {
+        panelBasique.SetActive(false);  
+        panelLevel.SetActive(false);  
+        panelMulti.SetActive(false); 
+        panelCredits.SetActive(false);
+        panelHowToPlay.SetActive(true);
+        panelOptions.SetActive(false);    
+    }
+
+    public void Options()
+    {
+        panelBasique.SetActive(false);  
+        panelLevel.SetActive(false);  
+        panelMulti.SetActive(false); 
+        panelCredits.SetActive(false);
+        panelHowToPlay.SetActive(false);
+        panelOptions.SetActive(true);    
     }
 
     public void UnlockNextLevel()
