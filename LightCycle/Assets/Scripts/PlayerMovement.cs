@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -205,6 +206,11 @@ public class PlayerMovement : MonoBehaviour
         UpdatePlayerToColliderLine();
         UpdateSpeedometerNeedle();
 
+        if (Setting.Instance.paused)
+            speedometerCanvas.SetActive(false);
+        else
+            speedometerCanvas.SetActive(true);
+
         previousFramePosition = transform.position;
     }
 
@@ -301,7 +307,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleBoost()
     {
-        if (Input.GetKeyDown("e") && Time.time >= lastBoostTime + boostCooldown && canDash)
+        if (Input.GetKeyDown("e") && Time.time >= lastBoostTime + boostCooldown && canDash && currentMoveSpeed > 5)
         {
             isBoosting = true;
             boostStartTime = Time.time;
