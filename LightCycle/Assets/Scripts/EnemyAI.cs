@@ -38,10 +38,10 @@ public class EnemyAI : MonoBehaviour
     public float jumpHeight = 2f;
     private readonly bool showdetection = true;
     public bool canJump = true;
-    private readonly bool canaccelerate = true;
-    private readonly bool canslowdown = true;
-    private readonly bool canfollowthetarget = true;
-    private readonly bool candetecteobjectandvoid = true;
+    private bool canaccelerate = true;
+    private bool canslowdown = true;
+    private bool canfollowthetarget = true;
+    private bool candetecteobjectandvoid = true;
     
     // --- Difficulties Parameters ---
     private float _difficulty;
@@ -244,14 +244,17 @@ public class EnemyAI : MonoBehaviour
     // --- Frame Update ---
     void Update()
     {
-        HandleGroundCheck();    // Determines isGroundedStatus and slopeNormal from wheels
-        HandleMovementInput();  // Handles acceleration, speed, steering
-        ApplyGravity();         // Applies gravity to velocity.y
-        HandleLeaning();        // Calculates and applies lean to leanTarget
-        ApplyMovement();        // Moves the CharacterController
-        UpdateWheelRotation();  // Rotates wheel visuals
-        UpdateTrailSystem();    // Manages light trail colliders
-        UpdatePlayerToColliderLine(); // Visual line to last trail point
+        if (enemy.enabled)
+        {
+            HandleGroundCheck();    // Determines isGroundedStatus and slopeNormal from wheels
+            HandleMovementInput();  // Handles acceleration, speed, steering
+            ApplyGravity();         // Applies gravity to velocity.y
+            HandleLeaning();        // Calculates and applies lean to leanTarget
+            ApplyMovement();        // Moves the CharacterController
+            UpdateWheelRotation();  // Rotates wheel visuals
+            UpdateTrailSystem();    // Manages light trail colliders
+            UpdatePlayerToColliderLine(); // Visual line to last trail point
+        } 
     }
 
     // --- Ground Check Logic (Wheels) ---
@@ -861,12 +864,8 @@ public class EnemyAI : MonoBehaviour
         // So, keep script enabled, and Update checks `isDead`.
         spawnpoint.unitalive--;
         ClearTrail();
-        Invoke(nameof(Destroy), 2f);
-    }
-
-    void Destroy()
-    {
         Destroy(gameObject);
+        
     }
     
     void ClearTrail()

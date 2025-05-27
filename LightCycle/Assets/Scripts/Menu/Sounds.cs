@@ -35,6 +35,7 @@ public class Sounds : MonoBehaviour
             UpdateVolume();
             Music.mute = !Setting.Instance.Music;
         }
+        UpdateVolume();
     }
 
     void UpdateVolume()
