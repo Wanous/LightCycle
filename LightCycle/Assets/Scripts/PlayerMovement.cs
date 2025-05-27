@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController player;
     public Transform groundCheckPoint;
     public Material segmentLineMaterial;
-	public GameObject collisions;
+    public GameObject collisions;
     public EndOfGame endOfGame;
 
     [Header("Movement")]
@@ -26,7 +26,18 @@ public class PlayerMovement : MonoBehaviour
     [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 1.5f;
-    public bool canJump = true;
+    public bool canJump = false;
+    public float jumpCooldown = 3f;
+    private float lastJumpTime;
+
+    [Header("Boost")]
+    public float boostDuration = 0.1f;
+    public float boostCooldown = 5f;
+    private bool isBoosting = false;
+    private float boostStartTime;
+    private float lastBoostTime;
+    private bool canDash = true;
+
 
     [Header("Slope Movement")]
     public float slopeForceMultiplier = 5f;
@@ -160,6 +171,15 @@ public class PlayerMovement : MonoBehaviour
 
         previousFramePosition = transform.position;
         endOfGame = GameObject.FindObjectOfType<EndOfGame>();
+
+        if (Setting.Instance != null)
+        {
+            if (Setting.Instance.unlocked > 2) canJump = true;
+            if (Setting.Instance.unlocked > 3) canDash = true;
+        }
+
+        lastJumpTime = -jumpCooldown;
+        lastBoostTime = -boostCooldown;
     }
 
     void Update()
@@ -175,6 +195,7 @@ public class PlayerMovement : MonoBehaviour
 
         HandleGroundCheck();
         HandleMovementInput();
+        HandleBoost();
         ApplyGravity();
         HandleLeaning();
         ApplyMovement();
@@ -270,11 +291,29 @@ public class PlayerMovement : MonoBehaviour
         currentSteerInput = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up * currentSteerInput * adjustedSteerSpeed * Time.deltaTime);
 
-        if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus)
+        if (canJump && Input.GetButtonDown("Jump") && isGroundedStatus && Time.time >= lastJumpTime + jumpCooldown)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            lastJumpTime = Time.time;
         }
     }
+
+    void HandleBoost()
+    {
+        if (Input.GetButtonDown("Fire1") && Time.time >= lastBoostTime + boostCooldown && canDash)
+        {
+            isBoosting = true;
+            boostStartTime = Time.time;
+            lastBoostTime = Time.time;
+            currentMoveSpeed = maxSpeed + 142;
+        }
+
+        if (isBoosting && Time.time < boostStartTime + boostDuration)
+        {   
+            isBoosting = false;
+        }
+    }
+
 
     void ApplyGravity()
     {
@@ -308,9 +347,9 @@ public class PlayerMovement : MonoBehaviour
             RaycastHit centralHit;
             Vector3 groundNormalForLean = storedSlopeNormal;
             bool centralRayHit = Physics.Raycast(transform.position + transform.up * 0.1f,
-                                             Vector3.down, out centralHit,
-                                             chassisCentralCheckMaxDistance,
-                                             groundLayer, QueryTriggerInteraction.Ignore);
+                                                 Vector3.down, out centralHit,
+                                                 chassisCentralCheckMaxDistance,
+                                                 groundLayer, QueryTriggerInteraction.Ignore);
             if (centralRayHit)
             {
                 groundNormalForLean = centralHit.normal;
@@ -559,23 +598,23 @@ public class PlayerMovement : MonoBehaviour
         speedometerNeedle.localEulerAngles = new Vector3(0f, 0f, targetNeedleAngle);
     }
 
-   void OnTriggerEnter(Collider other)
-	{
-    	if (isDead) return;
+    void OnTriggerEnter(Collider other)
+    {
+        if (isDead) return;
 
-	    // Ignore self-collision
-    	if (other.gameObject == gameObject) return;
+        // Ignore self-collision
+        if (other.gameObject == gameObject) return;
 
-    	bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15f;
+        bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15f;
 
-	    if (other.gameObject.CompareTag(trailColliderTag) || isHazardCollision ||
-    	    other.gameObject.CompareTag("plane") || transform.position.y < -10 ||
-        	(other.gameObject.CompareTag("Player") && other.gameObject != collisions) ||
-        	other.gameObject.CompareTag("Enemy"))
-    	{
-        	TriggerDeathSequence();
-    	}
-	}
+        if (other.gameObject.CompareTag(trailColliderTag) || isHazardCollision ||
+            other.gameObject.CompareTag("plane") || transform.position.y < -10 ||
+            (other.gameObject.CompareTag("Player") && other.gameObject != collisions) ||
+            other.gameObject.CompareTag("Enemy"))
+        {
+            TriggerDeathSequence();
+        }
+    }
 
     void TriggerDeathSequence()
     {
@@ -588,7 +627,7 @@ public class PlayerMovement : MonoBehaviour
         if (BlackEffect != null) BlackEffect.Play();
         if (ExplosionSound != null) ExplosionSound.Play();
 
-        if (player != null) player.enabled = false; 
+        if (player != null) player.enabled = false;
     }
 
     void RespawnPlayer()
@@ -648,6 +687,9 @@ public class PlayerMovement : MonoBehaviour
         storedSlopeNormal = Vector3.up;
         currentLeanAngleX = 0f;
         currentLeanAngleZ = 0f;
+        lastJumpTime = Time.time; // Reset jump cooldown on respawn
+        isBoosting = false; // Ensure boost is off on respawn
+        lastBoostTime = Time.time; // Reset boost cooldown on respawn
 
         if (leanTarget != null)
             leanTarget.localRotation = Quaternion.identity;
@@ -710,5 +752,5 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
         }
-    }	   
+    }
 }

@@ -10077,6 +10077,7 @@ MonoBehaviour:
   groundCheckPoint: {fileID: 8324952273568087962}
   segmentLineMaterial: {fileID: 2100000, guid: 658caa508b3164eeca5e3847394e87a1, type: 2}
   collisions: {fileID: 7317417884223252612}
+  endOfGame: {fileID: 0}
   minSpeed: 5
   maxSpeed: 50
   acceleration: 10
@@ -10087,6 +10088,10 @@ MonoBehaviour:
   gravity: -19.62
   jumpHeight: 2
   canJump: 1
+  jumpCooldown: 3
+  boostMultiplier: 1.42
+  boostDuration: 0.01
+  boostCooldown: 5
   slopeForceMultiplier: 5
   maxSlopeAngle: 45
   uphillSpeedMultiplier: 0.5
@@ -10129,6 +10134,8 @@ MonoBehaviour:
   maxNeedleAngle: -265
   spawnPoints: []
   respawnDelay: 2
+  sceneNamePrefixesToDeactivate:
+  - Level
 --- !u!1 &3688866809050391668
 GameObject:
   m_ObjectHideFlags: 0
