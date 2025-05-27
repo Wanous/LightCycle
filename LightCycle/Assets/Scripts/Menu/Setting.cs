@@ -19,7 +19,6 @@ public class Setting : MonoBehaviour
     public Texture InvertOffTexture;
     public Texture InvertOnTexture;
     public int unlocked = 1;
-    public bool ClampCam = true;
 
     private void Awake()
     {

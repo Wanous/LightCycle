@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isBoosting = false;
     private float boostStartTime;
     private float lastBoostTime;
-    private bool canDash = true;
+    private bool canDash = false;
 
 
     [Header("Slope Movement")]
@@ -687,9 +687,9 @@ public class PlayerMovement : MonoBehaviour
         storedSlopeNormal = Vector3.up;
         currentLeanAngleX = 0f;
         currentLeanAngleZ = 0f;
-        lastJumpTime = Time.time; // Reset jump cooldown on respawn
-        isBoosting = false; // Ensure boost is off on respawn
-        lastBoostTime = Time.time; // Reset boost cooldown on respawn
+        lastJumpTime = Time.time; 
+        isBoosting = false; 
+        lastBoostTime = Time.time;
 
         if (leanTarget != null)
             leanTarget.localRotation = Quaternion.identity;

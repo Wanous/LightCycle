@@ -87,11 +87,6 @@ public class CameraMovementOffline : MonoBehaviour
             Cursor.visible = true;
         }
 
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState == CursorLockMode.None && Setting.Instance.ClampCam)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
     }
 
     void LateUpdate()
