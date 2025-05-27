@@ -1407,7 +1407,6 @@ GameObject:
   - component: {fileID: 383142415}
   - component: {fileID: 383142416}
   - component: {fileID: 383142417}
-  - component: {fileID: 383142418}
   - component: {fileID: 383142420}
   - component: {fileID: 383142419}
   m_Layer: 5
@@ -1471,26 +1470,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ccfa1059afd5034da818370489b93ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &383142418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 383142414}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 636914601cc4dcc828d92737f2119ed4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Music: 1
-  Volume: 50
-  Sensitive: 70
-  Bruitage: 70
-  Invert: 0
-  InvertOffTexture: {fileID: 0}
-  InvertOnTexture: {fileID: 0}
-  unlocked: 1
 --- !u!114 &383142419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6761,6 +6740,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1489265840}
   m_CullTransparentMesh: 1
+--- !u!1 &1521507231
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1521507233}
+  - component: {fileID: 1521507232}
+  m_Layer: 0
+  m_Name: Settings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1521507232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521507231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 636914601cc4dcc828d92737f2119ed4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Music: 1
+  Volume: 50
+  Sensitive: 70
+  Bruitage: 70
+  Invert: 0
+  InvertOffTexture: {fileID: 0}
+  InvertOnTexture: {fileID: 0}
+  unlocked: 1
+--- !u!4 &1521507233
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521507231}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 81.28677, y: 3.200999, z: 7.265382}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1543071130
 GameObject:
   m_ObjectHideFlags: 0
@@ -10495,3 +10526,4 @@ SceneRoots:
   - {fileID: 1701789754}
   - {fileID: 1633159710}
   - {fileID: 601069390}
+  - {fileID: 1521507233}

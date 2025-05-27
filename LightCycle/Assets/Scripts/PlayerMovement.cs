@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
     [Range(0f, 1f)] public float steerSpeedReductionFactor = 0.5f;
     public float gravity = -19.62f;
     public float jumpHeight = 1.5f;
-    public bool canJump = false;
+    private bool canJump = false;
     public float jumpCooldown = 3f;
     private float lastJumpTime;
 
@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isBoosting = false;
     private float boostStartTime;
     private float lastBoostTime;
-    private bool canDash = false;
+    private bool canDash = true;
 
 
     [Header("Slope Movement")]
@@ -300,7 +300,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleBoost()
     {
-        if (Input.GetButtonDown("Fire1") && Time.time >= lastBoostTime + boostCooldown && canDash)
+        if (Input.GetKeyDown("e") && Time.time >= lastBoostTime + boostCooldown && canDash)
         {
             isBoosting = true;
             boostStartTime = Time.time;
