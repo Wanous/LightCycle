@@ -3,19 +3,24 @@ using UnityEngine.UI;
 
 public class PlaySoundOnClick : MonoBehaviour
 {
-    public Button button;           // Le bouton à cliquer
+    [Header("Boutons correspondant aux maps")]
+    public Button[] Boutons;         // Le bouton à cliquer
     public AudioSource audioSource; // L'audio source qui joue le son
 
     void Start()
     {
-        if (button != null && audioSource != null)
+        foreach(var button in Boutons)
         {
-            button.onClick.AddListener(PlaySound);
+            if (button != null && audioSource != null)
+            {
+                button.onClick.AddListener(PlaySound);
+            }
+            else
+            {
+                Debug.LogWarning("Button ou AudioSource non assigné dans l'inspecteur !");
+            }
         }
-        else
-        {
-            Debug.LogWarning("Button ou AudioSource non assigné dans l'inspecteur !");
-        }
+        
     }
 
     void PlaySound()
