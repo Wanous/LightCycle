@@ -233,8 +233,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 383142416}
-        m_TargetAssemblyTypeName: PanelDisaper, Assembly-CSharp
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
         m_MethodName: Options
         m_Mode: 1
         m_Arguments:
@@ -335,7 +335,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 228903970}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Level1
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &228903970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -791,6 +803,7 @@ GameObject:
   m_Component:
   - component: {fileID: 383142415}
   - component: {fileID: 383142416}
+  - component: {fileID: 383142417}
   m_Layer: 5
   m_Name: Script
   m_TagString: Untagged
@@ -837,6 +850,18 @@ MonoBehaviour:
   - {fileID: 1156414499}
   - {fileID: 1172582094}
   - {fileID: 1184490760}
+--- !u!114 &383142417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383142414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccfa1059afd5034da818370489b93ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &407144082
 GameObject:
   m_ObjectHideFlags: 0
@@ -1895,7 +1920,7 @@ GameObject:
   - component: {fileID: 961942996}
   - component: {fileID: 961942995}
   m_Layer: 5
-  m_Name: Level4
+  m_Name: Multi4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1964,7 +1989,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 961942996}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Multi4
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &961942996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2626,8 +2663,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 383142416}
-        m_TargetAssemblyTypeName: PanelDisaper, Assembly-CSharp
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
         m_MethodName: Options
         m_Mode: 1
         m_Arguments:
@@ -2758,7 +2795,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1156414500}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Level2
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1156414500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2879,7 +2928,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1172582095}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Level3
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1172582095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3000,7 +3061,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1184490761}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Level4
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1184490761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3361,8 +3434,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 383142416}
-        m_TargetAssemblyTypeName: PanelDisaper, Assembly-CSharp
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
         m_MethodName: Options
         m_Mode: 1
         m_Arguments:
@@ -5007,8 +5080,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 383142416}
-        m_TargetAssemblyTypeName: PanelDisaper, Assembly-CSharp
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
@@ -5344,7 +5417,7 @@ GameObject:
   - component: {fileID: 2053144176}
   - component: {fileID: 2053144175}
   m_Layer: 5
-  m_Name: Level2
+  m_Name: Multi2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5413,7 +5486,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2053144176}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Multi2
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2053144176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5465,7 +5550,7 @@ GameObject:
   - component: {fileID: 2076835018}
   - component: {fileID: 2076835017}
   m_Layer: 5
-  m_Name: Level3
+  m_Name: Multi3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5534,7 +5619,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2076835018}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 383142417}
+        m_TargetAssemblyTypeName: MenuLevel, Assembly-CSharp
+        m_MethodName: Multi3
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2076835018
 MonoBehaviour:
   m_ObjectHideFlags: 0
