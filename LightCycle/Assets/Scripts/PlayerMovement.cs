@@ -98,6 +98,7 @@ public class PlayerMovement : MonoBehaviour
     public float maxSpeedForNeedle = 30f;
     public float minNeedleAngle = 0f;
     public float maxNeedleAngle = -270f;
+    public GameObject speedometerCanvas;
 
     [Header("Respawn")]
     public List<Transform> spawnPoints;
@@ -602,7 +603,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isDead) return;
 
-        // Ignore self-collision
         if (other.gameObject == gameObject) return;
 
         bool isHazardCollision = other.gameObject.CompareTag(hazardTag) && currentMoveSpeed > 15f;
@@ -634,6 +634,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (ShouldLoadMenuScene())
         {
+            speedometerCanvas.SetActive(false);
             endOfGame.GameOver();
             endOfGame.nextLevelButton.gameObject.SetActive(false);
             return;

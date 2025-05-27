@@ -10087,9 +10087,7 @@ MonoBehaviour:
   steerSpeedReductionFactor: 0.5
   gravity: -19.62
   jumpHeight: 2
-  canJump: 1
   jumpCooldown: 3
-  boostMultiplier: 1.42
   boostDuration: 0.01
   boostCooldown: 5
   slopeForceMultiplier: 5
@@ -10132,6 +10130,7 @@ MonoBehaviour:
   maxSpeedForNeedle: 55
   minNeedleAngle: 0
   maxNeedleAngle: -265
+  speedometerCanvas: {fileID: 4967971991504073383}
   spawnPoints: []
   respawnDelay: 2
   sceneNamePrefixesToDeactivate:
