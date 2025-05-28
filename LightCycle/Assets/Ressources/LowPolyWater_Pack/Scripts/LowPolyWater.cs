@@ -23,9 +23,7 @@ namespace LowPolyWater
 
         void Start()
         {
-            meshFilter = GetComponent<MeshFilter>();
-            if (meshFilter != null) CreateMeshLowPoly(meshFilter);
-            else Debug.LogError("LowPolyWater: No MeshFilter");
+            CreateMeshLowPoly(meshFilter);
         }
 
         /// <summary>
@@ -37,32 +35,29 @@ namespace LowPolyWater
         {
             mesh = mf.sharedMesh;
 
-            if (mesh != null)
-            {
-                //Get the original vertices of the gameobject's mesh
-                Vector3[] originalVertices = mesh.vertices;
+            //Get the original vertices of the gameobject's mesh
+            Vector3[] originalVertices = mesh.vertices;
 
-                //Get the list of triangle indices of the gameobject's mesh
-                int[] triangles = mesh.triangles;
+            //Get the list of triangle indices of the gameobject's mesh
+            int[] triangles = mesh.triangles;
 
-                //Create a vector array for new vertices 
-                Vector3[] meshVertices = new Vector3[triangles.Length];
+            //Create a vector array for new vertices 
+            Vector3[] vertices = new Vector3[triangles.Length];
             
-                //Assign vertices to create triangles out of the mesh
-                for (int i = 0; i < triangles.Length; i++)
-                {
-                    meshVertices[i] = originalVertices[triangles[i]];
-                    triangles[i] = i;
-                }
-
-                //Update the gameobject's mesh with new vertices
-                mesh.vertices = meshVertices;
-                mesh.SetTriangles(triangles, 0);
-                mesh.RecalculateBounds();
-                mesh.RecalculateNormals();
-                this.vertices = mesh.vertices;
-
+            //Assign vertices to create triangles out of the mesh
+            for (int i = 0; i < triangles.Length; i++)
+            {
+                vertices[i] = originalVertices[triangles[i]];
+                triangles[i] = i;
             }
+
+            //Update the gameobject's mesh with new vertices
+            mesh.vertices = vertices;
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            this.vertices = mesh.vertices;
+
             return mf;
         }
         
@@ -71,51 +66,36 @@ namespace LowPolyWater
             GenerateWaves();
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// Based on the specified wave height and frequency, generate 
         /// wave motion originating from waveOriginPosition
         /// </summary>
         void GenerateWaves()
         {
-            if (vertices != null)
+            for (int i = 0; i < vertices.Length; i++)
             {
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    Vector3 v = vertices[i];
+                Vector3 v = vertices[i];
 
-                    //Initially set the wave height to 0
-                    v.y = 0.0f;
+                //Initially set the wave height to 0
+                v.y = 0.0f;
 
-                    //Get the distance between wave origin position and the current vertex
-                    float distance = Vector3.Distance(v, waveOriginPosition);
-                    distance = (distance % waveLength) / waveLength;
+                //Get the distance between wave origin position and the current vertex
+                float distance = Vector3.Distance(v, waveOriginPosition);
+                distance = (distance % waveLength) / waveLength;
 
-                    //Oscilate the wave height via sine to create a wave effect
-                    v.y = waveHeight * Mathf.Sin(Time.time * Mathf.PI * 2.0f * waveFrequency
-                                                 + (Mathf.PI * 2.0f * distance));
+                //Oscilate the wave height via sine to create a wave effect
+                v.y = waveHeight * Mathf.Sin(Time.time * Mathf.PI * 2.0f * waveFrequency
+                + (Mathf.PI * 2.0f * distance));
                 
-                    //Update the vertex
-                    vertices[i] = v;
-                }
-            }
-            else
-            {
-                Debug.LogError("LowPolyWater: No Vertices",this);
+                //Update the vertex
+                vertices[i] = v;
             }
 
-            if (mesh != null)
-            {
-                //Update the mesh properties
-                mesh.vertices = vertices;
-                mesh.RecalculateNormals();
-                mesh.MarkDynamic();
-                meshFilter.mesh = mesh;
-            }
-            else
-            {
-                Debug.LogError("LowPolyWater: No MeshFilter",this);
-            }
+            //Update the mesh properties
+            mesh.vertices = vertices;
+            mesh.RecalculateNormals();
+            mesh.MarkDynamic();
+            meshFilter.mesh = mesh;
         }
     }
 }
